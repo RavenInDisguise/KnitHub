@@ -1,0 +1,2 @@
+com/example/knithub/BuildConfig.java
+ com.example.knithub.BuildConfig
