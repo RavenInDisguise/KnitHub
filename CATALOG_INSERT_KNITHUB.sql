@@ -46,7 +46,7 @@ INSERT INTO `KnitHub`.`PaymentStatus`
 (`PaymentStatusId`,
 `Name`)
 VALUES
-(1,
+(3,
 'Aceptado');
 
 INSERT INTO `KnitHub`.`PaymentStatus`
@@ -79,7 +79,7 @@ INSERT INTO `KnitHub`.`Merchants`
 `IconUrl`)
 VALUES
 (1,
-Paypal,
+'Paypal',
 'https://www.paypal.com/cr/home',
 1,
 'https://www.paypalobjects.com/webstatic/mktg/logo/pp_cc_mark_37x23.jpg');
