@@ -41,8 +41,6 @@ VALUES
 (2,
 'Plan');
 
-
-
 -- PAYMENTSTATUS:
 INSERT INTO `KnitHub`.`PaymentStatus`
 (`PaymentStatusId`,
@@ -71,8 +69,6 @@ INSERT INTO `KnitHub`.`PaymentStatus`
 VALUES
 (4,
 'Error de comunicacion');
-
-
 
 -- MERCHANTS:
 INSERT INTO `KnitHub`.`Merchants`
@@ -115,13 +111,13 @@ VALUES
 'https://d1yjjnpx0p53s8.cloudfront.net/styles/logo-thumbnail/s3/122010/logo_bcr_0.png?itok=PoA3d9gr');
 
 -- SOCIAL NETWORKS:
-INSERT INTO `knithub`.`socialnetworks` (`SocialNetworksId`, `Name`, `URL`, `IconURL`)
+INSERT INTO `KnitHub`.`SocialNetworks` (`SocialNetworksId`, `Name`, `URL`, `IconURL`)
 VALUES 	
 (1, 'Facebook', 'https://www.facebook.com/', 'https://facebookbrand.com/wp-content/uploads/2019/04/f_logo_RGB-Hex-Blue_512.png?w=512&h=512'), 
 (2, 'Gmail', 'https://mail.google.com/', 'https://ssl.gstatic.com/ui/v1/icons/mail/rfr/logo_gmail_lockup_default_1x_r2.png');
 
 -- COUNTRIES:
-INSERT INTO `knithub`.`countries` (`CountryId`, `Name`)
+INSERT INTO `KnitHub`.`Countries` (`CountryId`, `Name`)
 VALUES 
 (1, 'Costa Rica'),
 (2, 'Guatemala'),
@@ -131,7 +127,7 @@ VALUES
 (6, 'Panamá');
 
 -- CITIES:
-INSERT INTO `knithub`.`cities` (`Name`, `CountryId`)
+INSERT INTO `KnitHub`.`Cities` (`Name`, `CountryId`)
 VALUES 
 ('San José', 1),
 ('Alajuela', 1),
@@ -153,7 +149,7 @@ VALUES
 ('David', 6);
 
 -- MEDIA TYPES:
-INSERT INTO `knithub`.`mediatypes` (`MediaTypeId`, `Name`)
+INSERT INTO `KnitHub`.`MediaTypes` (`MediaTypeId`, `Name`)
 VALUES
 (1, 'Imagen'),
 (2, 'Video'),
