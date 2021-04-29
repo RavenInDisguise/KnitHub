@@ -41,12 +41,14 @@ VALUES
 (2,
 'Plan');
 
+
+
 -- PAYMENTSTATUS:
 INSERT INTO `KnitHub`.`PaymentStatus`
 (`PaymentStatusId`,
 `Name`)
 VALUES
-(3,
+(1,
 'Aceptado');
 
 INSERT INTO `KnitHub`.`PaymentStatus`
@@ -69,6 +71,8 @@ INSERT INTO `KnitHub`.`PaymentStatus`
 VALUES
 (4,
 'Error de comunicacion');
+
+
 
 -- MERCHANTS:
 INSERT INTO `KnitHub`.`Merchants`
@@ -109,9 +113,4 @@ VALUES
 'https://www.bancobcr.com/wps/portal/bcr',
 1,
 'https://d1yjjnpx0p53s8.cloudfront.net/styles/logo-thumbnail/s3/122010/logo_bcr_0.png?itok=PoA3d9gr');
-
-
-
-
-
 
