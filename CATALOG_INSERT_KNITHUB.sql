@@ -114,3 +114,47 @@ VALUES
 1,
 'https://d1yjjnpx0p53s8.cloudfront.net/styles/logo-thumbnail/s3/122010/logo_bcr_0.png?itok=PoA3d9gr');
 
+-- SOCIAL NETWORKS:
+INSERT INTO `knithub`.`socialnetworks` (`SocialNetworksId`, `Name`, `URL`, `IconURL`)
+VALUES 	
+(1, 'Facebook', 'https://www.facebook.com/', 'https://facebookbrand.com/wp-content/uploads/2019/04/f_logo_RGB-Hex-Blue_512.png?w=512&h=512'), 
+(2, 'Gmail', 'https://mail.google.com/', 'https://ssl.gstatic.com/ui/v1/icons/mail/rfr/logo_gmail_lockup_default_1x_r2.png');
+
+-- COUNTRIES:
+INSERT INTO `knithub`.`countries` (`CountryId`, `Name`)
+VALUES 
+(1, 'Costa Rica'),
+(2, 'Guatemala'),
+(3, 'Honduras'),
+(4, 'El Salvador'),
+(5, 'Nicaragua'),
+(6, 'Panamá');
+
+-- CITIES:
+INSERT INTO `knithub`.`cities` (`Name`, `CountryId`)
+VALUES 
+('San José', 1),
+('Alajuela', 1),
+('Cartago', 1),
+('Ciudad de Guatemala', 2),
+('Quetzaltenango', 2),
+('San Juan Sacatepéquez', 2),
+('Tegucigalpa', 3),
+('San Pedro Sula', 3),
+('La Ceiba', 3),
+('San Salvador', 4),
+('Cojutepeque', 4),
+('Ahuachapán', 4),
+('Managua', 5),
+('Granada', 5),
+('León', 5),
+('Ciudad de Panamá', 6),
+('Colón', 6),
+('David', 6);
+
+-- MEDIA TYPES:
+INSERT INTO `knithub`.`mediatypes` (`MediaTypeId`, `Name`)
+VALUES
+(1, 'Imagen'),
+(2, 'Video'),
+(3, 'PDF');
