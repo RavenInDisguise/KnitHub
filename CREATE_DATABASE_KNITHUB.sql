@@ -69,7 +69,7 @@ ENGINE = InnoDB;
 -- Table `KnitHub`.`SocialNetworks`
 -- -----------------------------------------------------
 CREATE TABLE IF NOT EXISTS `KnitHub`.`SocialNetworks` (
-  `SocialNetworksId` INT NOT NULL,
+  `SocialNetworksId` INT NOT NULL AUTO_INCREMENT,
   `Name` VARCHAR(45) NOT NULL,
   `URL` VARCHAR(128) NOT NULL,
   `IconURL` VARCHAR(128) NOT NULL,
@@ -217,7 +217,7 @@ ENGINE = InnoDB;
 -- Table `KnitHub`.`PaymentsAttempts`
 -- -----------------------------------------------------
 CREATE TABLE IF NOT EXISTS `KnitHub`.`PaymentsAttempts` (
-  `PaymentAttemptsId` BIGINT NOT NULL,
+  `PaymentAttemptsId` BIGINT NOT NULL AUTO_INCREMENT,
   `PostTime` DATETIME NOT NULL,
   `Amount` DECIMAL(12,2) NOT NULL,
   `CurrencySymbol` VARCHAR(6) NOT NULL,
@@ -270,7 +270,7 @@ ENGINE = InnoDB;
 -- Table `KnitHub`.`SubTypes`
 -- -----------------------------------------------------
 CREATE TABLE IF NOT EXISTS `KnitHub`.`SubTypes` (
-  `SubTypeId` INT NOT NULL,
+  `SubTypeId` INT NOT NULL AUTO_INCREMENT,
   `Name` VARCHAR(30) NOT NULL,
   PRIMARY KEY (`SubTypeId`))
 ENGINE = InnoDB;
@@ -280,7 +280,7 @@ ENGINE = InnoDB;
 -- Table `KnitHub`.`EntityTypes`
 -- -----------------------------------------------------
 CREATE TABLE IF NOT EXISTS `KnitHub`.`EntityTypes` (
-  `EntityTypeId` BIGINT NOT NULL,
+  `EntityTypeId` BIGINT NOT NULL AUTO_INCREMENT,
   `Name` VARCHAR(45) NOT NULL,
   PRIMARY KEY (`EntityTypeId`))
 ENGINE = InnoDB;
@@ -290,7 +290,7 @@ ENGINE = InnoDB;
 -- Table `KnitHub`.`Transactions`
 -- -----------------------------------------------------
 CREATE TABLE IF NOT EXISTS `KnitHub`.`Transactions` (
-  `TransactionId` BIGINT NOT NULL,
+  `TransactionId` BIGINT NOT NULL AUTO_INCREMENT,
   `Checksum` VARBINARY(300) NOT NULL,
   `PostTime` DATETIME NOT NULL,
   `ReferenceNumber` BIGINT NOT NULL,
@@ -453,7 +453,7 @@ ENGINE = InnoDB;
 -- Table `KnitHub`.`Severities`
 -- -----------------------------------------------------
 CREATE TABLE IF NOT EXISTS `KnitHub`.`Severities` (
-  `SeverityId` BIGINT NOT NULL,
+  `SeverityId` BIGINT NOT NULL AUTO_INCREMENT,
   `Name` VARCHAR(45) NOT NULL,
   PRIMARY KEY (`SeverityId`))
 ENGINE = InnoDB;
@@ -537,7 +537,7 @@ ENGINE = InnoDB;
 -- Table `KnitHub`.`Limits`
 -- -----------------------------------------------------
 CREATE TABLE IF NOT EXISTS `KnitHub`.`Limits` (
-  `LimitId` INT NOT NULL,
+  `LimitId` INT NOT NULL AUTO_INCREMENT,
   `Name` VARCHAR(30) NOT NULL,
   PRIMARY KEY (`LimitId`))
 ENGINE = InnoDB;
@@ -745,7 +745,7 @@ ENGINE = InnoDB;
 -- Table `KnitHub`.`MeasureUnits`
 -- -----------------------------------------------------
 CREATE TABLE IF NOT EXISTS `KnitHub`.`MeasureUnits` (
-  `MeasureUnitId` INT NOT NULL,
+  `MeasureUnitId` INT NOT NULL AUTO_INCREMENT,
   `Name` VARCHAR(15) NOT NULL,
   `Abbreviation` VARCHAR(5) NOT NULL,
   PRIMARY KEY (`MeasureUnitId`))
@@ -786,7 +786,7 @@ ENGINE = InnoDB;
 -- Table `KnitHub`.`Fees`
 -- -----------------------------------------------------
 CREATE TABLE IF NOT EXISTS `KnitHub`.`Fees` (
-  `FeeId` INT NOT NULL,
+  `FeeId` INT NOT NULL AUTO_INCREMENT,
   `FeeName` VARCHAR(45) NOT NULL,
   PRIMARY KEY (`FeeId`))
 ENGINE = InnoDB;
@@ -817,7 +817,7 @@ ENGINE = InnoDB;
 -- Table `KnitHub`.`FeesValues`
 -- -----------------------------------------------------
 CREATE TABLE IF NOT EXISTS `KnitHub`.`FeesValues` (
-  `FeeValueId` INT NOT NULL,
+  `FeeValueId` INT NOT NULL AUTO_INCREMENT,
   `StartDate` DATETIME NOT NULL,
   `EndDate` DATETIME NULL,
   `Active` BIT NOT NULL,
@@ -858,7 +858,7 @@ ENGINE = InnoDB;
 -- Table `KnitHub`.`PriceValues`
 -- -----------------------------------------------------
 CREATE TABLE IF NOT EXISTS `KnitHub`.`PriceValues` (
-  `PriceValueId` INT NOT NULL,
+  `PriceValueId` INT NOT NULL AUTO_INCREMENT,
   `StartDate` DATETIME NOT NULL,
   `EndDate` DATETIME NULL,
   `Active` BIT NOT NULL,
