@@ -5,19 +5,19 @@ SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0;
 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='ONLY_FULL_GROUP_BY,STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION';
 
 -- -----------------------------------------------------
--- Schema mydb
+-- Schema KnitHub
 -- -----------------------------------------------------
 
 -- -----------------------------------------------------
--- Schema mydb
+-- Schema KnitHub
 -- -----------------------------------------------------
-CREATE SCHEMA IF NOT EXISTS `mydb` DEFAULT CHARACTER SET utf8 ;
-USE `mydb` ;
+CREATE SCHEMA IF NOT EXISTS `KnitHub` DEFAULT CHARACTER SET utf8 ;
+USE `KnitHub` ;
 
 -- -----------------------------------------------------
--- Table `mydb`.`Countries`
+-- Table `KnitHub`.`Countries`
 -- -----------------------------------------------------
-CREATE TABLE IF NOT EXISTS `mydb`.`Countries` (
+CREATE TABLE IF NOT EXISTS `KnitHub`.`Countries` (
   `CountryId` INT NOT NULL AUTO_INCREMENT,
   `Name` VARCHAR(45) NOT NULL,
   PRIMARY KEY (`CountryId`))
@@ -25,9 +25,9 @@ ENGINE = InnoDB;
 
 
 -- -----------------------------------------------------
--- Table `mydb`.`Cities`
+-- Table `KnitHub`.`Cities`
 -- -----------------------------------------------------
-CREATE TABLE IF NOT EXISTS `mydb`.`Cities` (
+CREATE TABLE IF NOT EXISTS `KnitHub`.`Cities` (
   `CityId` INT NOT NULL AUTO_INCREMENT,
   `Name` VARCHAR(45) NOT NULL,
   `CountryId` INT NOT NULL,
@@ -35,16 +35,16 @@ CREATE TABLE IF NOT EXISTS `mydb`.`Cities` (
   INDEX `fk_Cities_Countries1_idx` (`CountryId` ASC) VISIBLE,
   CONSTRAINT `fk_Cities_Countries1`
     FOREIGN KEY (`CountryId`)
-    REFERENCES `mydb`.`Countries` (`CountryId`)
+    REFERENCES `KnitHub`.`Countries` (`CountryId`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION)
 ENGINE = InnoDB;
 
 
 -- -----------------------------------------------------
--- Table `mydb`.`Users`
+-- Table `KnitHub`.`Users`
 -- -----------------------------------------------------
-CREATE TABLE IF NOT EXISTS `mydb`.`Users` (
+CREATE TABLE IF NOT EXISTS `KnitHub`.`Users` (
   `UserId` BIGINT NOT NULL AUTO_INCREMENT,
   `MacAdress` BINARY NOT NULL,
   `Nickname` NVARCHAR(30) NULL,
@@ -59,16 +59,16 @@ CREATE TABLE IF NOT EXISTS `mydb`.`Users` (
   INDEX `fk_Users_Cities1_idx` (`CityId` ASC) VISIBLE,
   CONSTRAINT `fk_Users_Cities1`
     FOREIGN KEY (`CityId`)
-    REFERENCES `mydb`.`Cities` (`CityId`)
+    REFERENCES `KnitHub`.`Cities` (`CityId`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION)
 ENGINE = InnoDB;
 
 
 -- -----------------------------------------------------
--- Table `mydb`.`SocialNetworks`
+-- Table `KnitHub`.`SocialNetworks`
 -- -----------------------------------------------------
-CREATE TABLE IF NOT EXISTS `mydb`.`SocialNetworks` (
+CREATE TABLE IF NOT EXISTS `KnitHub`.`SocialNetworks` (
   `SocialNetworksId` INT NOT NULL,
   `Name` VARCHAR(45) NOT NULL,
   `URL` VARCHAR(128) NOT NULL,
@@ -78,9 +78,9 @@ ENGINE = InnoDB;
 
 
 -- -----------------------------------------------------
--- Table `mydb`.`SocialNetworkAuthentications`
+-- Table `KnitHub`.`SocialNetworkAuthentications`
 -- -----------------------------------------------------
-CREATE TABLE IF NOT EXISTS `mydb`.`SocialNetworkAuthentications` (
+CREATE TABLE IF NOT EXISTS `KnitHub`.`SocialNetworkAuthentications` (
   `SocialNetworkAuthenticationId` INT NOT NULL AUTO_INCREMENT,
   `Token` VARCHAR(45) NOT NULL,
   `TokenValid` BIT NOT NULL,
@@ -92,21 +92,21 @@ CREATE TABLE IF NOT EXISTS `mydb`.`SocialNetworkAuthentications` (
   INDEX `fk_SocialNetworkAuthentication_SocialNetworks1_idx` (`SocialNetworksId` ASC) VISIBLE,
   CONSTRAINT `fk_SocialNetworksAuthentication_Users1`
     FOREIGN KEY (`UserId`)
-    REFERENCES `mydb`.`Users` (`UserId`)
+    REFERENCES `KnitHub`.`Users` (`UserId`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION,
   CONSTRAINT `fk_SocialNetworkAuthentication_SocialNetworks1`
     FOREIGN KEY (`SocialNetworksId`)
-    REFERENCES `mydb`.`SocialNetworks` (`SocialNetworksId`)
+    REFERENCES `KnitHub`.`SocialNetworks` (`SocialNetworksId`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION)
 ENGINE = InnoDB;
 
 
 -- -----------------------------------------------------
--- Table `mydb`.`Patterns`
+-- Table `KnitHub`.`Patterns`
 -- -----------------------------------------------------
-CREATE TABLE IF NOT EXISTS `mydb`.`Patterns` (
+CREATE TABLE IF NOT EXISTS `KnitHub`.`Patterns` (
   `PatternId` BIGINT NOT NULL AUTO_INCREMENT,
   `Title` NVARCHAR(45) NOT NULL,
   `Description` NVARCHAR(100) NULL,
@@ -115,16 +115,16 @@ CREATE TABLE IF NOT EXISTS `mydb`.`Patterns` (
   INDEX `fk_Patterns_Users_idx` (`UserId` ASC) VISIBLE,
   CONSTRAINT `fk_Patterns_Users`
     FOREIGN KEY (`UserId`)
-    REFERENCES `mydb`.`Users` (`UserId`)
+    REFERENCES `KnitHub`.`Users` (`UserId`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION)
 ENGINE = InnoDB;
 
 
 -- -----------------------------------------------------
--- Table `mydb`.`Materials`
+-- Table `KnitHub`.`Materials`
 -- -----------------------------------------------------
-CREATE TABLE IF NOT EXISTS `mydb`.`Materials` (
+CREATE TABLE IF NOT EXISTS `KnitHub`.`Materials` (
   `MaterialId` INT NOT NULL AUTO_INCREMENT,
   `Name` VARCHAR(45) NOT NULL,
   `Description` VARCHAR(45) NULL,
@@ -133,9 +133,9 @@ ENGINE = InnoDB;
 
 
 -- -----------------------------------------------------
--- Table `mydb`.`PatternCategories`
+-- Table `KnitHub`.`PatternCategories`
 -- -----------------------------------------------------
-CREATE TABLE IF NOT EXISTS `mydb`.`PatternCategories` (
+CREATE TABLE IF NOT EXISTS `KnitHub`.`PatternCategories` (
   `PatternCategoryId` INT NOT NULL AUTO_INCREMENT,
   `Name` NVARCHAR(45) NOT NULL,
   PRIMARY KEY (`PatternCategoryId`))
@@ -143,30 +143,30 @@ ENGINE = InnoDB;
 
 
 -- -----------------------------------------------------
--- Table `mydb`.`CategoriesPerPattern`
+-- Table `KnitHub`.`CategoriesPerPattern`
 -- -----------------------------------------------------
-CREATE TABLE IF NOT EXISTS `mydb`.`CategoriesPerPattern` (
+CREATE TABLE IF NOT EXISTS `KnitHub`.`CategoriesPerPattern` (
   `PatternCategoryId` INT NOT NULL,
   `PatternId` BIGINT NOT NULL,
   INDEX `CategoriesXPattern1_idx` (`PatternCategoryId` ASC) VISIBLE,
   INDEX `CategoriesXPattern2_idx` (`PatternId` ASC) VISIBLE,
   CONSTRAINT `CategoriesXPattern1`
     FOREIGN KEY (`PatternCategoryId`)
-    REFERENCES `mydb`.`PatternCategories` (`PatternCategoryId`)
+    REFERENCES `KnitHub`.`PatternCategories` (`PatternCategoryId`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION,
   CONSTRAINT `CategoriesXPattern2`
     FOREIGN KEY (`PatternId`)
-    REFERENCES `mydb`.`Patterns` (`PatternId`)
+    REFERENCES `KnitHub`.`Patterns` (`PatternId`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION)
 ENGINE = InnoDB;
 
 
 -- -----------------------------------------------------
--- Table `mydb`.`Projects`
+-- Table `KnitHub`.`Projects`
 -- -----------------------------------------------------
-CREATE TABLE IF NOT EXISTS `mydb`.`Projects` (
+CREATE TABLE IF NOT EXISTS `KnitHub`.`Projects` (
   `ProjectId` BIGINT NOT NULL AUTO_INCREMENT,
   `Name` NVARCHAR(45) NOT NULL,
   `Time` TIME NULL,
@@ -179,21 +179,21 @@ CREATE TABLE IF NOT EXISTS `mydb`.`Projects` (
   INDEX `fk_Projects_Users1_idx` (`UserId` ASC) VISIBLE,
   CONSTRAINT `fk_Projects_Patterns1`
     FOREIGN KEY (`PatternId`)
-    REFERENCES `mydb`.`Patterns` (`PatternId`)
+    REFERENCES `KnitHub`.`Patterns` (`PatternId`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION,
   CONSTRAINT `fk_Projects_Users1`
     FOREIGN KEY (`UserId`)
-    REFERENCES `mydb`.`Users` (`UserId`)
+    REFERENCES `KnitHub`.`Users` (`UserId`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION)
 ENGINE = InnoDB;
 
 
 -- -----------------------------------------------------
--- Table `mydb`.`Merchants`
+-- Table `KnitHub`.`Merchants`
 -- -----------------------------------------------------
-CREATE TABLE IF NOT EXISTS `mydb`.`Merchants` (
+CREATE TABLE IF NOT EXISTS `KnitHub`.`Merchants` (
   `MerchantId` BIGINT NOT NULL AUTO_INCREMENT,
   `Name` NVARCHAR(50) NOT NULL,
   `Url` VARCHAR(128) NOT NULL,
@@ -204,9 +204,9 @@ ENGINE = InnoDB;
 
 
 -- -----------------------------------------------------
--- Table `mydb`.`PaymentStatus`
+-- Table `KnitHub`.`PaymentStatus`
 -- -----------------------------------------------------
-CREATE TABLE IF NOT EXISTS `mydb`.`PaymentStatus` (
+CREATE TABLE IF NOT EXISTS `KnitHub`.`PaymentStatus` (
   `PaymentStatusId` BIGINT NOT NULL AUTO_INCREMENT,
   `Name` NVARCHAR(50) NOT NULL,
   PRIMARY KEY (`PaymentStatusId`))
@@ -214,9 +214,9 @@ ENGINE = InnoDB;
 
 
 -- -----------------------------------------------------
--- Table `mydb`.`PaymentsAttempts`
+-- Table `KnitHub`.`PaymentsAttempts`
 -- -----------------------------------------------------
-CREATE TABLE IF NOT EXISTS `mydb`.`PaymentsAttempts` (
+CREATE TABLE IF NOT EXISTS `KnitHub`.`PaymentsAttempts` (
   `PaymentAttemptsId` BIGINT NOT NULL,
   `PostTime` DATETIME NOT NULL,
   `Amount` DECIMAL(12,2) NOT NULL,
@@ -240,26 +240,26 @@ CREATE TABLE IF NOT EXISTS `mydb`.`PaymentsAttempts` (
   INDEX `fk_PaymentsAttempts_PaymentStatus1_idx` (`PaymentStatusId` ASC) VISIBLE,
   CONSTRAINT `fk_PaymentsAttempts_Users1`
     FOREIGN KEY (`UserId`)
-    REFERENCES `mydb`.`Users` (`UserId`)
+    REFERENCES `KnitHub`.`Users` (`UserId`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION,
   CONSTRAINT `fk_PaymentsAttempts_Merchants1`
     FOREIGN KEY (`MerchantId`)
-    REFERENCES `mydb`.`Merchants` (`MerchantId`)
+    REFERENCES `KnitHub`.`Merchants` (`MerchantId`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION,
   CONSTRAINT `fk_PaymentsAttempts_PaymentStatus1`
     FOREIGN KEY (`PaymentStatusId`)
-    REFERENCES `mydb`.`PaymentStatus` (`PaymentStatusId`)
+    REFERENCES `KnitHub`.`PaymentStatus` (`PaymentStatusId`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION)
 ENGINE = InnoDB;
 
 
 -- -----------------------------------------------------
--- Table `mydb`.`TransTypes`
+-- Table `KnitHub`.`TransTypes`
 -- -----------------------------------------------------
-CREATE TABLE IF NOT EXISTS `mydb`.`TransTypes` (
+CREATE TABLE IF NOT EXISTS `KnitHub`.`TransTypes` (
   `TransTypeId` INT NOT NULL AUTO_INCREMENT,
   `Name` VARCHAR(30) NOT NULL,
   PRIMARY KEY (`TransTypeId`))
@@ -267,9 +267,9 @@ ENGINE = InnoDB;
 
 
 -- -----------------------------------------------------
--- Table `mydb`.`SubTypes`
+-- Table `KnitHub`.`SubTypes`
 -- -----------------------------------------------------
-CREATE TABLE IF NOT EXISTS `mydb`.`SubTypes` (
+CREATE TABLE IF NOT EXISTS `KnitHub`.`SubTypes` (
   `SubTypeId` INT NOT NULL,
   `Name` VARCHAR(30) NOT NULL,
   PRIMARY KEY (`SubTypeId`))
@@ -277,9 +277,9 @@ ENGINE = InnoDB;
 
 
 -- -----------------------------------------------------
--- Table `mydb`.`EntityTypes`
+-- Table `KnitHub`.`EntityTypes`
 -- -----------------------------------------------------
-CREATE TABLE IF NOT EXISTS `mydb`.`EntityTypes` (
+CREATE TABLE IF NOT EXISTS `KnitHub`.`EntityTypes` (
   `EntityTypeId` BIGINT NOT NULL,
   `Name` VARCHAR(45) NOT NULL,
   PRIMARY KEY (`EntityTypeId`))
@@ -287,9 +287,9 @@ ENGINE = InnoDB;
 
 
 -- -----------------------------------------------------
--- Table `mydb`.`Transactions`
+-- Table `KnitHub`.`Transactions`
 -- -----------------------------------------------------
-CREATE TABLE IF NOT EXISTS `mydb`.`Transactions` (
+CREATE TABLE IF NOT EXISTS `KnitHub`.`Transactions` (
   `TransactionId` BIGINT NOT NULL,
   `Checksum` VARBINARY(300) NOT NULL,
   `PostTime` DATETIME NOT NULL,
@@ -307,31 +307,31 @@ CREATE TABLE IF NOT EXISTS `mydb`.`Transactions` (
   INDEX `fk_Transactions_EntityTypes1_idx` (`EntityTypeId` ASC) VISIBLE,
   CONSTRAINT `fk_Transactions_PaymentsAttempts1`
     FOREIGN KEY (`PaymentAttemptsId`)
-    REFERENCES `mydb`.`PaymentsAttempts` (`PaymentAttemptsId`)
+    REFERENCES `KnitHub`.`PaymentsAttempts` (`PaymentAttemptsId`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION,
   CONSTRAINT `fk_Transactions_TransTypes1`
     FOREIGN KEY (`TransTypeId`)
-    REFERENCES `mydb`.`TransTypes` (`TransTypeId`)
+    REFERENCES `KnitHub`.`TransTypes` (`TransTypeId`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION,
   CONSTRAINT `fk_Transactions_SubTypes1`
     FOREIGN KEY (`SubTypeId`)
-    REFERENCES `mydb`.`SubTypes` (`SubTypeId`)
+    REFERENCES `KnitHub`.`SubTypes` (`SubTypeId`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION,
   CONSTRAINT `fk_Transactions_EntityTypes1`
     FOREIGN KEY (`EntityTypeId`)
-    REFERENCES `mydb`.`EntityTypes` (`EntityTypeId`)
+    REFERENCES `KnitHub`.`EntityTypes` (`EntityTypeId`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION)
 ENGINE = InnoDB;
 
 
 -- -----------------------------------------------------
--- Table `mydb`.`PurchasedPatternsPerUser`
+-- Table `KnitHub`.`PurchasedPatternsPerUser`
 -- -----------------------------------------------------
-CREATE TABLE IF NOT EXISTS `mydb`.`PurchasedPatternsPerUser` (
+CREATE TABLE IF NOT EXISTS `KnitHub`.`PurchasedPatternsPerUser` (
   `UserId` BIGINT NOT NULL,
   `PatternId` BIGINT NOT NULL,
   `TransactionId` BIGINT NOT NULL,
@@ -340,26 +340,26 @@ CREATE TABLE IF NOT EXISTS `mydb`.`PurchasedPatternsPerUser` (
   INDEX `fk_PurchasedPatternsPerUser_Transactions1_idx` (`TransactionId` ASC) VISIBLE,
   CONSTRAINT `fk_PatternsXUser_Users1`
     FOREIGN KEY (`UserId`)
-    REFERENCES `mydb`.`Users` (`UserId`)
+    REFERENCES `KnitHub`.`Users` (`UserId`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION,
   CONSTRAINT `fk_PatternsXUser_Patterns1`
     FOREIGN KEY (`PatternId`)
-    REFERENCES `mydb`.`Patterns` (`PatternId`)
+    REFERENCES `KnitHub`.`Patterns` (`PatternId`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION,
   CONSTRAINT `fk_PurchasedPatternsPerUser_Transactions1`
     FOREIGN KEY (`TransactionId`)
-    REFERENCES `mydb`.`Transactions` (`TransactionId`)
+    REFERENCES `KnitHub`.`Transactions` (`TransactionId`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION)
 ENGINE = InnoDB;
 
 
 -- -----------------------------------------------------
--- Table `mydb`.`RecurrencesTypes`
+-- Table `KnitHub`.`RecurrencesTypes`
 -- -----------------------------------------------------
-CREATE TABLE IF NOT EXISTS `mydb`.`RecurrencesTypes` (
+CREATE TABLE IF NOT EXISTS `KnitHub`.`RecurrencesTypes` (
   `RecurrenceTypeId` BIGINT NOT NULL AUTO_INCREMENT,
   `Name` VARCHAR(50) NOT NULL,
   `ValueToAdd` INT NOT NULL,
@@ -369,9 +369,9 @@ ENGINE = InnoDB;
 
 
 -- -----------------------------------------------------
--- Table `mydb`.`Plans`
+-- Table `KnitHub`.`Plans`
 -- -----------------------------------------------------
-CREATE TABLE IF NOT EXISTS `mydb`.`Plans` (
+CREATE TABLE IF NOT EXISTS `KnitHub`.`Plans` (
   `PlanId` BIGINT NOT NULL AUTO_INCREMENT,
   `Name` NVARCHAR(50) NOT NULL,
   `Amount` DECIMAL NOT NULL,
@@ -385,16 +385,16 @@ CREATE TABLE IF NOT EXISTS `mydb`.`Plans` (
   INDEX `fk_Plans_RecurrencesTypes1_idx` (`RecurrenceTypeId` ASC) VISIBLE,
   CONSTRAINT `fk_Plans_RecurrencesTypes1`
     FOREIGN KEY (`RecurrenceTypeId`)
-    REFERENCES `mydb`.`RecurrencesTypes` (`RecurrenceTypeId`)
+    REFERENCES `KnitHub`.`RecurrencesTypes` (`RecurrenceTypeId`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION)
 ENGINE = InnoDB;
 
 
 -- -----------------------------------------------------
--- Table `mydb`.`Benefits`
+-- Table `KnitHub`.`Benefits`
 -- -----------------------------------------------------
-CREATE TABLE IF NOT EXISTS `mydb`.`Benefits` (
+CREATE TABLE IF NOT EXISTS `KnitHub`.`Benefits` (
   `BenefitId` BIGINT NOT NULL AUTO_INCREMENT,
   `Name` NVARCHAR(50) NOT NULL,
   `Description` NVARCHAR(100) NOT NULL,
@@ -404,9 +404,9 @@ ENGINE = InnoDB;
 
 
 -- -----------------------------------------------------
--- Table `mydb`.`BenefitsPerPlan`
+-- Table `KnitHub`.`BenefitsPerPlan`
 -- -----------------------------------------------------
-CREATE TABLE IF NOT EXISTS `mydb`.`BenefitsPerPlan` (
+CREATE TABLE IF NOT EXISTS `KnitHub`.`BenefitsPerPlan` (
   `Deleted` BIT NOT NULL,
   `PlanId` BIGINT NOT NULL,
   `BenefitId` BIGINT NOT NULL,
@@ -414,21 +414,21 @@ CREATE TABLE IF NOT EXISTS `mydb`.`BenefitsPerPlan` (
   INDEX `fk_BenefitsPerPlan_Benefits1_idx` (`BenefitId` ASC) VISIBLE,
   CONSTRAINT `fk_BenefitsPerPlan_Plans1`
     FOREIGN KEY (`PlanId`)
-    REFERENCES `mydb`.`Plans` (`PlanId`)
+    REFERENCES `KnitHub`.`Plans` (`PlanId`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION,
   CONSTRAINT `fk_BenefitsPerPlan_Benefits1`
     FOREIGN KEY (`BenefitId`)
-    REFERENCES `mydb`.`Benefits` (`BenefitId`)
+    REFERENCES `KnitHub`.`Benefits` (`BenefitId`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION)
 ENGINE = InnoDB;
 
 
 -- -----------------------------------------------------
--- Table `mydb`.`PlansPerUser`
+-- Table `KnitHub`.`PlansPerUser`
 -- -----------------------------------------------------
-CREATE TABLE IF NOT EXISTS `mydb`.`PlansPerUser` (
+CREATE TABLE IF NOT EXISTS `KnitHub`.`PlansPerUser` (
   `PostTime` DATE NOT NULL,
   `NextTime` DATE NOT NULL,
   `UserId` BIGINT NOT NULL,
@@ -438,21 +438,21 @@ CREATE TABLE IF NOT EXISTS `mydb`.`PlansPerUser` (
   INDEX `fk_PlansPerUser_Plans1_idx` (`PlanId` ASC) VISIBLE,
   CONSTRAINT `fk_PlansPerUser_Users1`
     FOREIGN KEY (`UserId`)
-    REFERENCES `mydb`.`Users` (`UserId`)
+    REFERENCES `KnitHub`.`Users` (`UserId`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION,
   CONSTRAINT `fk_PlansPerUser_Plans1`
     FOREIGN KEY (`PlanId`)
-    REFERENCES `mydb`.`Plans` (`PlanId`)
+    REFERENCES `KnitHub`.`Plans` (`PlanId`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION)
 ENGINE = InnoDB;
 
 
 -- -----------------------------------------------------
--- Table `mydb`.`Severities`
+-- Table `KnitHub`.`Severities`
 -- -----------------------------------------------------
-CREATE TABLE IF NOT EXISTS `mydb`.`Severities` (
+CREATE TABLE IF NOT EXISTS `KnitHub`.`Severities` (
   `SeverityId` BIGINT NOT NULL,
   `Name` VARCHAR(45) NOT NULL,
   PRIMARY KEY (`SeverityId`))
@@ -460,9 +460,9 @@ ENGINE = InnoDB;
 
 
 -- -----------------------------------------------------
--- Table `mydb`.`AppSources`
+-- Table `KnitHub`.`AppSources`
 -- -----------------------------------------------------
-CREATE TABLE IF NOT EXISTS `mydb`.`AppSources` (
+CREATE TABLE IF NOT EXISTS `KnitHub`.`AppSources` (
   `AppSourceId` BIGINT NOT NULL AUTO_INCREMENT,
   `Name` VARCHAR(45) NOT NULL,
   PRIMARY KEY (`AppSourceId`))
@@ -470,9 +470,9 @@ ENGINE = InnoDB;
 
 
 -- -----------------------------------------------------
--- Table `mydb`.`LogTypes`
+-- Table `KnitHub`.`LogTypes`
 -- -----------------------------------------------------
-CREATE TABLE IF NOT EXISTS `mydb`.`LogTypes` (
+CREATE TABLE IF NOT EXISTS `KnitHub`.`LogTypes` (
   `LogTypeId` INT NOT NULL AUTO_INCREMENT,
   `Name` VARCHAR(45) NOT NULL,
   PRIMARY KEY (`LogTypeId`))
@@ -480,9 +480,9 @@ ENGINE = InnoDB;
 
 
 -- -----------------------------------------------------
--- Table `mydb`.`Logs`
+-- Table `KnitHub`.`Logs`
 -- -----------------------------------------------------
-CREATE TABLE IF NOT EXISTS `mydb`.`Logs` (
+CREATE TABLE IF NOT EXISTS `KnitHub`.`Logs` (
   `LogId` BIGINT NOT NULL AUTO_INCREMENT,
   `PostTime` DATETIME NOT NULL,
   `Description` NVARCHAR(300) NOT NULL,
@@ -507,36 +507,36 @@ CREATE TABLE IF NOT EXISTS `mydb`.`Logs` (
   INDEX `fk_Logs_Users1_idx` (`UserId` ASC) VISIBLE,
   CONSTRAINT `fk_Logs_Severities1`
     FOREIGN KEY (`SeverityId`)
-    REFERENCES `mydb`.`Severities` (`SeverityId`)
+    REFERENCES `KnitHub`.`Severities` (`SeverityId`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION,
   CONSTRAINT `fk_Logs_EntitiesTypes1`
     FOREIGN KEY (`EntityTypeId`)
-    REFERENCES `mydb`.`EntityTypes` (`EntityTypeId`)
+    REFERENCES `KnitHub`.`EntityTypes` (`EntityTypeId`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION,
   CONSTRAINT `fk_Logs_AppSources1`
     FOREIGN KEY (`AppSourceId`)
-    REFERENCES `mydb`.`AppSources` (`AppSourceId`)
+    REFERENCES `KnitHub`.`AppSources` (`AppSourceId`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION,
   CONSTRAINT `fk_Logs_LogTypes1`
     FOREIGN KEY (`LogTypeId`)
-    REFERENCES `mydb`.`LogTypes` (`LogTypeId`)
+    REFERENCES `KnitHub`.`LogTypes` (`LogTypeId`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION,
   CONSTRAINT `fk_Logs_Users1`
     FOREIGN KEY (`UserId`)
-    REFERENCES `mydb`.`Users` (`UserId`)
+    REFERENCES `KnitHub`.`Users` (`UserId`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION)
 ENGINE = InnoDB;
 
 
 -- -----------------------------------------------------
--- Table `mydb`.`Limits`
+-- Table `KnitHub`.`Limits`
 -- -----------------------------------------------------
-CREATE TABLE IF NOT EXISTS `mydb`.`Limits` (
+CREATE TABLE IF NOT EXISTS `KnitHub`.`Limits` (
   `LimitId` INT NOT NULL,
   `Name` VARCHAR(30) NOT NULL,
   PRIMARY KEY (`LimitId`))
@@ -544,9 +544,9 @@ ENGINE = InnoDB;
 
 
 -- -----------------------------------------------------
--- Table `mydb`.`LimitsPerBenefit`
+-- Table `KnitHub`.`LimitsPerBenefit`
 -- -----------------------------------------------------
-CREATE TABLE IF NOT EXISTS `mydb`.`LimitsPerBenefit` (
+CREATE TABLE IF NOT EXISTS `KnitHub`.`LimitsPerBenefit` (
   `Quantity` INT NOT NULL,
   `LimitId` INT NOT NULL,
   `BenefitId` BIGINT NOT NULL,
@@ -554,42 +554,42 @@ CREATE TABLE IF NOT EXISTS `mydb`.`LimitsPerBenefit` (
   INDEX `fk_LimitsPerBenefit_Benefits1_idx` (`BenefitId` ASC) VISIBLE,
   CONSTRAINT `fk_LimitsPerBenefit_Limits1`
     FOREIGN KEY (`LimitId`)
-    REFERENCES `mydb`.`Limits` (`LimitId`)
+    REFERENCES `KnitHub`.`Limits` (`LimitId`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION,
   CONSTRAINT `fk_LimitsPerBenefit_Benefits1`
     FOREIGN KEY (`BenefitId`)
-    REFERENCES `mydb`.`Benefits` (`BenefitId`)
+    REFERENCES `KnitHub`.`Benefits` (`BenefitId`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION)
 ENGINE = InnoDB;
 
 
 -- -----------------------------------------------------
--- Table `mydb`.`MaterialsPerPattern`
+-- Table `KnitHub`.`MaterialsPerPattern`
 -- -----------------------------------------------------
-CREATE TABLE IF NOT EXISTS `mydb`.`MaterialsPerPattern` (
+CREATE TABLE IF NOT EXISTS `KnitHub`.`MaterialsPerPattern` (
   `MaterialId` INT NOT NULL,
   `PatternId` BIGINT NOT NULL,
   INDEX `fk_MaterialsPerPattern_Materials1_idx` (`MaterialId` ASC) VISIBLE,
   INDEX `fk_MaterialsPerPattern_Patterns1_idx` (`PatternId` ASC) VISIBLE,
   CONSTRAINT `fk_MaterialsPerPattern_Materials1`
     FOREIGN KEY (`MaterialId`)
-    REFERENCES `mydb`.`Materials` (`MaterialId`)
+    REFERENCES `KnitHub`.`Materials` (`MaterialId`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION,
   CONSTRAINT `fk_MaterialsPerPattern_Patterns1`
     FOREIGN KEY (`PatternId`)
-    REFERENCES `mydb`.`Patterns` (`PatternId`)
+    REFERENCES `KnitHub`.`Patterns` (`PatternId`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION)
 ENGINE = InnoDB;
 
 
 -- -----------------------------------------------------
--- Table `mydb`.`MediaTypes`
+-- Table `KnitHub`.`MediaTypes`
 -- -----------------------------------------------------
-CREATE TABLE IF NOT EXISTS `mydb`.`MediaTypes` (
+CREATE TABLE IF NOT EXISTS `KnitHub`.`MediaTypes` (
   `MediaTypeId` INT NOT NULL AUTO_INCREMENT,
   `Name` VARCHAR(45) NOT NULL,
   PRIMARY KEY (`MediaTypeId`))
@@ -597,9 +597,9 @@ ENGINE = InnoDB;
 
 
 -- -----------------------------------------------------
--- Table `mydb`.`Steps`
+-- Table `KnitHub`.`Steps`
 -- -----------------------------------------------------
-CREATE TABLE IF NOT EXISTS `mydb`.`Steps` (
+CREATE TABLE IF NOT EXISTS `KnitHub`.`Steps` (
   `StepId` INT NOT NULL AUTO_INCREMENT,
   `Instruction` NVARCHAR(1000) NOT NULL,
   `PatternId` BIGINT NOT NULL,
@@ -607,16 +607,16 @@ CREATE TABLE IF NOT EXISTS `mydb`.`Steps` (
   INDEX `fk_Steps_Patterns1_idx` (`PatternId` ASC) VISIBLE,
   CONSTRAINT `fk_Steps_Patterns1`
     FOREIGN KEY (`PatternId`)
-    REFERENCES `mydb`.`Patterns` (`PatternId`)
+    REFERENCES `KnitHub`.`Patterns` (`PatternId`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION)
 ENGINE = InnoDB;
 
 
 -- -----------------------------------------------------
--- Table `mydb`.`Medias`
+-- Table `KnitHub`.`Medias`
 -- -----------------------------------------------------
-CREATE TABLE IF NOT EXISTS `mydb`.`Medias` (
+CREATE TABLE IF NOT EXISTS `KnitHub`.`Medias` (
   `MediaId` INT NOT NULL AUTO_INCREMENT,
   `URL` VARCHAR(128) NOT NULL,
   `MediaTypeId` INT NOT NULL,
@@ -626,21 +626,21 @@ CREATE TABLE IF NOT EXISTS `mydb`.`Medias` (
   INDEX `fk_Medias_Steps1_idx` (`StepId` ASC) VISIBLE,
   CONSTRAINT `fk_Medias_MediaTypes1`
     FOREIGN KEY (`MediaTypeId`)
-    REFERENCES `mydb`.`MediaTypes` (`MediaTypeId`)
+    REFERENCES `KnitHub`.`MediaTypes` (`MediaTypeId`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION,
   CONSTRAINT `fk_Medias_Steps1`
     FOREIGN KEY (`StepId`)
-    REFERENCES `mydb`.`Steps` (`StepId`)
+    REFERENCES `KnitHub`.`Steps` (`StepId`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION)
 ENGINE = InnoDB;
 
 
 -- -----------------------------------------------------
--- Table `mydb`.`Categories`
+-- Table `KnitHub`.`Categories`
 -- -----------------------------------------------------
-CREATE TABLE IF NOT EXISTS `mydb`.`Categories` (
+CREATE TABLE IF NOT EXISTS `KnitHub`.`Categories` (
   `CategoryId` INT NOT NULL AUTO_INCREMENT,
   `Name` VARCHAR(45) NOT NULL,
   PRIMARY KEY (`CategoryId`))
@@ -648,9 +648,9 @@ ENGINE = InnoDB;
 
 
 -- -----------------------------------------------------
--- Table `mydb`.`DataTypes`
+-- Table `KnitHub`.`DataTypes`
 -- -----------------------------------------------------
-CREATE TABLE IF NOT EXISTS `mydb`.`DataTypes` (
+CREATE TABLE IF NOT EXISTS `KnitHub`.`DataTypes` (
   `DataTypesId` INT NOT NULL AUTO_INCREMENT,
   `Name` VARCHAR(50) NOT NULL,
   PRIMARY KEY (`DataTypesId`))
@@ -658,9 +658,9 @@ ENGINE = InnoDB;
 
 
 -- -----------------------------------------------------
--- Table `mydb`.`Features`
+-- Table `KnitHub`.`Features`
 -- -----------------------------------------------------
-CREATE TABLE IF NOT EXISTS `mydb`.`Features` (
+CREATE TABLE IF NOT EXISTS `KnitHub`.`Features` (
   `FeaturesId` INT NOT NULL AUTO_INCREMENT,
   `Name` VARCHAR(45) NOT NULL,
   `DataTypesId` INT NOT NULL,
@@ -668,16 +668,16 @@ CREATE TABLE IF NOT EXISTS `mydb`.`Features` (
   INDEX `fk_Features_DataTypes1_idx` (`DataTypesId` ASC) VISIBLE,
   CONSTRAINT `fk_Features_DataTypes1`
     FOREIGN KEY (`DataTypesId`)
-    REFERENCES `mydb`.`DataTypes` (`DataTypesId`)
+    REFERENCES `KnitHub`.`DataTypes` (`DataTypesId`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION)
 ENGINE = InnoDB;
 
 
 -- -----------------------------------------------------
--- Table `mydb`.`FeaturesPerCategories`
+-- Table `KnitHub`.`FeaturesPerCategories`
 -- -----------------------------------------------------
-CREATE TABLE IF NOT EXISTS `mydb`.`FeaturesPerCategories` (
+CREATE TABLE IF NOT EXISTS `KnitHub`.`FeaturesPerCategories` (
   `Value` VARCHAR(50) NOT NULL,
   `Deleted` BIT NOT NULL,
   `FeaturesId` INT NOT NULL,
@@ -686,42 +686,42 @@ CREATE TABLE IF NOT EXISTS `mydb`.`FeaturesPerCategories` (
   INDEX `fk_FeaturesPerCategories_Categories1_idx` (`CategoryId` ASC) VISIBLE,
   CONSTRAINT `fk_FeaturesPerCategories_Features1`
     FOREIGN KEY (`FeaturesId`)
-    REFERENCES `mydb`.`Features` (`FeaturesId`)
+    REFERENCES `KnitHub`.`Features` (`FeaturesId`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION,
   CONSTRAINT `fk_FeaturesPerCategories_Categories1`
     FOREIGN KEY (`CategoryId`)
-    REFERENCES `mydb`.`Categories` (`CategoryId`)
+    REFERENCES `KnitHub`.`Categories` (`CategoryId`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION)
 ENGINE = InnoDB;
 
 
 -- -----------------------------------------------------
--- Table `mydb`.`CategoriesPerMaterials`
+-- Table `KnitHub`.`CategoriesPerMaterials`
 -- -----------------------------------------------------
-CREATE TABLE IF NOT EXISTS `mydb`.`CategoriesPerMaterials` (
+CREATE TABLE IF NOT EXISTS `KnitHub`.`CategoriesPerMaterials` (
   `CategoryId` INT NOT NULL,
   `MaterialId` INT NOT NULL,
   INDEX `fk_CategoriesPerMaterials_Categories1_idx` (`CategoryId` ASC) VISIBLE,
   INDEX `fk_CategoriesPerMaterials_Materials1_idx` (`MaterialId` ASC) VISIBLE,
   CONSTRAINT `fk_CategoriesPerMaterials_Categories1`
     FOREIGN KEY (`CategoryId`)
-    REFERENCES `mydb`.`Categories` (`CategoryId`)
+    REFERENCES `KnitHub`.`Categories` (`CategoryId`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION,
   CONSTRAINT `fk_CategoriesPerMaterials_Materials1`
     FOREIGN KEY (`MaterialId`)
-    REFERENCES `mydb`.`Materials` (`MaterialId`)
+    REFERENCES `KnitHub`.`Materials` (`MaterialId`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION)
 ENGINE = InnoDB;
 
 
 -- -----------------------------------------------------
--- Table `mydb`.`FeaturesPerMaterial`
+-- Table `KnitHub`.`FeaturesPerMaterial`
 -- -----------------------------------------------------
-CREATE TABLE IF NOT EXISTS `mydb`.`FeaturesPerMaterial` (
+CREATE TABLE IF NOT EXISTS `KnitHub`.`FeaturesPerMaterial` (
   `Value` VARCHAR(45) NOT NULL,
   `Deleted` BIT NOT NULL,
   `FeaturesId` INT NOT NULL,
@@ -730,21 +730,21 @@ CREATE TABLE IF NOT EXISTS `mydb`.`FeaturesPerMaterial` (
   INDEX `fk_FeaturesPerMaterial_Features1_idx` (`FeaturesId` ASC) VISIBLE,
   CONSTRAINT `fk_FeaturesPerMaterial_Materials1`
     FOREIGN KEY (`MaterialId`)
-    REFERENCES `mydb`.`Materials` (`MaterialId`)
+    REFERENCES `KnitHub`.`Materials` (`MaterialId`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION,
   CONSTRAINT `fk_FeaturesPerMaterial_Features1`
     FOREIGN KEY (`FeaturesId`)
-    REFERENCES `mydb`.`Features` (`FeaturesId`)
+    REFERENCES `KnitHub`.`Features` (`FeaturesId`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION)
 ENGINE = InnoDB;
 
 
 -- -----------------------------------------------------
--- Table `mydb`.`MeasureUnits`
+-- Table `KnitHub`.`MeasureUnits`
 -- -----------------------------------------------------
-CREATE TABLE IF NOT EXISTS `mydb`.`MeasureUnits` (
+CREATE TABLE IF NOT EXISTS `KnitHub`.`MeasureUnits` (
   `MeasureUnitId` INT NOT NULL,
   `Name` VARCHAR(15) NOT NULL,
   `Abbreviation` VARCHAR(5) NOT NULL,
@@ -753,9 +753,9 @@ ENGINE = InnoDB;
 
 
 -- -----------------------------------------------------
--- Table `mydb`.`MaterialsPerProject`
+-- Table `KnitHub`.`MaterialsPerProject`
 -- -----------------------------------------------------
-CREATE TABLE IF NOT EXISTS `mydb`.`MaterialsPerProject` (
+CREATE TABLE IF NOT EXISTS `KnitHub`.`MaterialsPerProject` (
   `AmountSpent` DECIMAL(5,2) NULL,
   `PurchasePrice` DECIMAL(7,2) NULL,
   `MaterialId` INT NOT NULL,
@@ -766,26 +766,26 @@ CREATE TABLE IF NOT EXISTS `mydb`.`MaterialsPerProject` (
   INDEX `fk_MaterialsPerProject_MeasureUnits1_idx` (`MeasureUnitId` ASC) VISIBLE,
   CONSTRAINT `fk_table1_Projects1`
     FOREIGN KEY (`ProjectId`)
-    REFERENCES `mydb`.`Projects` (`ProjectId`)
+    REFERENCES `KnitHub`.`Projects` (`ProjectId`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION,
   CONSTRAINT `fk_table1_Materials1`
     FOREIGN KEY (`MaterialId`)
-    REFERENCES `mydb`.`Materials` (`MaterialId`)
+    REFERENCES `KnitHub`.`Materials` (`MaterialId`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION,
   CONSTRAINT `fk_MaterialsPerProject_MeasureUnits1`
     FOREIGN KEY (`MeasureUnitId`)
-    REFERENCES `mydb`.`MeasureUnits` (`MeasureUnitId`)
+    REFERENCES `KnitHub`.`MeasureUnits` (`MeasureUnitId`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION)
 ENGINE = InnoDB;
 
 
 -- -----------------------------------------------------
--- Table `mydb`.`Fees`
+-- Table `KnitHub`.`Fees`
 -- -----------------------------------------------------
-CREATE TABLE IF NOT EXISTS `mydb`.`Fees` (
+CREATE TABLE IF NOT EXISTS `KnitHub`.`Fees` (
   `FeeId` INT NOT NULL,
   `FeeName` VARCHAR(45) NOT NULL,
   PRIMARY KEY (`FeeId`))
@@ -793,30 +793,30 @@ ENGINE = InnoDB;
 
 
 -- -----------------------------------------------------
--- Table `mydb`.`FeesPerPlan`
+-- Table `KnitHub`.`FeesPerPlan`
 -- -----------------------------------------------------
-CREATE TABLE IF NOT EXISTS `mydb`.`FeesPerPlan` (
+CREATE TABLE IF NOT EXISTS `KnitHub`.`FeesPerPlan` (
   `PlanId` BIGINT NOT NULL,
   `FeeId` INT NOT NULL,
   INDEX `fk_FeesPerPlan_Plans1_idx` (`PlanId` ASC) VISIBLE,
   INDEX `fk_FeesPerPlan_Fees1_idx` (`FeeId` ASC) VISIBLE,
   CONSTRAINT `fk_FeesPerPlan_Plans1`
     FOREIGN KEY (`PlanId`)
-    REFERENCES `mydb`.`Plans` (`PlanId`)
+    REFERENCES `KnitHub`.`Plans` (`PlanId`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION,
   CONSTRAINT `fk_FeesPerPlan_Fees1`
     FOREIGN KEY (`FeeId`)
-    REFERENCES `mydb`.`Fees` (`FeeId`)
+    REFERENCES `KnitHub`.`Fees` (`FeeId`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION)
 ENGINE = InnoDB;
 
 
 -- -----------------------------------------------------
--- Table `mydb`.`FeesValues`
+-- Table `KnitHub`.`FeesValues`
 -- -----------------------------------------------------
-CREATE TABLE IF NOT EXISTS `mydb`.`FeesValues` (
+CREATE TABLE IF NOT EXISTS `KnitHub`.`FeesValues` (
   `FeeValueId` INT NOT NULL,
   `StartDate` DATETIME NOT NULL,
   `EndDate` DATETIME NULL,
@@ -827,37 +827,37 @@ CREATE TABLE IF NOT EXISTS `mydb`.`FeesValues` (
   INDEX `fk_FeesValues_Fees1_idx` (`FeeId` ASC) VISIBLE,
   CONSTRAINT `fk_FeesValues_Fees1`
     FOREIGN KEY (`FeeId`)
-    REFERENCES `mydb`.`Fees` (`FeeId`)
+    REFERENCES `KnitHub`.`Fees` (`FeeId`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION)
 ENGINE = InnoDB;
 
 
 -- -----------------------------------------------------
--- Table `mydb`.`FeesPerPattern`
+-- Table `KnitHub`.`FeesPerPattern`
 -- -----------------------------------------------------
-CREATE TABLE IF NOT EXISTS `mydb`.`FeesPerPattern` (
+CREATE TABLE IF NOT EXISTS `KnitHub`.`FeesPerPattern` (
   `FeeId` INT NOT NULL,
   `PatternId` BIGINT NOT NULL,
   INDEX `fk_FeesPerPattern_Fees1_idx` (`FeeId` ASC) VISIBLE,
   INDEX `fk_FeesPerPattern_Patterns1_idx` (`PatternId` ASC) VISIBLE,
   CONSTRAINT `fk_FeesPerPattern_Fees1`
     FOREIGN KEY (`FeeId`)
-    REFERENCES `mydb`.`Fees` (`FeeId`)
+    REFERENCES `KnitHub`.`Fees` (`FeeId`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION,
   CONSTRAINT `fk_FeesPerPattern_Patterns1`
     FOREIGN KEY (`PatternId`)
-    REFERENCES `mydb`.`Patterns` (`PatternId`)
+    REFERENCES `KnitHub`.`Patterns` (`PatternId`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION)
 ENGINE = InnoDB;
 
 
 -- -----------------------------------------------------
--- Table `mydb`.`PriceValues`
+-- Table `KnitHub`.`PriceValues`
 -- -----------------------------------------------------
-CREATE TABLE IF NOT EXISTS `mydb`.`PriceValues` (
+CREATE TABLE IF NOT EXISTS `KnitHub`.`PriceValues` (
   `PriceValueId` INT NOT NULL,
   `StartDate` DATETIME NOT NULL,
   `EndDate` DATETIME NULL,
@@ -868,9 +868,9 @@ ENGINE = InnoDB;
 
 
 -- -----------------------------------------------------
--- Table `mydb`.`PatternsOnSale`
+-- Table `KnitHub`.`PatternsOnSale`
 -- -----------------------------------------------------
-CREATE TABLE IF NOT EXISTS `mydb`.`PatternsOnSale` (
+CREATE TABLE IF NOT EXISTS `KnitHub`.`PatternsOnSale` (
   `Date` DATETIME NOT NULL,
   `OnSale` BIT NOT NULL,
   `PatternId` BIGINT NOT NULL,
@@ -879,12 +879,12 @@ CREATE TABLE IF NOT EXISTS `mydb`.`PatternsOnSale` (
   INDEX `fk_PatternsOnSale_PriceValues1_idx` (`PriceValueId` ASC) VISIBLE,
   CONSTRAINT `fk_PatternsOnSale_Patterns1`
     FOREIGN KEY (`PatternId`)
-    REFERENCES `mydb`.`Patterns` (`PatternId`)
+    REFERENCES `KnitHub`.`Patterns` (`PatternId`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION,
   CONSTRAINT `fk_PatternsOnSale_PriceValues1`
     FOREIGN KEY (`PriceValueId`)
-    REFERENCES `mydb`.`PriceValues` (`PriceValueId`)
+    REFERENCES `KnitHub`.`PriceValues` (`PriceValueId`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION)
 ENGINE = InnoDB;
