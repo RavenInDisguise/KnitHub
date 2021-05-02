@@ -46,7 +46,7 @@ ENGINE = InnoDB;
 -- -----------------------------------------------------
 CREATE TABLE IF NOT EXISTS `KnitHub`.`Users` (
   `UserId` BIGINT NOT NULL AUTO_INCREMENT,
-  `MacAdress` BINARY NOT NULL,
+  `MacAddress` BINARY NOT NULL,
   `Nickname` NVARCHAR(30) NULL,
   `Name` NVARCHAR(50) NOT NULL,
   `LastName` NVARCHAR(50) NOT NULL,
@@ -101,7 +101,6 @@ CREATE TABLE IF NOT EXISTS `KnitHub`.`SocialNetworkAuthentications` (
     ON DELETE NO ACTION
     ON UPDATE NO ACTION)
 ENGINE = InnoDB;
-
 
 -- -----------------------------------------------------
 -- Table `KnitHub`.`Patterns`
