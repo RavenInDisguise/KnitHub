@@ -1,9 +1,11 @@
+DROP VIEW IF EXISTS projects_patterns;
+
 CREATE VIEW projects_patterns
 AS
 SELECT `Users`.`UserId`,
 	IFNULL(`Users`.`Nickname`, 'NONE') AS 'Nickname',
 	CONCAT(`Users`.`Name`, ' ', IFNULL(SecondName, ''), ' ', `Users`.`LastName`) AS 'PersonName',
-	`Users`.`MacAdress`,
+	`Users`.`MacAddress`,
     IFNULL(`Users`.`Password`, 'NONE') AS 'Password',
     `Users`.`PatternCount`,
     `Users`.`ProjectCount`,
@@ -17,6 +19,7 @@ SELECT `Users`.`UserId`,
     IFNULL(`Materials`.`Description`, 'NONE') AS 'MaterialDescription',
     CONCAT(IFNULL(`MaterialsPerProject`.`AmountSpent`, '0'), ' ', `MeasureUnits`.`Abbreviation`) AS 'MaterialSpent',
     IFNULL(`MaterialsPerProject`.`PurchasePrice`, '0') AS 'MaterialCost',
+    `Patterns`.`PatternId`,
     `Patterns`.`Title` AS 'PatternName',
     IFNULL(`Patterns`.`Description`, 'NONE') AS 'PatternDescription',
     `PatternCategories`.`Name` AS 'PatternCategoryName',
