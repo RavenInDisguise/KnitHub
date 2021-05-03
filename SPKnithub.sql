@@ -24,12 +24,20 @@ BEGIN
             -- sustituyo el texto del mensaje
             SET @message = CONCAT('Internal error: ', @message);
         END IF;
-        
         RESIGNAL SET MESSAGE_TEXT = @message;
 	END;
     
-    SELECT paymenttransactions.`PersonName`, `TransAmount`, `TransPosttime`, `TransType`, `PatternName`, `PatternCategoryName`
-    FROM paymenttransactions
+    SET @UserId = 0;
+    SELECT UserId INTO @UserId FROM Users
+    WHERE Users.MacAddress = pMacAddress  
+    AND Users.Name = pName
+    AND Users.Lastname = pLastName;
+    
+    IF(@UserId = 0) THEN
+		SIGNAL SQLSTATE '45000' SET MYSQL_ERRNO = INVALID_USER;
+    END IF;
+    
+    SELECT payment_transactions.`PersonName`, payment_transactions.`TransAmount`, payment_transactions.`TransPosttime`, 
     payment_transactions.`TransType`, projects_patterns.`PatternName`, projects_patterns.`PatternCategoryName`
     FROM payment_transactions
     INNER JOIN projects_patterns
