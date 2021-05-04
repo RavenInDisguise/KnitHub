@@ -1,4 +1,5 @@
 -- 1. Muestra de resultados por compra de patrones
+-- Dar más detalle de cuestiones del payment attempt, en este y en el 2
 
 DROP PROCEDURE IF EXISTS CompraPatrones;
 DELIMITER //
@@ -161,7 +162,7 @@ BEGIN
         RESIGNAL SET MESSAGE_TEXT = @message;
 	END;
     
-    SELECT projects_patterns.`PersonName`, projects_patterns.`PatternName`, projects_patterns.`PatternCategory`, 
+    SELECT projects_patterns.`PersonName`, projects_patterns.`PatternName`, projects_patterns.`PatternCategoryName`, 
     PriceValues.`Price`
     FROM projects_patterns
     INNER JOIN PatternsOnSale ON projects_patterns.PatternId=PatternsOnSale.PatternId
@@ -171,6 +172,10 @@ END//
 DELIMITER ;
 
 -- 5. Generación de patrones
+-- Modifiqué este porque el enunciado dice que hay que escribir en al menos 3 tablas
+-- se me ocurrió pedir el nombre de la categoria del patrón, ahí escribiría en una tabla
+-- para registrar esa categoría, y luego habría que asociar esa categoría al patrón, 
+-- ahí escribiría en otra tabla
 DROP PROCEDURE IF EXISTS GenerarPatron;
 DELIMITER //
 CREATE PROCEDURE GenerarPatron
@@ -178,7 +183,10 @@ CREATE PROCEDURE GenerarPatron
 	IN pMacAddress BINARY,
     IN pName NVARCHAR(50),
     IN pLastName NVARCHAR(50),
-    IN pPatternName NVARCHAR(45)
+    IN pPatternName NVARCHAR(45),
+    IN pPatternCategoryName NVARCHAR(45),
+    OUT pLastPatternId BIGINT,
+    OUT pLastPatternCategoryId INT
 )
 BEGIN
 	DECLARE INVALID_USER INT DEFAULT(53000);
@@ -196,6 +204,7 @@ BEGIN
             -- sustituyo el texto del mensaje
             SET @message = CONCAT('Internal error: ', @message);
         END IF;
+        ROLLBACK;
         RESIGNAL SET MESSAGE_TEXT = @message;
 	END;
     
@@ -213,11 +222,21 @@ BEGIN
     START TRANSACTION;
 		INSERT INTO Patterns (`Title`, `UserId`)
 		VALUES (pPatternName, @UserId);
+        SELECT LAST_INSERT_ID() INTO pLastPatternId;
+        INSERT INTO PatternCategories (`Name`)
+        VALUES (pPatternCategoryName);
+        SELECT LAST_INSERT_ID() INTO pLastPatternCategoryId;
+        INSERT INTO CategoriesPerPattern(`PatternCategoryId`, `PatternId`)
+        VALUES (pLastPatternCategoryId, pLastPatternId);
 	COMMIT;
 END//
 
 DELIMITER ;
 
+-- Aquí no se me ocurrió en cuál tabla asociada a proyectos escribir,
+-- una opción sería tal vez como que al registrar un proyecto, 
+-- se pida un material como requisito para empezar, y ahí ya se 
+-- escribiría en otras tablas aparte de solo registrar el proyecto
 -- 6. Generación de proyectos
 DROP PROCEDURE IF EXISTS GenerarProyecto;
 DELIMITER //
@@ -246,6 +265,7 @@ BEGIN
             -- sustituyo el texto del mensaje
             SET @message = CONCAT('Internal error: ', @message);
         END IF;
+        ROLLBACK;
         RESIGNAL SET MESSAGE_TEXT = @message;
 	END;
     
