@@ -1,3 +1,5 @@
+const mysql= require('mysql2');
+
 module.exports = class SPController { 
     static instance;
     dbconnection;
@@ -5,22 +7,22 @@ module.exports = class SPController {
     constructor(){
         try
         {
-            dbconnection = mysql.createConnection({
+            this.dbconnection = mysql.createConnection({
             host: 'localhost',
             user: 'root',
             password: '123456',
-            database: 'KnitHub',
+            database: 'KnitHub'
             });
         } catch (e)
         {
-            console.log(`There was an error during the connection process.`);
+            console.log(`There was an error during the connection process.`,e);
         }
     }
 
     compraPatrones(macaddress,username,userlastname){
         //console.log(`Request from ${req.ip} to  path ${req.url}.`)    
         //connection.query('CALL CompraPatrones VALUE (?,?,?)',
-        dbconnection.query('CALL CompraPatrones()',
+        this.dbconnection.execute('CALL CompraPatrones()',
         //[macaddress,username,userlastname],
         [],
         (err, data, fields) => {
