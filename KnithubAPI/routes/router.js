@@ -15,6 +15,7 @@ router.get("/compraPatrones", (req, res) => {
         varController.getInstance().compraPatrones(macaddress,username,userlastname);
     }
     res.json({ message: "Ok"});
+    console.log(`The request was made.`)
 });
 
 module.exports=router;
