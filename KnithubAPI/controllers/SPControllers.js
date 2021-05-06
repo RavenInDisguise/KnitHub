@@ -29,7 +29,7 @@ module.exports = class SPController {
             res.status(418).send({ message: 'There was an error.' })
         }
         else{    
-            this.dbconnection.execute('CALL CompraPatrones VALUE (?,?,?)',
+            this.dbconnection.execute('CALL CompraPatrones (?,?,?)',
             [macaddress,username,userlastname],
             (err, data, fields) => {
                 if (err) throw err;
@@ -48,7 +48,7 @@ module.exports = class SPController {
             res.status(418).send({ message: 'There was an error.' })
         }
         else{    
-            this.dbconnection.execute('CALL CompraPlanes VALUE (?,?,?)',
+            this.dbconnection.execute('CALL CompraPlanes (?,?,?)',
             [macaddress,username,userlastname],
             (err, data, fields) => {
                 if (err) throw err;
@@ -60,15 +60,16 @@ module.exports = class SPController {
         const { macaddress } = req.body;
         const { username } = req.body;
         const { userlastname } = req.body;
-        console.log(macaddress,", ",username," and ", userlastname)
+        const { projectName } = req.body;
+        console.log(macaddress,", ",username,", ", userlastname," and", projectName)
         console.log(`Request from ${req.ip} to  path ${req.url}.`)
-        if (!macaddress || !username || !userlastname){
+        if (!macaddress || !username || !userlastname || !projectName){
             console.log(`Request from ${req.ip} to  path ${req.url} was invalid, code 418, no data.`)
             res.status(418).send({ message: 'There was an error.' })
         }
         else{    
-            this.dbconnection.execute('CALL CronometrajeProjectos VALUE (?,?,?)',
-            [macaddress,username,userlastname],
+            this.dbconnection.execute('CALL CronometrajeProyectos (?,?,?,?)',
+            [macaddress,username,userlastname, projectName],
             (err, data, fields) => {
                 if (err) throw err;
                 res.status(200).json({data})
@@ -76,23 +77,12 @@ module.exports = class SPController {
         }
     }
     patronesEnVenta(req, res){
-        const { macaddress } = req.body;
-        const { username } = req.body;
-        const { userlastname } = req.body;
-        console.log(macaddress,", ",username," and ", userlastname)
-        console.log(`Request from ${req.ip} to  path ${req.url}.`)
-        if (!macaddress || !username || !userlastname){
-            console.log(`Request from ${req.ip} to  path ${req.url} was invalid, code 418, no data.`)
-            res.status(418).send({ message: 'There was an error.' })
-        }
-        else{    
-            this.dbconnection.execute('CALL CronometrajeProjectos VALUE (?,?,?)',
-            [macaddress,username,userlastname],
-            (err, data, fields) => {
-                if (err) throw err;
-                res.status(200).json({data})
-            })
-        }
+        console.log(`Request from ${req.ip} to  path ${req.url}.`)  
+        this.dbconnection.execute('CALL PatronesEnVenta()',
+        (err, data, fields) => {
+            if (err) throw err;
+            res.status(200).json({data})
+        })
     }
     static getInstance(){
             if (!this.instance)

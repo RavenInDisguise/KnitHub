@@ -49,7 +49,7 @@ ENGINE = InnoDB;
 -- -----------------------------------------------------
 CREATE TABLE IF NOT EXISTS `KnitHub`.`Users` (
   `UserId` BIGINT NOT NULL AUTO_INCREMENT,
-  `MacAddress` BINARY NOT NULL,
+  `MacAddress` VARCHAR(20) NOT NULL,
   `Nickname` NVARCHAR(30) NULL,
   `Name` NVARCHAR(50) NOT NULL,
   `LastName` NVARCHAR(50) NOT NULL,
