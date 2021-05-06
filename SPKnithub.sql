@@ -41,9 +41,10 @@ BEGIN
     payment_transactions.`TransType`, projects_patterns.`PatternName`, projects_patterns.`PatternCategoryName`,
     payment_transactions.`MerchantName`, payment_transactions.`PaymentStatus`
     FROM payment_transactions
-    INNER JOIN projects_patterns
+    INNER JOIN projects_patterns ON payment_transactions.`UserId`=project_patterns.`UserId` -- Esta linea no tenía ON, debatir si es necesario (creo que sí)
     INNER JOIN PurchasedPatternsPerUser ON payment_transactions.TransId=PurchasedPatternsPerUser.TransactionId
-    AND projects_patterns.PatternId=PurchasedPatternsPerUser.PatternId;
+    AND projects_patterns.PatternId=PurchasedPatternsPerUser.PatternId
+    WHERE payment_transactions.`UserId` = @UserId; -- Ver si filtrar también por un patrón en específico, o si muestra todos los del usuario dado
 END//
 
 DELIMITER ;
@@ -86,9 +87,12 @@ BEGIN
     payment_transactions.`TransType`, Plans.`Name`, PlansPerUser.`PostTime`, PlansPerUser.`NextTime`,
     payment_transactions.`MerchantName`, payment_transactions.`PaymentStatus`
     FROM payment_transactions
-    INNER JOIN Plans
+    -- INNER JOIN Plans -> La quité
     INNER JOIN PlansPerUser ON payment_transactions.TransId=PlansPerUser.TransactionId
-    AND Plans.PlanId=PlansPerUser.PlanId;
+    AND payment_transactions.UserId=PlansPerUser.UserId -- -> Nueva
+    INNER JOIN Plans ON PlansPerUser.PlanId=Plans.PlanId 
+    -- AND Plans.PlanId=PlansPerUser.PlanId -> La quité, creo que iba mejor como join
+    WHERE payment_transactions.`UserId` = @UserId; -- Ver si filtrar también por un plan en específico, o si muestra todos los del usuario dado
 END//
 
 DELIMITER ;
@@ -104,6 +108,7 @@ CREATE PROCEDURE CronometrajeProyectos
 	IN pProjectName NVARCHAR(45)
 )
 BEGIN
+	DECLARE INVALID_USER INT DEFAULT(53000);
 	DECLARE INVALID_PROJECT INT DEFAULT(53001);
 
 	DECLARE EXIT HANDLER FOR SQLEXCEPTION
@@ -125,8 +130,20 @@ BEGIN
 		SIGNAL SQLSTATE '45000' SET MYSQL_ERRNO = INVALID_PROJECT;
     END IF;
     
+    SET @UserId = 0;
+    SELECT UserId INTO @UserId FROM Users
+    WHERE Users.MacAddress = pMacAddress  
+    AND Users.Name = pName
+    AND Users.Lastname = pLastName;
+    
+    IF(@UserId = 0) THEN
+		SIGNAL SQLSTATE '45000' SET MYSQL_ERRNO = INVALID_USER;
+    END IF;
+    
     SELECT projects_patterns.`PersonName`, projects_patterns.`ProjectName`, projects_patterns.`ProjectTime`
-    FROM projects_patterns;
+    FROM projects_patterns
+    WHERE project_patterns.`UserId`=@UserId
+    AND project_patterns.``=@ProjectId;
 END//
 
 DELIMITER ;
