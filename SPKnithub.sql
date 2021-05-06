@@ -1,11 +1,10 @@
 -- 1. Muestra de resultados por compra de patrones
--- Dar más detalle de cuestiones del payment attempt, en este y en el 2
 
 DROP PROCEDURE IF EXISTS CompraPatrones;
 DELIMITER //
 CREATE PROCEDURE CompraPatrones
 (
-	IN pMacAddress INT,
+	IN pMacAddress VARCHAR(20),
     IN pName NVARCHAR(50),
     IN pLastName NVARCHAR(50)
 )
@@ -39,7 +38,8 @@ BEGIN
     END IF;
     
     SELECT payment_transactions.`PersonName`, payment_transactions.`TransAmount`, payment_transactions.`TransPosttime`, 
-    payment_transactions.`TransType`, projects_patterns.`PatternName`, projects_patterns.`PatternCategoryName`
+    payment_transactions.`TransType`, projects_patterns.`PatternName`, projects_patterns.`PatternCategoryName`,
+    payment_transactions.`MerchantName`, payment_transactions.`PaymentStatus`
     FROM payment_transactions
     INNER JOIN projects_patterns
     INNER JOIN PurchasedPatternsPerUser ON payment_transactions.TransId=PurchasedPatternsPerUser.TransactionId
@@ -54,7 +54,7 @@ DROP PROCEDURE IF EXISTS CompraPlanes;
 DELIMITER //
 CREATE PROCEDURE CompraPlanes
 (
-	IN pMacAddress BINARY,
+	IN pMacAddress VARCHAR(20),
     IN pName NVARCHAR(50),
     IN pLastName NVARCHAR(50)
 )
@@ -64,14 +64,9 @@ BEGIN
 	DECLARE EXIT HANDLER FOR SQLEXCEPTION
     BEGIN
 		GET DIAGNOSTICS CONDITION 1 @err_no = MYSQL_ERRNO, @message = MESSAGE_TEXT;
-        -- si es un exception de sql, ambos campos vienen en el diagnostics
-        -- pero si es una excepction forzada por el programador solo viene el ERRNO, el texto no
-        IF (ISNULL(@message)) THEN -- quiere decir q es una excepcion forzada del programador
+        IF (ISNULL(@message)) THEN
 			SET @message = 'aqui saco el mensaje de un catalogo de mensajes que fue creado por equipo de desarrollo';            
         ELSE
-			-- es un exception de SQL que no queremos que salga hacia la capa de aplicacion
-            -- tengo que guardar el error en una bitácora de errores... patron de bitacora
-            -- sustituyo el texto del mensaje
             SET @message = CONCAT('Internal error: ', @message);
         END IF;
         RESIGNAL SET MESSAGE_TEXT = @message;
@@ -88,7 +83,8 @@ BEGIN
     END IF;
     
     SELECT payment_transactions.`PersonName`, payment_transactions.`TransAmount`, payment_transactions.`TransPosttime`,
-    payment_transactions.`TransType`, Plans.`Name`, PlansPerUser.`PostTime`, PlansPerUser.`NextTime`
+    payment_transactions.`TransType`, Plans.`Name`, PlansPerUser.`PostTime`, PlansPerUser.`NextTime`,
+    payment_transactions.`MerchantName`, payment_transactions.`PaymentStatus`
     FROM payment_transactions
     INNER JOIN Plans
     INNER JOIN PlansPerUser ON payment_transactions.TransId=PlansPerUser.TransactionId
@@ -102,6 +98,9 @@ DROP PROCEDURE IF EXISTS CronometrajeProyectos;
 DELIMITER //
 CREATE PROCEDURE CronometrajeProyectos
 (
+	IN pMacAddress VARCHAR(20),
+    IN pName NVARCHAR(50),
+    IN pLastName NVARCHAR(50),
 	IN pProjectName NVARCHAR(45)
 )
 BEGIN
@@ -110,14 +109,9 @@ BEGIN
 	DECLARE EXIT HANDLER FOR SQLEXCEPTION
     BEGIN
 		GET DIAGNOSTICS CONDITION 1 @err_no = MYSQL_ERRNO, @message = MESSAGE_TEXT;
-        -- si es un exception de sql, ambos campos vienen en el diagnostics
-        -- pero si es una excepction forzada por el programador solo viene el ERRNO, el texto no
-        IF (ISNULL(@message)) THEN -- quiere decir q es una excepcion forzada del programador
+        IF (ISNULL(@message)) THEN
 			SET @message = 'aqui saco el mensaje de un catalogo de mensajes que fue creado por equipo de desarrollo';            
         ELSE
-			-- es un exception de SQL que no queremos que salga hacia la capa de aplicacion
-            -- tengo que guardar el error en una bitácora de errores... patron de bitacora
-            -- sustituyo el texto del mensaje
             SET @message = CONCAT('Internal error: ', @message);
         END IF;
         RESIGNAL SET MESSAGE_TEXT = @message;
@@ -149,14 +143,9 @@ BEGIN
 	DECLARE EXIT HANDLER FOR SQLEXCEPTION
     BEGIN
 		GET DIAGNOSTICS CONDITION 1 @err_no = MYSQL_ERRNO, @message = MESSAGE_TEXT;
-        -- si es un exception de sql, ambos campos vienen en el diagnostics
-        -- pero si es una excepction forzada por el programador solo viene el ERRNO, el texto no
-        IF (ISNULL(@message)) THEN -- quiere decir q es una excepcion forzada del programador
+        IF (ISNULL(@message)) THEN
 			SET @message = 'aqui saco el mensaje de un catalogo de mensajes que fue creado por equipo de desarrollo';            
         ELSE
-			-- es un exception de SQL que no queremos que salga hacia la capa de aplicacion
-            -- tengo que guardar el error en una bitácora de errores... patron de bitacora
-            -- sustituyo el texto del mensaje
             SET @message = CONCAT('Internal error: ', @message);
         END IF;
         RESIGNAL SET MESSAGE_TEXT = @message;
@@ -172,21 +161,20 @@ END//
 DELIMITER ;
 
 -- 5. Generación de patrones
--- Modifiqué este porque el enunciado dice que hay que escribir en al menos 3 tablas
--- se me ocurrió pedir el nombre de la categoria del patrón, ahí escribiría en una tabla
--- para registrar esa categoría, y luego habría que asociar esa categoría al patrón, 
--- ahí escribiría en otra tabla
+-- Tablas modificadas: Patterns, CategoriesPerPattern, (PatternCategories), MaterialsPerPattern, (Materials)
 DROP PROCEDURE IF EXISTS GenerarPatron;
 DELIMITER //
 CREATE PROCEDURE GenerarPatron
 (
-	IN pMacAddress BINARY,
+	IN pMacAddress VARCHAR(20),
     IN pName NVARCHAR(50),
     IN pLastName NVARCHAR(50),
     IN pPatternName NVARCHAR(45),
     IN pPatternCategoryName NVARCHAR(45),
+    IN pMaterialName VARCHAR(45),
     OUT pLastPatternId BIGINT,
-    OUT pLastPatternCategoryId INT
+    OUT pLastPatternCategoryId INT,
+    OUT pLastMaterialId INT
 )
 BEGIN
 	DECLARE INVALID_USER INT DEFAULT(53000);
@@ -194,14 +182,9 @@ BEGIN
 	DECLARE EXIT HANDLER FOR SQLEXCEPTION
     BEGIN
 		GET DIAGNOSTICS CONDITION 1 @err_no = MYSQL_ERRNO, @message = MESSAGE_TEXT;
-        -- si es un exception de sql, ambos campos vienen en el diagnostics
-        -- pero si es una excepction forzada por el programador solo viene el ERRNO, el texto no
-        IF (ISNULL(@message)) THEN -- quiere decir q es una excepcion forzada del programador
+        IF (ISNULL(@message)) THEN
 			SET @message = 'Se ha producido un error';            
         ELSE
-			-- es un exception de SQL que no queremos que salga hacia la capa de aplicacion
-            -- tengo que guardar el error en una bitácora de errores... patron de bitacora
-            -- sustituyo el texto del mensaje
             SET @message = CONCAT('Internal error: ', @message);
         END IF;
         ROLLBACK;
@@ -219,34 +202,60 @@ BEGIN
         SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'El usuario no ha sido encontrado';
     END IF;
     
+    SET @PatternCategoryId = 0;
+    SELECT PatternCategoryId INTO @PatternCategoryId FROM PatternCategories
+    WHERE PatternCategories.`Name` = pPatternCategoryName;
+    
+    SET @MaterialId = 0;
+    SELECT MaterialId INTO @MaterialId FROM Materials
+    WHERE Materials.`Name` = pMaterialName;
+    
     START TRANSACTION;
 		INSERT INTO Patterns (`Title`, `UserId`)
 		VALUES (pPatternName, @UserId);
         SELECT LAST_INSERT_ID() INTO pLastPatternId;
-        INSERT INTO PatternCategories (`Name`)
-        VALUES (pPatternCategoryName);
-        SELECT LAST_INSERT_ID() INTO pLastPatternCategoryId;
+        
+        IF (@PatternCategoryId=0) THEN
+			INSERT INTO PatternCategories (`Name`)
+			VALUES (pPatternCategoryName);
+            SELECT LAST_INSERT_ID() INTO pLastPatternCategoryId;
+		ELSE
+			SELECT @PatternCategoryId INTO pLastPatternCategoryId;
+		END IF;
         INSERT INTO CategoriesPerPattern(`PatternCategoryId`, `PatternId`)
         VALUES (pLastPatternCategoryId, pLastPatternId);
+        
+        IF (@MaterialId=0) THEN
+			INSERT INTO Materials (`Name`)
+			VALUES (pMaterialName);
+            SELECT LAST_INSERT_ID() INTO pLastMaterialId;
+		ELSE
+			SELECT @MaterialId INTO pLastMaterialId;
+		END IF;
+        INSERT INTO MaterialsPerPattern(`MaterialId`, `PatternId`)
+        VALUES (pLastMaterialId, pLastPatternId);
 	COMMIT;
 END//
 
 DELIMITER ;
 
--- Aquí no se me ocurrió en cuál tabla asociada a proyectos escribir,
--- una opción sería tal vez como que al registrar un proyecto, 
--- se pida un material como requisito para empezar, y ahí ya se 
--- escribiría en otras tablas aparte de solo registrar el proyecto
 -- 6. Generación de proyectos
+-- Tablas Modificadas: Projects, MatterialsPerProject, (Materials), (MeasureUnits)
 DROP PROCEDURE IF EXISTS GenerarProyecto;
 DELIMITER //
 CREATE PROCEDURE GenerarProyecto
 (
-	IN pMacAddress BINARY,
+	IN pMacAddress VARCHAR(20),
     IN pName NVARCHAR(50),
     IN pLastName NVARCHAR(50),
     IN pPatternName NVARCHAR(45),
-    IN pProjectName NVARCHAR(45)
+    IN pProjectName NVARCHAR(45),
+    IN pMaterialName VARCHAR(45),
+    IN pMeasureUnitName VARCHAR(45),
+    IN pMeasureUnitAbbreviation VARCHAR(5),
+    OUT pLastProjectId BIGINT,
+    OUT pLastMaterialId INT,
+    OUT pLastMeasureUnitId INT
 )
 BEGIN
 	DECLARE INVALID_USER INT DEFAULT(53000);
@@ -255,14 +264,9 @@ BEGIN
 	DECLARE EXIT HANDLER FOR SQLEXCEPTION
     BEGIN
 		GET DIAGNOSTICS CONDITION 1 @err_no = MYSQL_ERRNO, @message = MESSAGE_TEXT;
-        -- si es un exception de sql, ambos campos vienen en el diagnostics
-        -- pero si es una excepction forzada por el programador solo viene el ERRNO, el texto no
-        IF (ISNULL(@message)) THEN -- quiere decir q es una excepcion forzada del programador
+        IF (ISNULL(@message)) THEN
 			SET @message = 'Se ha producido un error';            
         ELSE
-			-- es un exception de SQL que no queremos que salga hacia la capa de aplicacion
-            -- tengo que guardar el error en una bitácora de errores... patron de bitacora
-            -- sustituyo el texto del mensaje
             SET @message = CONCAT('Internal error: ', @message);
         END IF;
         ROLLBACK;
@@ -290,9 +294,37 @@ BEGIN
         SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'El patrón no ha sido encontrado';
     END IF;
     
+    SET @MaterialId = 0;
+    SELECT MaterialId INTO @MaterialId FROM Materials 
+    WHERE Materials.`Name`=pMaterialName;
+    
+    SET @MeasureUnitId = 0;
+    SELECT MeasureUnitId INTO @MeasureUnitId FROM MeasureUnits 
+    WHERE MeasureUnits.`Name`=pMeasureUnitName AND MeasureUnits.`Abbreviation`=pMeasureUnitAbbreviation;
+    
+    
     START TRANSACTION;
 		INSERT INTO Projects (`Name`, `Time`, `PatternId`, `UserId`)
 		VALUES (pProjectName, 0, @PatternId, @UserId);
+        SELECT LAST_INSERT_ID() INTO pLastProjectId;
+        
+        IF (@MeasureUnitId=0) THEN
+			INSERT INTO MeasureUnits (`Name`, Abbreviation)
+			VALUES (pMeasureUnitName, pMeasureUnitAbbreviation);
+            SELECT LAST_INSERT_ID() INTO pLastMeasureUnitId;
+		ELSE
+			SELECT @MeasureUnitId INTO pLastMeasureUnitId;
+		END IF;
+        
+        IF (@MaterialId=0) THEN
+			INSERT INTO Materials (`Name`)
+			VALUES (pMaterialName);
+            SELECT LAST_INSERT_ID() INTO pLastMaterialId;
+		ELSE
+			SELECT @MaterialId INTO pLastMaterialId;
+		END IF;
+        INSERT INTO MaterialsPerProject(`MaterialId`, `ProjectId`, `MeasureUnitId`)
+        VALUES (pLastMaterialId, pLastProjectId, pLastMeasureUnitId);
 	COMMIT;
 END//
 
