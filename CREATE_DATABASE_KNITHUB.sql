@@ -105,7 +105,6 @@ CREATE TABLE IF NOT EXISTS `KnitHub`.`SocialNetworkAuthentications` (
     ON UPDATE NO ACTION)
 ENGINE = InnoDB;
 
-
 -- -----------------------------------------------------
 -- Table `KnitHub`.`Patterns`
 -- -----------------------------------------------------
