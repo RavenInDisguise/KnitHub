@@ -4,7 +4,7 @@ DROP PROCEDURE IF EXISTS CompraPatrones;
 DELIMITER //
 CREATE PROCEDURE CompraPatrones
 (
-	IN pMacAddress INT,
+	IN pMacAddress VARCHAR(20),
     IN pName NVARCHAR(50),
     IN pLastName NVARCHAR(50)
 )
@@ -54,7 +54,7 @@ DROP PROCEDURE IF EXISTS CompraPlanes;
 DELIMITER //
 CREATE PROCEDURE CompraPlanes
 (
-	IN pMacAddress BINARY,
+	IN pMacAddress VARCHAR(20),
     IN pName NVARCHAR(50),
     IN pLastName NVARCHAR(50)
 )
@@ -98,6 +98,9 @@ DROP PROCEDURE IF EXISTS CronometrajeProyectos;
 DELIMITER //
 CREATE PROCEDURE CronometrajeProyectos
 (
+	IN pMacAddress VARCHAR(20),
+    IN pName NVARCHAR(50),
+    IN pLastName NVARCHAR(50),
 	IN pProjectName NVARCHAR(45)
 )
 BEGIN
@@ -163,7 +166,7 @@ DROP PROCEDURE IF EXISTS GenerarPatron;
 DELIMITER //
 CREATE PROCEDURE GenerarPatron
 (
-	IN pMacAddress BINARY,
+	IN pMacAddress VARCHAR(20),
     IN pName NVARCHAR(50),
     IN pLastName NVARCHAR(50),
     IN pPatternName NVARCHAR(45),
@@ -242,7 +245,7 @@ DROP PROCEDURE IF EXISTS GenerarProyecto;
 DELIMITER //
 CREATE PROCEDURE GenerarProyecto
 (
-	IN pMacAddress BINARY,
+	IN pMacAddress VARCHAR(20),
     IN pName NVARCHAR(50),
     IN pLastName NVARCHAR(50),
     IN pPatternName NVARCHAR(45),

@@ -3,19 +3,16 @@ const express = require('express');
 const router = express.Router();
 
 router.get("/compraPatrones", (req, res) => {
+    varController.getInstance().compraPatrones(req, res);
 
-    const { macaddress } = req.body;
-    const { username } = req.body;
-    const { userlastname } = req.body;
-
-    if (!macaddress){
-        console.log(`Request from ${req.ip} to  path ${req.url} was invalid, code 418, no name.`)
-        res.status(418).send({ message: 'There was an error.' })
-    } else {
-        varController.getInstance().compraPatrones(macaddress,username,userlastname);
-    }
-    res.json({ message: "Ok"});
-    console.log(`The request was made.`)
 });
-
+router.get("/compraPlanes", (req, res) => {
+    varController.getInstance().compraPlanes(req, res);
+});
+router.get("/cronometrajeProyectos", (req, res) => {
+    varController.getInstance().cronometrajeProyectos(req, res);
+});
+router.get("/patronesVenta", (req, res) => {
+    varController.getInstance().patronesEnVenta(req, res);
+});
 module.exports=router;

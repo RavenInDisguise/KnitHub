@@ -18,21 +18,72 @@ module.exports = class SPController {
             console.log(`There was an error during the connection process.`,e);
         }
     }
-
-    compraPatrones(macaddress,username,userlastname){
-        //console.log(`Request from ${req.ip} to  path ${req.url}.`)    
-        //connection.query('CALL CompraPatrones VALUE (?,?,?)',
-        this.dbconnection.execute('CALL CompraPatrones()',
-        //[macaddress,username,userlastname],
-        [],
+    compraPatrones(req,res){
+        const { macaddress } = req.body;
+        const { username } = req.body;
+        const { userlastname } = req.body;
+        console.log(macaddress,", ",username," and ", userlastname)
+        console.log(`Request from ${req.ip} to  path ${req.url}.`)
+        if (!macaddress || !username || !userlastname){
+            console.log(`Request from ${req.ip} to  path ${req.url} was invalid, code 418, no data.`)
+            res.status(418).send({ message: 'There was an error.' })
+        }
+        else{    
+            this.dbconnection.execute('CALL CompraPatrones (?,?,?)',
+            [macaddress,username,userlastname],
+            (err, data, fields) => {
+                if (err) throw err;
+                res.status(200).json({data})
+            })
+        }
+    }
+    compraPlanes(req,res){
+        const { macaddress } = req.body;
+        const { username } = req.body;
+        const { userlastname } = req.body;
+        console.log(macaddress,", ",username," and ", userlastname)
+        console.log(`Request from ${req.ip} to  path ${req.url}.`)
+        if (!macaddress || !username || !userlastname){
+            console.log(`Request from ${req.ip} to  path ${req.url} was invalid, code 418, no data.`)
+            res.status(418).send({ message: 'There was an error.' })
+        }
+        else{    
+            this.dbconnection.execute('CALL CompraPlanes (?,?,?)',
+            [macaddress,username,userlastname],
+            (err, data, fields) => {
+                if (err) throw err;
+                res.status(200).json({data})
+            })
+        }
+    }
+    cronometrajeProyectos(req, res){
+        const { macaddress } = req.body;
+        const { username } = req.body;
+        const { userlastname } = req.body;
+        const { projectName } = req.body;
+        console.log(macaddress,", ",username,", ", userlastname," and", projectName)
+        console.log(`Request from ${req.ip} to  path ${req.url}.`)
+        if (!macaddress || !username || !userlastname || !projectName){
+            console.log(`Request from ${req.ip} to  path ${req.url} was invalid, code 418, no data.`)
+            res.status(418).send({ message: 'There was an error.' })
+        }
+        else{    
+            this.dbconnection.execute('CALL CronometrajeProyectos (?,?,?,?)',
+            [macaddress,username,userlastname, projectName],
+            (err, data, fields) => {
+                if (err) throw err;
+                res.status(200).json({data})
+            })
+        }
+    }
+    patronesEnVenta(req, res){
+        console.log(`Request from ${req.ip} to  path ${req.url}.`)  
+        this.dbconnection.execute('CALL PatronesEnVenta()',
         (err, data, fields) => {
             if (err) throw err;
-            res.status(200).json({
-                data,
-            })
+            res.status(200).json({data})
         })
     }
-
     static getInstance(){
             if (!this.instance)
             {
