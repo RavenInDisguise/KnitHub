@@ -7,10 +7,11 @@ CREATE PROCEDURE CompraPatrones
 	IN pMacAddress VARCHAR(20),
     IN pName NVARCHAR(50),
     IN pLastName NVARCHAR(50),
-    IN Title VARCHAR(45)
+    IN pPatternTitle VARCHAR(45)
 )
 BEGIN
 	DECLARE INVALID_USER INT DEFAULT(53000);
+    DECLARE INVALID_PATTERN INT DEFAULT(53002);
 	
     DECLARE EXIT HANDLER FOR SQLEXCEPTION
     BEGIN
@@ -38,14 +39,24 @@ BEGIN
 		SIGNAL SQLSTATE '45000' SET MYSQL_ERRNO = INVALID_USER;
     END IF;
     
+    SET @PatternId = 0;
+    SELECT PatternId INTO @PatternId FROM patterns
+    WHERE Patterns.PatternId = pPatternTitle;
+    
+    IF(@PatternId = 0) THEN
+		SIGNAL SQLSTATE '45000' SET MYSQL_ERRNO = INVALID_PATTERN;
+	END IF;
+    
     SELECT payment_transactions.`PersonName`, payment_transactions.`TransAmount`, payment_transactions.`TransPosttime`, 
     payment_transactions.`TransType`, projects_patterns.`PatternName`, projects_patterns.`PatternCategoryName`,
     payment_transactions.`MerchantName`, payment_transactions.`PaymentStatus`
     FROM payment_transactions
-    INNER JOIN projects_patterns ON payment_transactions.`UserId`=project_patterns.`UserId` -- Esta linea no tenía ON, debatir si es necesario (creo que sí)
+    INNER JOIN projects_patterns ON payment_transactions.`UserId`=projects_patterns.`UserId` -- Esta linea no tenía ON, debatir si es necesario (creo que sí)
     INNER JOIN PurchasedPatternsPerUser ON payment_transactions.TransId=PurchasedPatternsPerUser.TransactionId
+    AND payment_transactions.UserId = PurchasedPatternsPerUser.UserId
     AND projects_patterns.PatternId=PurchasedPatternsPerUser.PatternId
-    WHERE payment_transactions.`UserId` = @UserId; -- Ver si filtrar también por un patrón en específico, o si muestra todos los del usuario dado
+    WHERE payment_transactions.`UserId` = @UserId 
+    AND projects_patterns.`PatternId` = @PatternId; -- Ver si filtrar también por un patrón en específico, o si muestra todos los del usuario dado
 END//
 
 DELIMITER ;
@@ -59,10 +70,11 @@ CREATE PROCEDURE CompraPlanes
 	IN pMacAddress VARCHAR(20),
     IN pName NVARCHAR(50),
     IN pLastName NVARCHAR(50),
-    IN Name VARCHAR(50)
+    IN pPlanName VARCHAR(50)
 )
 BEGIN
 	DECLARE INVALID_USER INT DEFAULT(53000);
+    DECLARE INVALID_PLAN INT DEFAULT(53003);
     
 	DECLARE EXIT HANDLER FOR SQLEXCEPTION
     BEGIN
@@ -85,6 +97,14 @@ BEGIN
 		SIGNAL SQLSTATE '45000' SET MYSQL_ERRNO = INVALID_USER;
     END IF;
     
+    SET @PlanId = 0;
+    SELECT PlanId INTO @PlanId FROM Plans
+    WHERE Plans.Name = pPlanName;
+    
+    IF(@PlanId = 0) THEN
+		SIGNAL SQLSTATE '45000' SET MYSQL_ERRNO = INVALID_PLAN;	
+	END IF;
+    
     SELECT payment_transactions.`PersonName`, payment_transactions.`TransAmount`, payment_transactions.`TransPosttime`,
     payment_transactions.`TransType`, Plans.`Name`, PlansPerUser.`PostTime`, PlansPerUser.`NextTime`,
     payment_transactions.`MerchantName`, payment_transactions.`PaymentStatus`
@@ -94,7 +114,8 @@ BEGIN
     AND payment_transactions.UserId=PlansPerUser.UserId -- -> Nueva
     INNER JOIN Plans ON PlansPerUser.PlanId=Plans.PlanId 
     -- AND Plans.PlanId=PlansPerUser.PlanId -> La quité, creo que iba mejor como join
-    WHERE payment_transactions.`UserId` = @UserId; -- Ver si filtrar también por un plan en específico, o si muestra todos los del usuario dado
+    WHERE payment_transactions.`UserId` = @UserId
+    AND Plans.PlanId = @PlanId; -- Ver si filtrar también por un plan en específico, o si muestra todos los del usuario dado
 END//
 
 DELIMITER ;
@@ -145,7 +166,7 @@ BEGIN
     SELECT projects_patterns.`PersonName`, projects_patterns.`ProjectName`, projects_patterns.`ProjectTime`
     FROM projects_patterns
     WHERE project_patterns.`UserId`=@UserId
-    AND project_patterns.``=@ProjectId;
+    AND project_patterns.`ProjectId`=@ProjectId;
 END//
 
 DELIMITER ;
@@ -190,14 +211,14 @@ CREATE PROCEDURE GenerarPatron
     IN pLastName NVARCHAR(50),
     IN pPatternName NVARCHAR(45),
     IN pPatternCategoryName NVARCHAR(45),
-    IN pMaterialName VARCHAR(45),
     OUT pLastPatternId BIGINT,
     OUT pLastPatternCategoryId INT,
     OUT pLastMaterialId INT
 )
 BEGIN
 	DECLARE INVALID_USER INT DEFAULT(53000);
-
+    DECLARE INVALID_PATTERN_CATEGORY INT DEFAULT(53004);
+	
 	DECLARE EXIT HANDLER FOR SQLEXCEPTION
     BEGIN
 		GET DIAGNOSTICS CONDITION 1 @err_no = MYSQL_ERRNO, @message = MESSAGE_TEXT;
@@ -225,34 +246,20 @@ BEGIN
     SELECT PatternCategoryId INTO @PatternCategoryId FROM PatternCategories
     WHERE PatternCategories.`Name` = pPatternCategoryName;
     
-    SET @MaterialId = 0;
-    SELECT MaterialId INTO @MaterialId FROM Materials
-    WHERE Materials.`Name` = pMaterialName;
+    IF (@PatternCategoryId = 0) THEN
+		SIGNAL SQLSTATE '45000' SET MYSQL_ERRNO = INVALID_PATTERN_CATEGORY;
+	END IF;
     
     START TRANSACTION;
 		INSERT INTO Patterns (`Title`, `UserId`)
 		VALUES (pPatternName, @UserId);
         SELECT LAST_INSERT_ID() INTO pLastPatternId;
+		
+        UPDATE Users SET PatternCount = PatternCount + 1
+        WHERE Users.UserId = @UserId;
         
-        IF (@PatternCategoryId=0) THEN
-			INSERT INTO PatternCategories (`Name`)
-			VALUES (pPatternCategoryName);
-            SELECT LAST_INSERT_ID() INTO pLastPatternCategoryId;
-		ELSE
-			SELECT @PatternCategoryId INTO pLastPatternCategoryId;
-		END IF;
         INSERT INTO CategoriesPerPattern(`PatternCategoryId`, `PatternId`)
-        VALUES (pLastPatternCategoryId, pLastPatternId);
-        
-        IF (@MaterialId=0) THEN
-			INSERT INTO Materials (`Name`)
-			VALUES (pMaterialName);
-            SELECT LAST_INSERT_ID() INTO pLastMaterialId;
-		ELSE
-			SELECT @MaterialId INTO pLastMaterialId;
-		END IF;
-        INSERT INTO MaterialsPerPattern(`MaterialId`, `PatternId`)
-        VALUES (pLastMaterialId, pLastPatternId);
+        VALUES (@PatternCategoryId, pLastPatternId);
 	COMMIT;
 END//
 
