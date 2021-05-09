@@ -1,33 +1,25 @@
 -- Trigger:
+-- Se actualiza el contador de patrones o proyectos del usuario cuando agrega uno nuevo. 
 DELIMITER //
-CREATE TRIGGER TR_ BEFORE INSERT
-ON  FOR EACH ROW 
-	UPDATE 
-	WHERE 
+CREATE TRIGGER TR_after_insert_patrones AFTER INSERT
+ON Patterns FOR EACH ROW 
+	UPDATE Users SET PatternCount=PatternCount+1
+	WHERE UserId=Users.UserId;
 //
 DELIMITER ;
 
-CREATE TRIGGER before_employee_update 
-    BEFORE UPDATE ON employees
-    FOR EACH ROW 
- INSERT INTO employees_audit
- SET action = 'update',
-     employeeNumber = OLD.employeeNumber,
-     lastname = OLD.lastname,
-     changedat = NOW();
-
 DELIMITER //
-CREATE TRIGGER TR_acc_transactions_after_insert AFTER INSERT 
-ON acc_transactions FOR EACH ROW 
-	UPDATE acc_balances SET amount = amount + NEW.Amount
-	WHERE userid=NEW.UserId AND fundid= NEW.fundid;
+CREATE TRIGGER TR_after_insert_proyectos AFTER INSERT
+ON Patterns FOR EACH ROW 
+	UPDATE Users SET ProjectCount=ProjectCount+1
+	WHERE UserId=Users.UserId;
 //
 DELIMITER ;
+
 -- Cursor:
 
 -- Substring: 
 -- Se hace uso del substring para generar los checksums:
-
 SET SQL_SAFE_UPDATES=0;
 
 UPDATE PaymentsAttempts
