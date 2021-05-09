@@ -11,7 +11,7 @@ CREATE PROCEDURE CompraPatrones
 )
 BEGIN
 	DECLARE INVALID_USER INT DEFAULT(53000);
-    DECLARE INVALID_PATTERN INT DEFAULT(53002);
+    DECLARE INVALID_PATTERN INT DEFAULT(53001);
 	
     DECLARE EXIT HANDLER FOR SQLEXCEPTION
     BEGIN
@@ -41,7 +41,8 @@ BEGIN
     
     SET @PatternId = 0;
     SELECT PatternId INTO @PatternId FROM patterns
-    WHERE Patterns.PatternId = pPatternTitle;
+    WHERE Patterns.PatternId = pPatternTitle
+    AND Patterns.UserId = @UserId;
     
     IF(@PatternId = 0) THEN
 		SIGNAL SQLSTATE '45000' SET MYSQL_ERRNO = INVALID_PATTERN;
@@ -51,12 +52,12 @@ BEGIN
     payment_transactions.`TransType`, projects_patterns.`PatternName`, projects_patterns.`PatternCategoryName`,
     payment_transactions.`MerchantName`, payment_transactions.`PaymentStatus`
     FROM payment_transactions
-    INNER JOIN projects_patterns ON payment_transactions.`UserId`=projects_patterns.`UserId` -- Esta linea no tenía ON, debatir si es necesario (creo que sí)
+    INNER JOIN projects_patterns ON payment_transactions.`UserId`=projects_patterns.`UserId`
     INNER JOIN PurchasedPatternsPerUser ON payment_transactions.TransId=PurchasedPatternsPerUser.TransactionId
     AND payment_transactions.UserId = PurchasedPatternsPerUser.UserId
     AND projects_patterns.PatternId=PurchasedPatternsPerUser.PatternId
     WHERE payment_transactions.`UserId` = @UserId 
-    AND projects_patterns.`PatternId` = @PatternId; -- Ver si filtrar también por un patrón en específico, o si muestra todos los del usuario dado
+    AND projects_patterns.`PatternId` = @PatternId;
 END//
 
 DELIMITER ;
@@ -74,7 +75,8 @@ CREATE PROCEDURE CompraPlanes
 )
 BEGIN
 	DECLARE INVALID_USER INT DEFAULT(53000);
-    DECLARE INVALID_PLAN INT DEFAULT(53003);
+    DECLARE INVALID_PLAN INT DEFAULT(53002);
+    DECLARE PLAN_NOT_FOUND_FOR_USER INT DEFAULT(53005);
     
 	DECLARE EXIT HANDLER FOR SQLEXCEPTION
     BEGIN
@@ -105,17 +107,25 @@ BEGIN
 		SIGNAL SQLSTATE '45000' SET MYSQL_ERRNO = INVALID_PLAN;	
 	END IF;
     
+    SET @PlanCount = 0;
+    SELECT COUNT(*) INTO @PlanCount FROM PlansPerUser
+    WHERE PlansPerUser.UserId=@UserId AND PlansPerUser.PlanId=@PlanId;
+    
+    IF(@PlanCount = 0) THEN
+		SIGNAL SQLSTATE '45000' SET MYSQL_ERRNO = PLAN_NOT_FOUND_FOR_USER;	
+	END IF;
+    
     SELECT payment_transactions.`PersonName`, payment_transactions.`TransAmount`, payment_transactions.`TransPosttime`,
     payment_transactions.`TransType`, Plans.`Name`, PlansPerUser.`PostTime`, PlansPerUser.`NextTime`,
     payment_transactions.`MerchantName`, payment_transactions.`PaymentStatus`
     FROM payment_transactions
-    -- INNER JOIN Plans -> La quité
     INNER JOIN PlansPerUser ON payment_transactions.TransId=PlansPerUser.TransactionId
     AND payment_transactions.UserId=PlansPerUser.UserId -- -> Nueva
     INNER JOIN Plans ON PlansPerUser.PlanId=Plans.PlanId 
-    -- AND Plans.PlanId=PlansPerUser.PlanId -> La quité, creo que iba mejor como join
     WHERE payment_transactions.`UserId` = @UserId
-    AND Plans.PlanId = @PlanId; -- Ver si filtrar también por un plan en específico, o si muestra todos los del usuario dado
+    AND Plans.PlanId = @PlanId;
+    -- Así muestra todas las veces que el usuario compró el plan
+    -- Hace falta filtrarlo de alguna forma?
 END//
 
 DELIMITER ;
@@ -132,7 +142,7 @@ CREATE PROCEDURE CronometrajeProyectos
 )
 BEGIN
 	DECLARE INVALID_USER INT DEFAULT(53000);
-	DECLARE INVALID_PROJECT INT DEFAULT(53001);
+	DECLARE INVALID_PROJECT INT DEFAULT(53003);
 
 	DECLARE EXIT HANDLER FOR SQLEXCEPTION
     BEGIN
@@ -145,14 +155,6 @@ BEGIN
         RESIGNAL SET MESSAGE_TEXT = @message;
 	END;
     
-    SET @ProjectId = 0;
-    SELECT ProjectId INTO @ProjectId FROM Projects
-    WHERE Projects.Name = pProjectName;
-    
-    IF(@ProjectId = 0) THEN
-		SIGNAL SQLSTATE '45000' SET MYSQL_ERRNO = INVALID_PROJECT;
-    END IF;
-    
     SET @UserId = 0;
     SELECT UserId INTO @UserId FROM Users
     WHERE Users.MacAddress = pMacAddress  
@@ -161,6 +163,15 @@ BEGIN
     
     IF(@UserId = 0) THEN
 		SIGNAL SQLSTATE '45000' SET MYSQL_ERRNO = INVALID_USER;
+    END IF;
+    
+    SET @ProjectId = 0;
+    SELECT ProjectId INTO @ProjectId FROM Projects
+    WHERE Projects.Name = pProjectName
+    AND Project.UserId=@UserId;
+    
+    IF(@ProjectId = 0) THEN
+		SIGNAL SQLSTATE '45000' SET MYSQL_ERRNO = INVALID_PROJECT;
     END IF;
     
     SELECT projects_patterns.`PersonName`, projects_patterns.`ProjectName`, projects_patterns.`ProjectTime`
@@ -178,7 +189,6 @@ CREATE PROCEDURE PatronesEnVenta
 (
 )
 BEGIN
-	DECLARE INVALID_PATTERN INT DEFAULT(53002);
 
 	DECLARE EXIT HANDLER FOR SQLEXCEPTION
     BEGIN
@@ -201,7 +211,7 @@ END//
 DELIMITER ;
 
 -- 5. Generación de patrones
--- Tablas modificadas: Patterns, CategoriesPerPattern, (PatternCategories), MaterialsPerPattern, (Materials)
+-- Tablas modificadas: Patterns, Users, CategoriesPerPattern
 DROP PROCEDURE IF EXISTS GenerarPatron;
 DELIMITER //
 CREATE PROCEDURE GenerarPatron
@@ -210,14 +220,12 @@ CREATE PROCEDURE GenerarPatron
     IN pName NVARCHAR(50),
     IN pLastName NVARCHAR(50),
     IN pPatternName NVARCHAR(45),
-    IN pPatternCategoryName NVARCHAR(45),
-    OUT pLastPatternId BIGINT,
-    OUT pLastPatternCategoryId INT,
-    OUT pLastMaterialId INT
+    IN pPatternCategoryName NVARCHAR(45)
 )
 BEGIN
 	DECLARE INVALID_USER INT DEFAULT(53000);
     DECLARE INVALID_PATTERN_CATEGORY INT DEFAULT(53004);
+    -- error de que el patron ya existe para el usuario
 	
 	DECLARE EXIT HANDLER FOR SQLEXCEPTION
     BEGIN
@@ -238,7 +246,7 @@ BEGIN
     AND Users.Lastname = pLastName;
     
     IF (@UserId=0) THEN
-		SIGNAL SQLSTATE '45000' SET MYSQL_ERRNO = INVALID_USER;
+        SIGNAL SQLSTATE '45000' SET MYSQL_ERRNO = INVALID_USER;
         SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'El usuario no ha sido encontrado';
     END IF;
     
@@ -250,16 +258,17 @@ BEGIN
 		SIGNAL SQLSTATE '45000' SET MYSQL_ERRNO = INVALID_PATTERN_CATEGORY;
 	END IF;
     
+    SET @LastPatternId = 0;
     START TRANSACTION;
 		INSERT INTO Patterns (`Title`, `UserId`)
 		VALUES (pPatternName, @UserId);
-        SELECT LAST_INSERT_ID() INTO pLastPatternId;
+        SELECT LAST_INSERT_ID() INTO @LastPatternId;
 		
         UPDATE Users SET PatternCount = PatternCount + 1
         WHERE Users.UserId = @UserId;
         
         INSERT INTO CategoriesPerPattern(`PatternCategoryId`, `PatternId`)
-        VALUES (@PatternCategoryId, pLastPatternId);
+        VALUES (@PatternCategoryId, @LastPatternId);
 	COMMIT;
 END//
 
@@ -275,17 +284,12 @@ CREATE PROCEDURE GenerarProyecto
     IN pName NVARCHAR(50),
     IN pLastName NVARCHAR(50),
     IN pPatternName NVARCHAR(45),
-    IN pProjectName NVARCHAR(45),
-    IN pMaterialName VARCHAR(45),
-    IN pMeasureUnitName VARCHAR(45),
-    IN pMeasureUnitAbbreviation VARCHAR(5),
-    OUT pLastProjectId BIGINT,
-    OUT pLastMaterialId INT,
-    OUT pLastMeasureUnitId INT
+    IN pProjectName NVARCHAR(45)
 )
 BEGIN
 	DECLARE INVALID_USER INT DEFAULT(53000);
-    DECLARE INVALID_PATTERN INT DEFAULT(53002);
+    DECLARE INVALID_PATTERN INT DEFAULT(53001);
+    -- error de que ya existe el proyecto para el usuario
 
 	DECLARE EXIT HANDLER FOR SQLEXCEPTION
     BEGIN
@@ -315,42 +319,29 @@ BEGIN
     WHERE Patterns.`Title`=pPatternName 
     AND Patterns.`UserId`=@UserId;
     
+    -- No sabemos que hacer si el patron no es del usuario pero está comprado
+    
     IF (@PatternId=0) THEN
 		SIGNAL SQLSTATE '45000' SET MYSQL_ERRNO = INVALID_PATTERN;
         SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'El patrón no ha sido encontrado';
     END IF;
     
-    SET @MaterialId = 0;
-    SELECT MaterialId INTO @MaterialId FROM Materials 
-    WHERE Materials.`Name`=pMaterialName;
-    
-    SET @MeasureUnitId = 0;
-    SELECT MeasureUnitId INTO @MeasureUnitId FROM MeasureUnits 
-    WHERE MeasureUnits.`Name`=pMeasureUnitName AND MeasureUnits.`Abbreviation`=pMeasureUnitAbbreviation;
-    
+    SET @LastProjectId = 0;
+    SET @MaterialCount = 0;
     
     START TRANSACTION;
 		INSERT INTO Projects (`Name`, `Time`, `PatternId`, `UserId`)
 		VALUES (pProjectName, 0, @PatternId, @UserId);
-        SELECT LAST_INSERT_ID() INTO pLastProjectId;
+        SELECT LAST_INSERT_ID() INTO @LastProjectId;
         
-        IF (@MeasureUnitId=0) THEN
-			INSERT INTO MeasureUnits (`Name`, Abbreviation)
-			VALUES (pMeasureUnitName, pMeasureUnitAbbreviation);
-            SELECT LAST_INSERT_ID() INTO pLastMeasureUnitId;
-		ELSE
-			SELECT @MeasureUnitId INTO pLastMeasureUnitId;
-		END IF;
+        UPDATE Users SET ProjectCount = ProjectCount + 1
+        WHERE Users.UserId = @UserId;
         
-        IF (@MaterialId=0) THEN
-			INSERT INTO Materials (`Name`)
-			VALUES (pMaterialName);
-            SELECT LAST_INSERT_ID() INTO pLastMaterialId;
-		ELSE
-			SELECT @MaterialId INTO pLastMaterialId;
-		END IF;
-        INSERT INTO MaterialsPerProject(`MaterialId`, `ProjectId`, `MeasureUnitId`)
-        VALUES (pLastMaterialId, pLastProjectId, pLastMeasureUnitId);
+        SELECT COUNT(*) INTO @MaterialCount FROM MaterialsPerPattern
+        WHERE MaterialsPerPattern.PatternId=@PatternId;
+        
+        -- Insertar los materiales del patrón al proyecto
+        
 	COMMIT;
 END//
 
