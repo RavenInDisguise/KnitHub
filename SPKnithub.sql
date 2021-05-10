@@ -120,7 +120,7 @@ BEGIN
     payment_transactions.`MerchantName`, payment_transactions.`PaymentStatus`
     FROM payment_transactions
     INNER JOIN PlansPerUser ON payment_transactions.TransId=PlansPerUser.TransactionId
-    AND payment_transactions.UserId=PlansPerUser.UserId -- -> Nueva
+    AND payment_transactions.UserId=PlansPerUser.UserId
     INNER JOIN Plans ON PlansPerUser.PlanId=Plans.PlanId 
     WHERE payment_transactions.`UserId` = @UserId
     AND Plans.PlanId = @PlanId;
@@ -289,8 +289,16 @@ CREATE PROCEDURE GenerarProyecto
 BEGIN
 	DECLARE INVALID_USER INT DEFAULT(53000);
     DECLARE INVALID_PATTERN INT DEFAULT(53001);
+    
+    DECLARE done INT DEFAULT FALSE;
+    DECLARE Cursor_AmountSpent DECIMAL(5,2);
+    DECLARE Cursor_MaterialId INT;
+    DECLARE Cursor_PatternId BIGINT;
+    DECLARE Cursor_MeasureUnitId INT;
+    DECLARE Materials_Cursor CURSOR FOR SELECT AmountSpent, MaterialId, PatternId, MeasureUnitId FROM MaterialsPerPattern;  -- WHERE PatternId = @PatternId;
+    DECLARE CONTINUE HANDLER FOR NOT FOUND SET done = TRUE;
+    
     -- error de que ya existe el proyecto para el usuario
-
 	DECLARE EXIT HANDLER FOR SQLEXCEPTION
     BEGIN
 		GET DIAGNOSTICS CONDITION 1 @err_no = MYSQL_ERRNO, @message = MESSAGE_TEXT;
@@ -316,8 +324,10 @@ BEGIN
     
     SET @PatternId = 0;
     SELECT PatternId INTO @PatternId FROM Patterns 
-    WHERE Patterns.`Title`=pPatternName 
-    AND Patterns.`UserId`=@UserId;
+    WHERE Patterns.`Title`=pPatternName;
+    -- AND Patterns.`UserId`=@UserId; Creo que está mal, pues el Patterns.UserId me dice de quién es el patrón
+    -- pero puede ser que un usuario no sea el dueño del patrón, pero lo haya comprado, podría ser algo así:
+    -- AND (Patterns.`UserId`=@UserId OR PurchasedPatternsPerUser.UserId = @UserId)
     
     -- No sabemos que hacer si el patron no es del usuario pero está comprado
     
@@ -327,8 +337,6 @@ BEGIN
     END IF;
     
     SET @LastProjectId = 0;
-    SET @MaterialCount = 0;
-    
     START TRANSACTION;
 		INSERT INTO Projects (`Name`, `Time`, `PatternId`, `UserId`)
 		VALUES (pProjectName, 0, @PatternId, @UserId);
@@ -337,12 +345,20 @@ BEGIN
         UPDATE Users SET ProjectCount = ProjectCount + 1
         WHERE Users.UserId = @UserId;
         
-        SELECT COUNT(*) INTO @MaterialCount FROM MaterialsPerPattern
-        WHERE MaterialsPerPattern.PatternId=@PatternId;
-        
-        -- Insertar los materiales del patrón al proyecto
-        
+        -- Insertar los materiales del patrón al proyecto mediante un cursor
+        OPEN Materials_Cursor;
+		readMaterials : LOOP
+			FETCH Materials_Cursor INTO Cursor_AmountSpent, Cursor_MaterialId, Cursor_PatternId, Cursor_MeasureUnitId;
+			IF done THEN
+				LEAVE readMaterials;
+			END IF;
+            IF Cursor_PatternId = @PatternId THEN
+				INSERT INTO MaterialsPerProject (AmountSpent, MaterialId, ProjectId, MeasureUnitId)
+				VALUES (Cursor_AmountSpent, Cursor_MaterialId, @LastProjectId, Cursor_MeasureUnitId);
+            END IF;
+		END LOOP;
 	COMMIT;
+    SELECT * FROM MaterialsPerProject; -- Es solo para revisar que se estén transfiriendo bien, cuando esté terminado y bien probado se puede quitar
 END//
 
 DELIMITER ;
