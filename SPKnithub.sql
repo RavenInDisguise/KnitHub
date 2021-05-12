@@ -360,6 +360,7 @@ BEGIN
 				VALUES (Cursor_AmountSpent, Cursor_MaterialId, @LastProjectId, Cursor_MeasureUnitId);
             END IF;
 		END LOOP;
+        CLOSE Materials_Cursor;
 	COMMIT;
     SELECT * FROM MaterialsPerProject; -- Es solo para revisar que se estén transfiriendo bien, cuando esté terminado y bien probado se puede quitar
 END//
@@ -416,9 +417,9 @@ DELIMITER ;
 -- 8. Iniciar proyecto a partir de un patrón a comprar
 -- A) Proceso de compra
 -- Tablas modificadas: PaymentAttempts, Transactions
-DROP PROCEDURE IF EXISTS A;
+DROP PROCEDURE IF EXISTS CompraPatron_NuevoProyecto;
 DELIMITER //
-CREATE PROCEDURE A
+CREATE PROCEDURE CompraPatron_NuevoProyecto
 (
 	IN pMacAddress VARCHAR(20),
     IN pName NVARCHAR(50),
@@ -447,9 +448,7 @@ BEGIN
         ELSE
             SET @message = CONCAT('Internal error: ', @message);
         END IF;
-        IF Transaction_Count=1 THEN
-			ROLLBACK;
-		END IF;
+        ROLLBACK;
         RESIGNAL SET MESSAGE_TEXT = @message;
 	END;
     
@@ -532,6 +531,7 @@ BEGIN
     
     
     SET @PaymentId = 0;
+    SET @TransactionId = 0;
     
     SET Transaction_Count = 0;
     IF Transaction_Count=0 THEN
@@ -551,9 +551,11 @@ BEGIN
     EntityTypeId)
     VALUES (SHA2(CONCAT(@TransType, @SubType, 1, @Amount, NOW()), 256), NOW(), @OwnerUserId, @Amount,
     CONCAT('Compra del patrón ', @PatternName), @PaymentId, @TransTypeId, 1, 1);
-    -- CALL B(...)
+    SELECT LAST_INSERT_ID() INTO @TransactionId;
     
-    IF @Transaction_Count=1 THEN
+    CALL CrearProyectoConNuevoPatron(@UserId, @PatternId, @TransactionId, pProjectName, Transaction_Count);
+    
+    IF Transaction_Count=1 THEN
 		COMMIT;
 	END IF;
 
@@ -561,15 +563,20 @@ END//
 
 DELIMITER ;
 
--- B) Aumento del contador de proyectos y entrega de servicio
-DROP PROCEDURE IF EXISTS B;
+-- B) Creación de nuevo proyecto y entrega de servicio
+DROP PROCEDURE IF EXISTS CrearProyectoConNuevoPatron;
 DELIMITER //
-CREATE PROCEDURE B
+CREATE PROCEDURE CrearProyectoConNuevoPatron
 (
-	-- ...
-    IN Transaction_Count BIT
+	IN pUserId BIGINT,
+    IN pPatternId BIGINT,
+    IN pTransactionId BIGINT,
+    IN pProjectName NVARCHAR(45),
+    IN pTransactionCount BIT
 )
 BEGIN
+	
+    DECLARE Transaction_Count BIT;
 
     DECLARE EXIT HANDLER FOR SQLEXCEPTION
     BEGIN
@@ -579,21 +586,28 @@ BEGIN
         ELSE
             SET @message = CONCAT('Internal error: ', @message);
         END IF;
-        IF Transaction_Count=1 THEN
-			ROLLBACK;
-		END IF;
+        ROLLBACK;
         RESIGNAL SET MESSAGE_TEXT = @message;
 	END;
     
-    IF Transaction_Count=0 THEN
+    SET @ProjectId = 0;
+    
+    IF pTransactionCount=0 THEN
 		SET Transaction_Count = 1;
+        SET pTransactionCount = 1;
         START TRANSACTION;
 	END IF;
     
-    -- 	put your code here
-    -- CALL C(...)
+    INSERT INTO PurchasedPatternsPerUser (UserId, PatternId, TransactionId)
+    VALUES (pUserId, pPatternId, pTransactionId);
     
-    IF @Transaction_Count=1 THEN
+    INSERT INTO Projects (`Name`, `Time`, PatternId, UserId)
+    VALUES (pProjectName, '00:00:00', pPatternId, pUserId);
+    SELECT LAST_INSERT_ID() INTO @ProjectId;
+
+    CALL MaterialesNuevoProyecto(pUserId, pPatternProject, @ProjectId, pTransactionCount);
+    
+    IF Transaction_Count=1 THEN
 		COMMIT;
 	END IF;
 
@@ -601,15 +615,26 @@ END//
 
 DELIMITER ;
 
--- C) Creación de nuevo proyecto y materiales por proyecto
-DROP PROCEDURE IF EXISTS C;
+-- C) Aumento del contador de proyectos y materiales por proyecto
+DROP PROCEDURE IF EXISTS MaterialesNuevoProyecto;
 DELIMITER //
-CREATE PROCEDURE C
+CREATE PROCEDURE MaterialesNuevoProyecto
 (
-	-- ...
-    IN Transaction_Count BIT
+	IN pUserId BIGINT,
+    IN pPatternId BIGINT,
+    IN pProjectId BIGINT,
+    IN pTransactionCount BIT
 )
 BEGIN
+
+	DECLARE Transaction_Count BIT;
+    DECLARE done INT DEFAULT FALSE;
+    DECLARE Cursor_AmountSpent DECIMAL(5,2);
+    DECLARE Cursor_MaterialId INT;
+    DECLARE Cursor_PatternId BIGINT;
+    DECLARE Cursor_MeasureUnitId INT;
+    DECLARE Materials_Cursor CURSOR FOR SELECT AmountSpent, MaterialId, PatternId, MeasureUnitId FROM MaterialsPerPattern;
+    DECLARE CONTINUE HANDLER FOR NOT FOUND SET done = TRUE;
     
     DECLARE EXIT HANDLER FOR SQLEXCEPTION
     BEGIN
@@ -619,21 +644,34 @@ BEGIN
         ELSE
             SET @message = CONCAT('Internal error: ', @message);
         END IF;
-        IF Transaction_Count=1 THEN
-			ROLLBACK;
-		END IF;
+        ROLLBACK;
         RESIGNAL SET MESSAGE_TEXT = @message;
 	END;
 
-    IF Transaction_Count=0 THEN
+    IF pTransactionCount=0 THEN
 		SET Transaction_Count = 1;
+        SET pTransactionCount = 1;
         START TRANSACTION;
 	END IF;
     
-    -- put your code here
+    UPDATE Users
+    SET ProjectCount = ProjectCount + 1
+    WHERE Users.UserId=pUserId;
     
-    IF @Transaction_Count=1 THEN
+    OPEN Materials_Cursor;
+		readMaterials : LOOP
+			FETCH Materials_Cursor INTO Cursor_AmountSpent, Cursor_MaterialId, Cursor_PatternId, Cursor_MeasureUnitId;
+			IF done THEN
+				LEAVE readMaterials;
+			END IF;
+            IF Cursor_PatternId = pPatternId THEN
+				INSERT INTO MaterialsPerProject (AmountSpent, MaterialId, ProjectId, MeasureUnitId)
+				VALUES (Cursor_AmountSpent, Cursor_MaterialId, pProjectId, Cursor_MeasureUnitId);
+            END IF;
+		END LOOP;
+    CLOSE Materials_Cursor;
+    
+    IF Transaction_Count=1 THEN
 		COMMIT;
 	END IF;
-
 END// 
