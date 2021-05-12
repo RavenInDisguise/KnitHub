@@ -17,7 +17,7 @@ import org.springframework.web.bind.annotation.*;
  * @author monic
  */
 @RestController
-public class PattternController {
+public class PatternController {
     @Autowired
     private PatternService service;
     
