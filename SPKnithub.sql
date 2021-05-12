@@ -324,16 +324,19 @@ BEGIN
     
     SET @PatternId = 0;
     SELECT PatternId INTO @PatternId FROM Patterns 
-    WHERE Patterns.`Title`=pPatternName;
-    -- AND Patterns.`UserId`=@UserId; Creo que está mal, pues el Patterns.UserId me dice de quién es el patrón
-    -- pero puede ser que un usuario no sea el dueño del patrón, pero lo haya comprado, podría ser algo así:
-    -- AND (Patterns.`UserId`=@UserId OR PurchasedPatternsPerUser.UserId = @UserId)
-    
-    -- No sabemos que hacer si el patron no es del usuario pero está comprado
+    WHERE Patterns.`Title`=pPatternName
+    AND Patterns.`UserId`=@UserId;
     
     IF (@PatternId=0) THEN
-		SIGNAL SQLSTATE '45000' SET MYSQL_ERRNO = INVALID_PATTERN;
-        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'El patrón no ha sido encontrado';
+		SELECT PatternId INTO @PatternId FROM PurchasedPatternsPerUser
+        INNER JOIN Patterns ON Patterns.PatternId = PurchasedPatternsPerUser.PatternId
+        WHERE Patterns.`Title`=pPatternName
+		AND PurchasedPatternsPerUser.`UserId`=@UserId;
+        
+        IF (@PatternId=0) THEN
+			SIGNAL SQLSTATE '45000' SET MYSQL_ERRNO = INVALID_PATTERN;
+			SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'El patrón no ha sido encontrado';
+		END IF;
     END IF;
     
     SET @LastProjectId = 0;
@@ -363,14 +366,78 @@ END//
 
 DELIMITER ;
 
-DROP PROCEDURE IF EXISTS A
+-- 7. Clasificación de proyectos por tiempo en columna dinamica
+DROP PROCEDURE IF EXISTS ClasificacionProyectos;
+DELIMITER //
+CREATE PROCEDURE ClasificacionProyectos
+(
+	IN pMacAddress VARCHAR(20),
+    IN pName NVARCHAR(50),
+    IN pLastName NVARCHAR(50)
+)
+BEGIN
+	DECLARE INVALID_USER INT DEFAULT(53000);
+	
+    DECLARE EXIT HANDLER FOR SQLEXCEPTION
+    BEGIN
+		GET DIAGNOSTICS CONDITION 1 @err_no = MYSQL_ERRNO, @message = MESSAGE_TEXT;
+        IF (ISNULL(@message)) THEN
+			SET @message = 'aqui saco el mensaje de un catalogo de mensajes que fue creado por equipo de desarrollo';            
+        ELSE
+            SET @message = CONCAT('Internal error: ', @message);
+        END IF;
+        RESIGNAL SET MESSAGE_TEXT = @message;
+	END;
+    
+    SET @UserId = 0;
+    SELECT UserId INTO @UserId FROM Users
+    WHERE Users.MacAddress = pMacAddress  
+    AND Users.Name = pName
+    AND Users.Lastname = pLastName;
+    
+    IF(@UserId = 0) THEN
+		SIGNAL SQLSTATE '45000' SET MYSQL_ERRNO = INVALID_USER;
+    END IF;
+    
+	SELECT Projects.`Name`, Patterns.`Title` As `Pattern Name`, Projects.`Time`, Projects.`PricePerHour`, Projects.`TotalPrice`,
+	CASE
+    WHEN Projects.Time < DATE('00:60:00') THEN 'Minutos'
+    WHEN Projects.Time < DATE('24:00:00') THEN 'Horas'
+	WHEN Projects.Time < DATE('168:00:00') THEN 'Días'
+	WHEN Projects.Time < DATE('672:00:00') THEN 'Semanas'
+	WHEN Projects.Time >= DATE('672:00:00') THEN 'Meses'
+	END AS `Time Clasification`
+	FROM Projects
+	INNER JOIN Patterns ON Projects.UserId = @UserId AND Projects.PatternId = Patterns.PatternId;
+    END//
+DELIMITER ;
+
+
+-- 8. Iniciar proyecto a partir de un patrón a comprar
+-- A) Proceso de compra
+-- Tablas modificadas: PaymentAttempts, Transactions
+DROP PROCEDURE IF EXISTS A;
 DELIMITER //
 CREATE PROCEDURE A
 (
-	-- ...
+	IN pMacAddress VARCHAR(20),
+    IN pName NVARCHAR(50),
+    IN pLastName NVARCHAR(50),
+    IN pProjectName NVARCHAR(45),
+    IN pPatternName NVARCHAR(45),
+    IN pOwnerMacAddress VARCHAR(20),
+    IN pOwnerName NVARCHAR(50),
+    IN pOwnerLastName NVARCHAR(50),
+    IN pMerchantName NVARCHAR(50),
+    IN pTransType VARCHAR(30)
 )
 BEGIN
 	DECLARE Transaction_Count BIT;
+    DECLARE INVALID_USER INT DEFAULT(53000);
+    DECLARE INVALID_PATTERN INT DEFAULT(53001);
+    DECLARE PATTERN_NOT_ON_SALE INT DEFAULT(53006);
+    DECLARE INVALID_MERCHANT INT DEFAULT(53007);
+    DECLARE INVALID_TRANSTYPE INT DEFAULT(53008);
     
     DECLARE EXIT HANDLER FOR SQLEXCEPTION
     BEGIN
@@ -386,13 +453,104 @@ BEGIN
         RESIGNAL SET MESSAGE_TEXT = @message;
 	END;
     
+    SET @OwnerUserId = 0;
+    SELECT UserId INTO @OwnerUserId FROM Users
+    WHERE Users.MacAddress=pOwnerMacAddress
+    AND Users.`Name`=pOwnerName
+    AND Users.LastName=pOwnerLastName;
+    
+    IF (@OwnerUserId=0) THEN
+		SIGNAL SQLSTATE '45000' SET MYSQL_ERRNO = INVALID_USER;
+        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'El usuario no ha sido encontrado';
+    END IF;
+    
+    
+    SET @PatternId = 0;
+    SET @PatternName = '';
+    SELECT PatternId, Title INTO @PatternId, @PatternName FROM Patterns
+    WHERE Patterns.UserId=@OwnerUserId
+    AND Patterns.Title=pPatternName;
+    
+    IF (@PatternId=0) THEN
+		SIGNAL SQLSTATE '45000' SET MYSQL_ERRNO = INVALID_PATTERN;
+        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'El usuario no ha sido encontrado';
+    END IF;
+    
+    
+    SET @PriceValueId=0;
+    SELECT PriceValueId INTO @PriceValueId FROM PatternsOnSale
+    WHERE PatternsOnSale.PatternId=@PatternId
+    AND PatternsOnSale.OnSale=1
+    ORDER BY `Date` DESC;
+    
+    IF (@PriceValueId=0) THEN
+		SIGNAL SQLSTATE '45000' SET MYSQL_ERRNO = PATTERN_NOT_ON_SALE;
+        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'El usuario no ha sido encontrado';
+    END IF;
+    
+    SET @Amount = 0;
+    SET @CurrencySymbol = '';
+    SELECT Price, CurrencySymbol INTO @Amount, @CurrencySymbol FROM PriceValues
+    WHERE PriceValues.PriceValueId=@PriceValueId;
+    
+    
+    SET @UserId = 0;
+    SET @Nickname = '';
+    SET @SecondName = '';
+    SELECT UserId, Nickname, SecondName INTO @UserId, @Nickname, @SecondName FROM Users
+    WHERE Users.MacAddress = pMacAddress  
+    AND Users.Name = pName
+    AND Users.Lastname = pLastName;
+    
+    IF(@UserId = 0) THEN
+		SIGNAL SQLSTATE '45000' SET MYSQL_ERRNO = INVALID_USER;
+    END IF;
+    
+    IF (@Nickname = '') THEN
+		SET @Nickname = NULL;
+    END IF;
+    IF (@SecondName = '') THEN
+		SET @SecondName = NULL;
+    END IF;
+    
+    
+    SET @MerchantId = 0;
+    SELECT MerchantId INTO @MerchantId FROM Merchants
+    WHERE Merchant.Name=pMerchantName;
+    
+    IF(@MerchantId = 0) THEN
+		SIGNAL SQLSTATE '45000' SET MYSQL_ERRNO = INVALID_MERCHANT;
+    END IF;
+    
+    SET @TransTypeId = 0;
+    SELECT TransTypeId INTO @TransTypeId FROM TransTypes
+    WHERE TransTypes.Name=pTransType;
+    
+    IF(@TransTypeId = 0) THEN
+		SIGNAL SQLSTATE '45000' SET MYSQL_ERRNO = INVALID_TRANSTYPE;
+    END IF;
+    
+    
+    SET @PaymentId = 0;
+    
     SET Transaction_Count = 0;
     IF Transaction_Count=0 THEN
 		SET Transaction_Count = 1;
         START TRANSACTION;
 	END IF;
     
-    -- put your code here
+    INSERT INTO PaymentAttempts (PostTime, Amount, CurrencySymbol, ReferenceNumber, MerchantTransNumber, PaymentTimeStamp, ComputerName,
+    Username, IPAddress, Checksum, Description, UserId, MerchantId, PaymentStatusId)
+    VALUES (NOW(), @Amount, @CurrencySymbol, @OwnerUserId, FLOOR(RAND()*(10-1+1))+1, current_timestamp(), pMacAddress,
+    IFNULL(@Nickname, CONCAT(pName, ' ', IFNULL(CONCAT(SUBSTRING(@SecondName, 1, 1), '. '), ''), SUBSTRING(pLastName, 1, 1), '.')),
+    '123:ABC:00', SHA2(CONCAT(@UserId, @Amount, '123:ABC:00', @MerchantId), 256), CONCAT('Compra del patrón ', @PatternName),
+    @UserId, @MerchantId, 1);
+    SELECT LAST_INSERT_ID() INTO @PaymentId;
+    
+    INSERT INTO Transactions (Checksum, PostTime, ReferenceNumber, Amount, Description, PaymentAttemptsId, TransTypeId, SubTypeId,
+    EntityTypeId)
+    VALUES (SHA2(CONCAT(@TransType, @SubType, 1, @Amount, NOW()), 256), NOW(), @OwnerUserId, @Amount,
+    CONCAT('Compra del patrón ', @PatternName), @PaymentId, @TransTypeId, 1, 1);
     -- CALL B(...)
     
     IF @Transaction_Count=1 THEN
@@ -403,8 +561,8 @@ END//
 
 DELIMITER ;
 
-
-DROP PROCEDURE IF EXISTS B
+-- B) Aumento del contador de proyectos y entrega de servicio
+DROP PROCEDURE IF EXISTS B;
 DELIMITER //
 CREATE PROCEDURE B
 (
@@ -443,8 +601,8 @@ END//
 
 DELIMITER ;
 
-
-DROP PROCEDURE IF EXISTS C
+-- C) Creación de nuevo proyecto y materiales por proyecto
+DROP PROCEDURE IF EXISTS C;
 DELIMITER //
 CREATE PROCEDURE C
 (
@@ -479,5 +637,3 @@ BEGIN
 	END IF;
 
 END// 
-
-DELIMITER ;
