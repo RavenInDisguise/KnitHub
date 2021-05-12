@@ -363,6 +363,60 @@ END//
 
 DELIMITER ;
 
+
+
+-- 7. Clasificación de proyectos por tiempo en columna dinamica
+DROP PROCEDURE IF EXISTS ClasificacionProyectos;
+DELIMITER //
+CREATE PROCEDURE ClasificacionProyectos
+(
+	IN pMacAddress VARCHAR(20),
+    IN pName NVARCHAR(50),
+    IN pLastName NVARCHAR(50)
+)
+BEGIN
+	DECLARE INVALID_USER INT DEFAULT(53000);
+	
+    DECLARE EXIT HANDLER FOR SQLEXCEPTION
+    BEGIN
+		GET DIAGNOSTICS CONDITION 1 @err_no = MYSQL_ERRNO, @message = MESSAGE_TEXT;
+        -- si es un exception de sql, ambos campos vienen en el diagnostics
+        -- pero si es una excepction forzada por el programador solo viene el ERRNO, el texto no
+        IF (ISNULL(@message)) THEN -- quiere decir q es una excepcion forzada del programador
+			SET @message = 'aqui saco el mensaje de un catalogo de mensajes que fue creado por equipo de desarrollo';            
+        ELSE
+			-- es un exception de SQL que no queremos que salga hacia la capa de aplicacion
+            -- tengo que guardar el error en una bitácora de errores... patron de bitacora
+            -- sustituyo el texto del mensaje
+            SET @message = CONCAT('Internal error: ', @message);
+        END IF;
+        RESIGNAL SET MESSAGE_TEXT = @message;
+	END;
+    
+    SET @UserId = 0;
+    SELECT UserId INTO @UserId FROM Users
+    WHERE Users.MacAddress = pMacAddress  
+    AND Users.Name = pName
+    AND Users.Lastname = pLastName;
+    
+    IF(@UserId = 0) THEN
+		SIGNAL SQLSTATE '45000' SET MYSQL_ERRNO = INVALID_USER;
+    END IF;
+	SELECT Projects.`Name`, Patterns.`Title` As `Pattern Name`, Projects.`Time`, Projects.`PricePerHour`, Projects.`TotalPrice`,
+	CASE
+    WHEN Projects.Time < DATE('00:60:00') THEN 'Minutos'
+    WHEN Projects.Time < DATE('24:00:00') THEN 'Horas'
+	WHEN Projects.Time < DATE('168:00:00') THEN 'Días'
+	WHEN Projects.Time < DATE('672:00:00') THEN 'Semanas'
+	WHEN Projects.Time >= DATE('672:00:00') THEN 'Meses'
+	END AS `Time Clasification`
+	FROM Projects
+	INNER JOIN Patterns ON Projects.UserId = @UserId AND Projects.PatternId = Patterns.PatternId;
+    END//
+DELIMITER ;
+
+
+
 DROP PROCEDURE IF EXISTS A
 DELIMITER //
 CREATE PROCEDURE A
@@ -479,5 +533,3 @@ BEGIN
 	END IF;
 
 END// 
-
-DELIMITER ;
