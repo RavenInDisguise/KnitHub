@@ -22,23 +22,23 @@ public class PattternController {
     private PatternService service;
     
     @PostMapping("/patterns")
-    public void add(@RequestBody Pattern pattern) {
+    public void add(@RequestBody Patterns pattern) {
         service.save(pattern);
     }
     
     @GetMapping("/patternsxd")
-    public List<Pattern> list() {
+    public List<Patterns> list() {
         System.out.println("HELP");
         return service.listAll();
     }
     
     @GetMapping("/patterns/{id}")
-    public ResponseEntity<Pattern> get(@PathVariable String id) {
+    public ResponseEntity<Patterns> get(@PathVariable String id) {
     try {
-        Pattern pattern = service.get(id);
-        return new ResponseEntity<Pattern>(pattern, HttpStatus.OK);
+        Patterns pattern = service.get(id);
+        return new ResponseEntity<Patterns>(pattern, HttpStatus.OK);
     } catch (NoSuchElementException e) {
-        return new ResponseEntity<Pattern>(HttpStatus.NOT_FOUND);
+        return new ResponseEntity<Patterns>(HttpStatus.NOT_FOUND);
     }      
 }
 }

@@ -11,6 +11,6 @@ import org.springframework.data.jpa.repository.JpaRepository;
  *
  * @author monic
  */
-public interface IPatternRepository extends JpaRepository<Pattern,String>{
+public interface IPatternRepository extends JpaRepository<Patterns,String>{
     
 }

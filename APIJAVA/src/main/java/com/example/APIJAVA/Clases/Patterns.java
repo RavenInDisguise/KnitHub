@@ -6,6 +6,7 @@
  
 package com.example.APIJAVA.Clases;
 
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -16,19 +17,24 @@ import javax.persistence.Id;
  * @author monic
  */
 @Entity
-public class Pattern {
-    
+public class Patterns {
+    @Column
     private String macaddress;
+    @Column
     private String userName;
+    @Column
     private String lastName;
+    @Column
     private String patternName;
+    @Column
     private String categoryName;
+    @Column
     private String materialName;
     
-    public Pattern(){
+    public Patterns(){
     }
 
-    public Pattern(String macaddress, String userName, String lastName, String patternName, String categoryName, String materialName) {
+    public Patterns(String macaddress, String userName, String lastName, String patternName, String categoryName, String materialName) {
         this.macaddress = macaddress;
         this.userName = userName;
         this.lastName = lastName;

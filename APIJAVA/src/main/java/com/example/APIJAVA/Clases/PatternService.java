@@ -20,15 +20,15 @@ public class PatternService {
     @Autowired
     private IPatternRepository repo;
     
-    public List<Pattern> listAll(){
+    public List<Patterns> listAll(){
         return repo.findAll();
     }
     
-    public void save(Pattern pattern){
+    public void save(Patterns pattern){
         repo.save(pattern);
     }
     
-     public Pattern get(String macaddress) {
+     public Patterns get(String macaddress) {
         return repo.findById(macaddress).get();
     }
     
