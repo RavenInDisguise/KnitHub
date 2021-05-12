@@ -362,3 +362,122 @@ BEGIN
 END//
 
 DELIMITER ;
+
+DROP PROCEDURE IF EXISTS A
+DELIMITER //
+CREATE PROCEDURE A
+(
+	-- ...
+)
+BEGIN
+	DECLARE Transaction_Count BIT;
+    
+    DECLARE EXIT HANDLER FOR SQLEXCEPTION
+    BEGIN
+		GET DIAGNOSTICS CONDITION 1 @err_no = MYSQL_ERRNO, @message = MESSAGE_TEXT;
+        IF (ISNULL(@message)) THEN
+			SET @message = 'Se ha producido un error';            
+        ELSE
+            SET @message = CONCAT('Internal error: ', @message);
+        END IF;
+        IF Transaction_Count=1 THEN
+			ROLLBACK;
+		END IF;
+        RESIGNAL SET MESSAGE_TEXT = @message;
+	END;
+    
+    SET Transaction_Count = 0;
+    IF Transaction_Count=0 THEN
+		SET Transaction_Count = 1;
+        START TRANSACTION;
+	END IF;
+    
+    -- put your code here
+    -- CALL B(...)
+    
+    IF @Transaction_Count=1 THEN
+		COMMIT;
+	END IF;
+
+END// 
+
+DELIMITER ;
+
+
+DROP PROCEDURE IF EXISTS B
+DELIMITER //
+CREATE PROCEDURE B
+(
+	-- ...
+    IN Transaction_Count BIT
+)
+BEGIN
+
+    DECLARE EXIT HANDLER FOR SQLEXCEPTION
+    BEGIN
+		GET DIAGNOSTICS CONDITION 1 @err_no = MYSQL_ERRNO, @message = MESSAGE_TEXT;
+        IF (ISNULL(@message)) THEN
+			SET @message = 'Se ha producido un error';            
+        ELSE
+            SET @message = CONCAT('Internal error: ', @message);
+        END IF;
+        IF Transaction_Count=1 THEN
+			ROLLBACK;
+		END IF;
+        RESIGNAL SET MESSAGE_TEXT = @message;
+	END;
+    
+    IF Transaction_Count=0 THEN
+		SET Transaction_Count = 1;
+        START TRANSACTION;
+	END IF;
+    
+    -- 	put your code here
+    -- CALL C(...)
+    
+    IF @Transaction_Count=1 THEN
+		COMMIT;
+	END IF;
+
+END// 
+
+DELIMITER ;
+
+
+DROP PROCEDURE IF EXISTS C
+DELIMITER //
+CREATE PROCEDURE C
+(
+	-- ...
+    IN Transaction_Count BIT
+)
+BEGIN
+    
+    DECLARE EXIT HANDLER FOR SQLEXCEPTION
+    BEGIN
+		GET DIAGNOSTICS CONDITION 1 @err_no = MYSQL_ERRNO, @message = MESSAGE_TEXT;
+        IF (ISNULL(@message)) THEN
+			SET @message = 'Se ha producido un error';            
+        ELSE
+            SET @message = CONCAT('Internal error: ', @message);
+        END IF;
+        IF Transaction_Count=1 THEN
+			ROLLBACK;
+		END IF;
+        RESIGNAL SET MESSAGE_TEXT = @message;
+	END;
+
+    IF Transaction_Count=0 THEN
+		SET Transaction_Count = 1;
+        START TRANSACTION;
+	END IF;
+    
+    -- put your code here
+    
+    IF @Transaction_Count=1 THEN
+		COMMIT;
+	END IF;
+
+END// 
+
+DELIMITER ;
