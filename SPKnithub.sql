@@ -31,20 +31,20 @@ BEGIN
     
     SET @UserId = 0;
     SELECT UserId INTO @UserId FROM Users
-    WHERE Users.MacAddress = pMacAddress  
-    AND Users.Name = pName
-    AND Users.Lastname = pLastName;
+    WHERE Users.MacAddress=pMacAddress  
+    AND Users.Name=pName
+    AND Users.Lastname=pLastName;
     
-    IF(@UserId = 0) THEN
+    IF(@UserId=0) THEN
 		SIGNAL SQLSTATE '45000' SET MYSQL_ERRNO = INVALID_USER;
     END IF;
     
     SET @PatternId = 0;
     SELECT PatternId INTO @PatternId FROM patterns
-    WHERE Patterns.PatternId = pPatternTitle
-    AND Patterns.UserId = @UserId;
+    WHERE Patterns.PatternId=pPatternTitle
+    AND Patterns.UserId=@UserId;
     
-    IF(@PatternId = 0) THEN
+    IF(@PatternId=0) THEN
 		SIGNAL SQLSTATE '45000' SET MYSQL_ERRNO = INVALID_PATTERN;
 	END IF;
     
@@ -54,14 +54,12 @@ BEGIN
     FROM payment_transactions
     INNER JOIN projects_patterns ON payment_transactions.`UserId`=projects_patterns.`UserId`
     INNER JOIN PurchasedPatternsPerUser ON payment_transactions.TransId=PurchasedPatternsPerUser.TransactionId
-    AND payment_transactions.UserId = PurchasedPatternsPerUser.UserId
+    AND payment_transactions.UserId=PurchasedPatternsPerUser.UserId
     AND projects_patterns.PatternId=PurchasedPatternsPerUser.PatternId
-    WHERE payment_transactions.`UserId` = @UserId 
-    AND projects_patterns.`PatternId` = @PatternId;
+    WHERE payment_transactions.`UserId`=@UserId 
+    AND projects_patterns.`PatternId`=@PatternId;
 END//
-
 DELIMITER ;
-
 
 -- 2. Muestra de resultados por compra de planes
 DROP PROCEDURE IF EXISTS CompraPlanes;
@@ -91,27 +89,27 @@ BEGIN
     
     SET @UserId = 0;
     SELECT UserId INTO @UserId FROM Users
-    WHERE Users.MacAddress = pMacAddress  
-    AND Users.Name = pName
-    AND Users.Lastname = pLastName;
+    WHERE Users.MacAddress=pMacAddress  
+    AND Users.Name=pName
+    AND Users.Lastname=pLastName;
     
-    IF(@UserId = 0) THEN
+    IF(@UserId=0) THEN
 		SIGNAL SQLSTATE '45000' SET MYSQL_ERRNO = INVALID_USER;
     END IF;
     
     SET @PlanId = 0;
     SELECT PlanId INTO @PlanId FROM Plans
-    WHERE Plans.Name = pPlanName;
+    WHERE Plans.Name=pPlanName;
     
-    IF(@PlanId = 0) THEN
+    IF(@PlanId=0) THEN
 		SIGNAL SQLSTATE '45000' SET MYSQL_ERRNO = INVALID_PLAN;	
 	END IF;
     
-    SET @PlanCount = 0;
+    SET @PlanCount=0;
     SELECT COUNT(*) INTO @PlanCount FROM PlansPerUser
     WHERE PlansPerUser.UserId=@UserId AND PlansPerUser.PlanId=@PlanId;
     
-    IF(@PlanCount = 0) THEN
+    IF(@PlanCount=0) THEN
 		SIGNAL SQLSTATE '45000' SET MYSQL_ERRNO = PLAN_NOT_FOUND_FOR_USER;	
 	END IF;
     
@@ -122,12 +120,11 @@ BEGIN
     INNER JOIN PlansPerUser ON payment_transactions.TransId=PlansPerUser.TransactionId
     AND payment_transactions.UserId=PlansPerUser.UserId
     INNER JOIN Plans ON PlansPerUser.PlanId=Plans.PlanId 
-    WHERE payment_transactions.`UserId` = @UserId
-    AND Plans.PlanId = @PlanId;
+    WHERE payment_transactions.`UserId`=@UserId
+    AND Plans.PlanId=@PlanId;
     -- Así muestra todas las veces que el usuario compró el plan
     -- Hace falta filtrarlo de alguna forma?
 END//
-
 DELIMITER ;
 
 -- 3. Cronometraje por proyecto
@@ -157,20 +154,20 @@ BEGIN
     
     SET @UserId = 0;
     SELECT UserId INTO @UserId FROM Users
-    WHERE Users.MacAddress = pMacAddress  
-    AND Users.Name = pName
-    AND Users.Lastname = pLastName;
+    WHERE Users.MacAddress=pMacAddress  
+    AND Users.Name=pName
+    AND Users.Lastname=pLastName;
     
-    IF(@UserId = 0) THEN
+    IF(@UserId=0) THEN
 		SIGNAL SQLSTATE '45000' SET MYSQL_ERRNO = INVALID_USER;
     END IF;
     
     SET @ProjectId = 0;
     SELECT ProjectId INTO @ProjectId FROM Projects
-    WHERE Projects.Name = pProjectName
+    WHERE Projects.Name=pProjectName
     AND Project.UserId=@UserId;
     
-    IF(@ProjectId = 0) THEN
+    IF(@ProjectId=0) THEN
 		SIGNAL SQLSTATE '45000' SET MYSQL_ERRNO = INVALID_PROJECT;
     END IF;
     
@@ -179,7 +176,6 @@ BEGIN
     WHERE project_patterns.`UserId`=@UserId
     AND project_patterns.`ProjectId`=@ProjectId;
 END//
-
 DELIMITER ;
 
 -- 4. Muestra de los patrones en venta
@@ -189,7 +185,6 @@ CREATE PROCEDURE PatronesEnVenta
 (
 )
 BEGIN
-
 	DECLARE EXIT HANDLER FOR SQLEXCEPTION
     BEGIN
 		GET DIAGNOSTICS CONDITION 1 @err_no = MYSQL_ERRNO, @message = MESSAGE_TEXT;
@@ -207,7 +202,6 @@ BEGIN
     INNER JOIN PatternsOnSale ON projects_patterns.PatternId=PatternsOnSale.PatternId
     INNER JOIN PriceValues ON PatternsOnSale.PriceValueId=PriceValues.PriceValueId;
 END//
-
 DELIMITER ;
 
 -- 5. Generación de patrones
@@ -241,9 +235,9 @@ BEGIN
     
     SET @UserId = 0;
     SELECT UserId INTO @UserId FROM Users
-    WHERE Users.MacAddress = pMacAddress  
-    AND Users.Name = pName
-    AND Users.Lastname = pLastName;
+    WHERE Users.MacAddress=pMacAddress  
+    AND Users.Name=pName
+    AND Users.Lastname=pLastName;
     
     IF (@UserId=0) THEN
         SIGNAL SQLSTATE '45000' SET MYSQL_ERRNO = INVALID_USER;
@@ -252,9 +246,9 @@ BEGIN
     
     SET @PatternCategoryId = 0;
     SELECT PatternCategoryId INTO @PatternCategoryId FROM PatternCategories
-    WHERE PatternCategories.`Name` = pPatternCategoryName;
+    WHERE PatternCategories.`Name`=pPatternCategoryName;
     
-    IF (@PatternCategoryId = 0) THEN
+    IF (@PatternCategoryId=0) THEN
 		SIGNAL SQLSTATE '45000' SET MYSQL_ERRNO = INVALID_PATTERN_CATEGORY;
 	END IF;
     
@@ -265,13 +259,12 @@ BEGIN
         SELECT LAST_INSERT_ID() INTO @LastPatternId;
 		
         UPDATE Users SET PatternCount = PatternCount + 1
-        WHERE Users.UserId = @UserId;
+        WHERE Users.UserId=@UserId;
         
         INSERT INTO CategoriesPerPattern(`PatternCategoryId`, `PatternId`)
         VALUES (@PatternCategoryId, @LastPatternId);
 	COMMIT;
 END//
-
 DELIMITER ;
 
 -- 6. Generación de proyectos
@@ -289,7 +282,6 @@ CREATE PROCEDURE GenerarProyecto
 BEGIN
 	DECLARE INVALID_USER INT DEFAULT(53000);
     DECLARE INVALID_PATTERN INT DEFAULT(53001);
-    
     DECLARE done INT DEFAULT FALSE;
     DECLARE Cursor_AmountSpent DECIMAL(5,2);
     DECLARE Cursor_MaterialId INT;
@@ -346,7 +338,7 @@ BEGIN
         SELECT LAST_INSERT_ID() INTO @LastProjectId;
         
         UPDATE Users SET ProjectCount = ProjectCount + 1
-        WHERE Users.UserId = @UserId;
+        WHERE Users.UserId=@UserId;
         
         -- Insertar los materiales del patrón al proyecto mediante un cursor
         OPEN Materials_Cursor;
@@ -364,7 +356,6 @@ BEGIN
 	COMMIT;
     SELECT * FROM MaterialsPerProject; -- Es solo para revisar que se estén transfiriendo bien, cuando esté terminado y bien probado se puede quitar
 END//
-
 DELIMITER ;
 
 -- 7. Clasificación de proyectos por tiempo en columna dinamica
@@ -378,7 +369,7 @@ CREATE PROCEDURE ClasificacionProyectos
 )
 BEGIN
 	DECLARE INVALID_USER INT DEFAULT(53000);
-	
+
     DECLARE EXIT HANDLER FOR SQLEXCEPTION
     BEGIN
 		GET DIAGNOSTICS CONDITION 1 @err_no = MYSQL_ERRNO, @message = MESSAGE_TEXT;
@@ -412,7 +403,6 @@ BEGIN
 	INNER JOIN Patterns ON Projects.UserId = @UserId AND Projects.PatternId = Patterns.PatternId;
     END//
 DELIMITER ;
-
 
 -- 8. Iniciar proyecto a partir de un patrón a comprar
 -- A) Proceso de compra
@@ -475,7 +465,6 @@ BEGIN
         SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'El usuario no ha sido encontrado';
     END IF;
     
-    
     SET @PriceValueId=0;
     SELECT PriceValueId INTO @PriceValueId FROM PatternsOnSale
     WHERE PatternsOnSale.PatternId=@PatternId
@@ -491,8 +480,7 @@ BEGIN
     SET @CurrencySymbol = '';
     SELECT Price, CurrencySymbol INTO @Amount, @CurrencySymbol FROM PriceValues
     WHERE PriceValues.PriceValueId=@PriceValueId;
-    
-    
+
     SET @UserId = 0;
     SET @Nickname = '';
     SET @SecondName = '';
@@ -508,10 +496,10 @@ BEGIN
     IF (@Nickname = '') THEN
 		SET @Nickname = NULL;
     END IF;
+    
     IF (@SecondName = '') THEN
 		SET @SecondName = NULL;
     END IF;
-    
     
     SET @MerchantId = 0;
     SELECT MerchantId INTO @MerchantId FROM Merchants
@@ -529,11 +517,10 @@ BEGIN
 		SIGNAL SQLSTATE '45000' SET MYSQL_ERRNO = INVALID_TRANSTYPE;
     END IF;
     
-    
     SET @PaymentId = 0;
     SET @TransactionId = 0;
-    
     SET Transaction_Count = 0;
+    
     IF Transaction_Count=0 THEN
 		SET Transaction_Count = 1;
         START TRANSACTION;
@@ -558,9 +545,7 @@ BEGIN
     IF Transaction_Count=1 THEN
 		COMMIT;
 	END IF;
-
 END// 
-
 DELIMITER ;
 
 -- B) Creación de nuevo proyecto y entrega de servicio
@@ -575,7 +560,6 @@ CREATE PROCEDURE CrearProyectoConNuevoPatron
     IN pTransactionCount BIT
 )
 BEGIN
-	
     DECLARE Transaction_Count BIT;
 
     DECLARE EXIT HANDLER FOR SQLEXCEPTION
@@ -610,7 +594,6 @@ BEGIN
     IF Transaction_Count=1 THEN
 		COMMIT;
 	END IF;
-
 END// 
 
 DELIMITER ;
@@ -626,7 +609,6 @@ CREATE PROCEDURE MaterialesNuevoProyecto
     IN pTransactionCount BIT
 )
 BEGIN
-
 	DECLARE Transaction_Count BIT;
     DECLARE done INT DEFAULT FALSE;
     DECLARE Cursor_AmountSpent DECIMAL(5,2);
@@ -675,3 +657,53 @@ BEGIN
 		COMMIT;
 	END IF;
 END// 
+
+-- 9. Insertar N pasos a un patrón
+DROP PROCEDURE IF EXISTS LoadStepsIntoPattern;
+DELIMITER //
+CREATE PROCEDURE LoadStepsIntoPattern
+(
+	IN pUniversallyUniqueIdentifier VARCHAR(36)
+)
+BEGIN
+    DECLARE EXIT HANDLER FOR SQLEXCEPTION
+    BEGIN
+		GET DIAGNOSTICS CONDITION 1 @err_no = MYSQL_ERRNO, @message = MESSAGE_TEXT;
+        IF (ISNULL(@message)) THEN
+			SET @message = 'Se ha producido un error';            
+        ELSE
+            SET @message = CONCAT('Internal error: ', @message);
+        END IF;
+        ROLLBACK;
+        RESIGNAL SET MESSAGE_TEXT = @message;
+	END;
+
+    START TRANSACTION;
+		INSERT INTO Steps (StepNumber, Instruction, PatternId)
+		SELECT StepNumber, Instruction, PatternId FROM TemporarySteps
+        WHERE UniversallyUniqueIdentifier = pUniversallyUniqueIdentifier;
+    COMMIT;
+END// 
+
+-- Llenado de los datos de la tabla temporal
+SET @UUID = '';
+SELECT UUID() into @UUID;
+
+SET @PatternId = #Id del patrón donde se insertará N pasos;
+
+ CREATE TEMPORARY TABLE TemporarySteps (
+	UniversallyUniqueIdentifier VARCHAR(36),
+    StepNumber TINYINT,
+    Instruction NVARCHAR(1000),
+    PatternId BIGINT
+);
+
+INSERT INTO TemporarySteps (UniversallyUniqueIdentifier, StepNumber, Instruction, PatternId)
+VALUES
+(@UUID, 1, 'Paso 1', @PatternId),
+(@UUID, 2, 'Paso 2', @PatternId),
+(@UUID, 3, 'Paso 3', @PatternId),
+(@UUID, 4, 'Paso 4', @PatternId),
+(@UUID, 5, 'Paso 5', @PatternId);
+
+CALL LoadStepsIntoPattern (@UUID);
