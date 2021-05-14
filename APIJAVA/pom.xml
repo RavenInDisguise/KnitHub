@@ -12,7 +12,7 @@
 	<artifactId>APIJAVA</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
 	<name>APIJAVA</name>
-	<description>Demo project for Spring Boot</description>
+	<description>Api Java project for Spring Boot</description>
 	<properties>
 		<java.version>11</java.version>
 	</properties>
@@ -31,6 +31,22 @@
 			<artifactId>mysql-connector-java</artifactId>
 			<scope>runtime</scope>
 		</dependency>
+                <dependency>
+                        <groupId>org.apache.tomcat.embed</groupId>
+                        <artifactId>tomcat-embed-jasper</artifactId>
+                        <scope>provided</scope>
+                </dependency>
+                
+                <dependency>
+                        <groupId>org.springframework.boot</groupId>
+                        <artifactId>spring-boot-starter-thymeleaf</artifactId>
+                </dependency>
+                
+                <dependency>
+                    <groupId>javax.xml.bind</groupId>
+                    <artifactId>jaxb-api</artifactId>
+                </dependency>
+
 		
 	</dependencies>
 

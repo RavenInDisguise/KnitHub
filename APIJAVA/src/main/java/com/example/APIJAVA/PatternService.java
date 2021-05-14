@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package com.example.APIJAVA.Clases;
+package com.example.APIJAVA;
 
 import java.util.List;
 import javax.transaction.Transactional;
@@ -24,16 +24,16 @@ public class PatternService {
         return repo.findAll();
     }
     
-    public void save(Patterns pattern){
-        repo.save(pattern);
+    public void save(Patterns Patterns){
+        repo.save(Patterns);
     }
     
      public Patterns get(String macaddress) {
         return repo.findById(macaddress).get();
     }
     
-    public void delete(String macaddress){
+    /*public void delete(String macaddress){
         repo.deleteById(macaddress);
-    }
+    }*/
 }
 
