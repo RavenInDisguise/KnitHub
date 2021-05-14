@@ -7,3 +7,5 @@
 53006: Pattern is not on sale
 53007: Invalid merchant
 53008: Invalid Transtype
+53009: Invalid Payment Attempt
+53010: Invalid Transaction

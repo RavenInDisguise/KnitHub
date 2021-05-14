@@ -520,6 +520,7 @@ BEGIN
     SET @PaymentId = 0;
     SET @TransactionId = 0;
     SET Transaction_Count = 0;
+    SET @CurrentTime = NOW();
     
     IF Transaction_Count=0 THEN
 		SET Transaction_Count = 1;
@@ -528,7 +529,7 @@ BEGIN
     
     INSERT INTO PaymentAttempts (PostTime, Amount, CurrencySymbol, ReferenceNumber, MerchantTransNumber, PaymentTimeStamp, ComputerName,
     Username, IPAddress, Checksum, Description, UserId, MerchantId, PaymentStatusId)
-    VALUES (NOW(), @Amount, @CurrencySymbol, @OwnerUserId, FLOOR(RAND()*(10-1+1))+1, current_timestamp(), pMacAddress,
+    VALUES (@CurrentTime, @Amount, @CurrencySymbol, @OwnerUserId, FLOOR(RAND()*(10-1+1))+1, current_timestamp(), pMacAddress,
     IFNULL(@Nickname, CONCAT(pName, ' ', IFNULL(CONCAT(SUBSTRING(@SecondName, 1, 1), '. '), ''), SUBSTRING(pLastName, 1, 1), '.')),
     '123:ABC:00', SHA2(CONCAT(@UserId, @Amount, '123:ABC:00', @MerchantId), 256), CONCAT('Compra del patrón ', @PatternName),
     @UserId, @MerchantId, 1);
@@ -540,7 +541,8 @@ BEGIN
     CONCAT('Compra del patrón ', @PatternName), @PaymentId, @TransTypeId, 1, 1);
     SELECT LAST_INSERT_ID() INTO @TransactionId;
     
-    CALL CrearProyectoConNuevoPatron(@UserId, @PatternId, @TransactionId, pProjectName, Transaction_Count);
+    CALL CrearProyectoConNuevoPatron(pMacAddress, pName, pLastName, pPatternName, pOwnerMacAddress, pOwnerName, pOwnerLastName,
+    @CurrentTime, pProjectName, Transaction_Count);
     
     IF Transaction_Count=1 THEN
 		COMMIT;
@@ -549,17 +551,28 @@ END//
 DELIMITER ;
 
 -- B) Creación de nuevo proyecto y entrega de servicio
+-- Tablas modificadas: PurchasedPatternsPerUser, Projects
 DROP PROCEDURE IF EXISTS CrearProyectoConNuevoPatron;
 DELIMITER //
 CREATE PROCEDURE CrearProyectoConNuevoPatron
 (
-	IN pUserId BIGINT,
-    IN pPatternId BIGINT,
-    IN pTransactionId BIGINT,
+	IN pMacAddress VARCHAR(20),
+    IN pName NVARCHAR(50),
+    IN pLastName NVARCHAR(50),
+    IN pPatternName NVARCHAR(45),
+    IN pOwnerMacAddress VARCHAR(20),
+    IN pOwnerName NVARCHAR(50),
+    IN pOwnerLastName NVARCHAR(50),
+    IN pTransactionTime DATE,
     IN pProjectName NVARCHAR(45),
     IN pTransactionCount BIT
 )
 BEGIN
+	DECLARE INVALID_USER INT DEFAULT(53000);
+    DECLARE INVALID_PATTERN INT DEFAULT(53001);
+    DECLARE INVALID_PAYMENT_ATTEMPT INT DEFAULT(53009);
+    DECLARE INVALID_TRANSACTION INT DEFAULT(53010);
+
     DECLARE Transaction_Count BIT;
 
     DECLARE EXIT HANDLER FOR SQLEXCEPTION
@@ -574,6 +587,56 @@ BEGIN
         RESIGNAL SET MESSAGE_TEXT = @message;
 	END;
     
+    SET @OwnerUserId = 0;
+    SELECT UserId INTO @OwnerUserId FROM Users
+    WHERE Users.MacAddress=pOwnerMacAddress
+    AND Users.`Name`=pOwnerName
+    AND Users.LastName=pOwnerLastName;
+    
+    IF (@OwnerUserId=0) THEN
+		SIGNAL SQLSTATE '45000' SET MYSQL_ERRNO = INVALID_USER;
+        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'El usuario no ha sido encontrado';
+    END IF;
+    
+    SET @PatternId = 0;
+    SET @PatternName = '';
+    SELECT PatternId, Title INTO @PatternId, @PatternName FROM Patterns
+    WHERE Patterns.UserId=@OwnerUserId
+    AND Patterns.Title=pPatternName;
+    
+    IF (@PatternId=0) THEN
+		SIGNAL SQLSTATE '45000' SET MYSQL_ERRNO = INVALID_PATTERN;
+        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'El usuario no ha sido encontrado';
+    END IF;
+    
+    SET @UserId = 0;
+    SELECT UserId INTO @UserId FROM Users
+    WHERE Users.MacAddress = pMacAddress  
+    AND Users.Name = pName
+    AND Users.Lastname = pLastName;
+    
+    IF(@UserId = 0) THEN
+		SIGNAL SQLSTATE '45000' SET MYSQL_ERRNO = INVALID_USER;
+    END IF;
+    
+    SET @PaymentId = 0;
+    SELECT PaymentAttemptId INTO @PaymentId FROM PaymentAttempts
+    WHERE PaymentAttempts.PostTime = pTransactionTime
+    AND PaymentAttempts.UserId = @UserId
+    AND PaymentAttempts.ReferenceNumber = @OwnerUserId;
+    
+    IF(@PaymentId = 0) THEN
+		SIGNAL SQLSTATE '45000' SET MYSQL_ERRNO = INVALID_PAYMENT_ATTEMPT;
+    END IF;
+    
+    SET @TransId = 0;
+    SELECT TransactionId INTO @TransId FROM Transactions
+    WHERE Transactions.PaymentAttemptId = @PaymentId;
+    
+	IF(@TransId = 0) THEN
+		SIGNAL SQLSTATE '45000' SET MYSQL_ERRNO = INVALID_TRANSACTION;
+    END IF;
+    
     SET @ProjectId = 0;
     
     IF pTransactionCount=0 THEN
@@ -583,13 +646,14 @@ BEGIN
 	END IF;
     
     INSERT INTO PurchasedPatternsPerUser (UserId, PatternId, TransactionId)
-    VALUES (pUserId, pPatternId, pTransactionId);
+    VALUES (@UserId, @PatternId, @TransId);
     
     INSERT INTO Projects (`Name`, `Time`, PatternId, UserId)
-    VALUES (pProjectName, '00:00:00', pPatternId, pUserId);
+    VALUES (pProjectName, '00:00:00', @PatternId, @UserId);
     SELECT LAST_INSERT_ID() INTO @ProjectId;
 
-    CALL MaterialesNuevoProyecto(pUserId, pPatternProject, @ProjectId, pTransactionCount);
+    CALL MaterialesNuevoProyecto(pMacAddress, pName, pLastName, pOwnerMacAddress, pOwnerName, pOwnerLastName, pProjectName,
+    pTransactionCount);
     
     IF Transaction_Count=1 THEN
 		COMMIT;
@@ -599,16 +663,26 @@ END//
 DELIMITER ;
 
 -- C) Aumento del contador de proyectos y materiales por proyecto
+-- Tablas modificadas: Users, MaterialsPerProject
 DROP PROCEDURE IF EXISTS MaterialesNuevoProyecto;
 DELIMITER //
 CREATE PROCEDURE MaterialesNuevoProyecto
 (
-	IN pUserId BIGINT,
-    IN pPatternId BIGINT,
-    IN pProjectId BIGINT,
+	IN pMacAddress VARCHAR(20),
+    IN pName NVARCHAR(50),
+    IN pLastName NVARCHAR(50),
+    IN pPatternName NVARCHAR(45),
+    IN pOwnerMacAddress VARCHAR(20),
+    IN pOwnerName NVARCHAR(50),
+    IN pOwnerLastName NVARCHAR(50),
+    IN pProjectName NVARCHAR(45),
     IN pTransactionCount BIT
 )
 BEGIN
+	DECLARE INVALID_USER INT DEFAULT(53000);
+    DECLARE INVALID_PATTERN INT DEFAULT(53001);
+	DECLARE INVALID_PROJECT INT DEFAULT(53003);
+    
 	DECLARE Transaction_Count BIT;
     DECLARE done INT DEFAULT FALSE;
     DECLARE Cursor_AmountSpent DECIMAL(5,2);
@@ -629,6 +703,47 @@ BEGIN
         ROLLBACK;
         RESIGNAL SET MESSAGE_TEXT = @message;
 	END;
+    
+    SET @OwnerUserId = 0;
+    SELECT UserId INTO @OwnerUserId FROM Users
+    WHERE Users.MacAddress=pOwnerMacAddress
+    AND Users.`Name`=pOwnerName
+    AND Users.LastName=pOwnerLastName;
+    
+    IF (@OwnerUserId=0) THEN
+		SIGNAL SQLSTATE '45000' SET MYSQL_ERRNO = INVALID_USER;
+        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'El usuario no ha sido encontrado';
+    END IF;
+    
+    SET @PatternId = 0;
+    SET @PatternName = '';
+    SELECT PatternId, Title INTO @PatternId, @PatternName FROM Patterns
+    WHERE Patterns.UserId=@OwnerUserId
+    AND Patterns.Title=pPatternName;
+    
+    IF (@PatternId=0) THEN
+		SIGNAL SQLSTATE '45000' SET MYSQL_ERRNO = INVALID_PATTERN;
+        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'El usuario no ha sido encontrado';
+    END IF;
+    
+    SET @UserId = 0;
+    SELECT UserId INTO @UserId FROM Users
+    WHERE Users.MacAddress = pMacAddress  
+    AND Users.Name = pName
+    AND Users.Lastname = pLastName;
+    
+    IF(@UserId = 0) THEN
+		SIGNAL SQLSTATE '45000' SET MYSQL_ERRNO = INVALID_USER;
+    END IF;
+    
+    SET @ProjectId = 0;
+    SELECT ProjectId INTO @ProjectId FROM Projects
+    WHERE Projects.UserId = @UserId
+    AND Projects.Name = pProjectName;
+    
+    IF(@ProjectId = 0) THEN
+		SIGNAL SQLSTATE '45000' SET MYSQL_ERRNO = INVALID_PROJECT;
+    END IF;
 
     IF pTransactionCount=0 THEN
 		SET Transaction_Count = 1;
@@ -638,7 +753,7 @@ BEGIN
     
     UPDATE Users
     SET ProjectCount = ProjectCount + 1
-    WHERE Users.UserId=pUserId;
+    WHERE Users.UserId=@UserId;
     
     OPEN Materials_Cursor;
 		readMaterials : LOOP
@@ -646,9 +761,9 @@ BEGIN
 			IF done THEN
 				LEAVE readMaterials;
 			END IF;
-            IF Cursor_PatternId = pPatternId THEN
+            IF Cursor_PatternId = @PatternId THEN
 				INSERT INTO MaterialsPerProject (AmountSpent, MaterialId, ProjectId, MeasureUnitId)
-				VALUES (Cursor_AmountSpent, Cursor_MaterialId, pProjectId, Cursor_MeasureUnitId);
+				VALUES (Cursor_AmountSpent, Cursor_MaterialId, @ProjectId, Cursor_MeasureUnitId);
             END IF;
 		END LOOP;
     CLOSE Materials_Cursor;
