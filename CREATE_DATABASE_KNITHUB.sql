@@ -72,7 +72,7 @@ ENGINE = InnoDB;
 -- Table `KnitHub`.`SocialNetworks`
 -- -----------------------------------------------------
 CREATE TABLE IF NOT EXISTS `KnitHub`.`SocialNetworks` (
-  `SocialNetworksId` INT NULL AUTO_INCREMENT,
+  `SocialNetworksId` INT NOT NULL AUTO_INCREMENT,
   `Name` VARCHAR(45) NOT NULL,
   `URL` VARCHAR(128) NOT NULL,
   `IconURL` VARCHAR(128) NOT NULL,
@@ -172,7 +172,7 @@ ENGINE = InnoDB;
 CREATE TABLE IF NOT EXISTS `KnitHub`.`Projects` (
   `ProjectId` BIGINT NOT NULL AUTO_INCREMENT,
   `Name` NVARCHAR(45) NOT NULL,
-  `Time` TIME NOT NULL,
+  `Time` TIME NULL,
   `PricePerHour` DECIMAL(7,2) NULL,
   `TotalPrice` DECIMAL(10,2) NULL,
   `PatternId` BIGINT NOT NULL,
@@ -232,6 +232,7 @@ CREATE TABLE IF NOT EXISTS `KnitHub`.`PaymentsAttempts` (
   `Username` NVARCHAR(50) NOT NULL,
   `IPAddress` VARCHAR(45) NOT NULL,
   `Checksum` VARBINARY(300) NOT NULL,
+  `PaymentConceptId` INT NOT NULL,
   `Description` NVARCHAR(300) NOT NULL,
   `UserId` BIGINT NOT NULL,
   `MerchantId` BIGINT NOT NULL,
@@ -376,10 +377,10 @@ ENGINE = InnoDB;
 CREATE TABLE IF NOT EXISTS `KnitHub`.`Plans` (
   `PlanId` BIGINT NOT NULL AUTO_INCREMENT,
   `Name` NVARCHAR(50) NOT NULL,
-  `Amount` DECIMAL(7,2) NOT NULL,
+  `Amount` DECIMAL NOT NULL,
   `Description` NVARCHAR(300) NOT NULL,
   `StartTime` DATETIME NOT NULL,
-  `EndTime` DATETIME NULL,
+  `EndTime` DATETIME NOT NULL,
   `Enabled` BIT NOT NULL,
   `IconUrl` VARCHAR(128) NOT NULL,
   `RecurrenceTypeId` BIGINT NOT NULL,
@@ -435,10 +436,9 @@ CREATE TABLE IF NOT EXISTS `KnitHub`.`PlansPerUser` (
   `NextTime` DATE NOT NULL,
   `UserId` BIGINT NOT NULL,
   `PlanId` BIGINT NOT NULL,
-  `TransactionId` BIGINT NOT NULL,
+  PRIMARY KEY (`PostTime`),
   INDEX `fk_PlansPerUser_Users1_idx` (`UserId` ASC) VISIBLE,
   INDEX `fk_PlansPerUser_Plans1_idx` (`PlanId` ASC) VISIBLE,
-  INDEX `fk_PlansPerUser_Transactions1_idx` (`TransactionId` ASC) VISIBLE,
   CONSTRAINT `fk_PlansPerUser_Users1`
     FOREIGN KEY (`UserId`)
     REFERENCES `KnitHub`.`Users` (`UserId`)
@@ -447,11 +447,6 @@ CREATE TABLE IF NOT EXISTS `KnitHub`.`PlansPerUser` (
   CONSTRAINT `fk_PlansPerUser_Plans1`
     FOREIGN KEY (`PlanId`)
     REFERENCES `KnitHub`.`Plans` (`PlanId`)
-    ON DELETE NO ACTION
-    ON UPDATE NO ACTION,
-  CONSTRAINT `fk_PlansPerUser_Transactions1`
-    FOREIGN KEY (`TransactionId`)
-    REFERENCES `KnitHub`.`Transactions` (`TransactionId`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION)
 ENGINE = InnoDB;
@@ -471,7 +466,7 @@ ENGINE = InnoDB;
 -- Table `KnitHub`.`AppSources`
 -- -----------------------------------------------------
 CREATE TABLE IF NOT EXISTS `KnitHub`.`AppSources` (
-  `AppSourceId` BIGINT NOT NULL AUTO_INCREMENT AUTO_INCREMENT,
+  `AppSourceId` BIGINT NOT NULL AUTO_INCREMENT,
   `Name` VARCHAR(45) NOT NULL,
   PRIMARY KEY (`AppSourceId`))
 ENGINE = InnoDB;
@@ -628,7 +623,6 @@ ENGINE = InnoDB;
 -- -----------------------------------------------------
 CREATE TABLE IF NOT EXISTS `KnitHub`.`Steps` (
   `StepId` INT NOT NULL AUTO_INCREMENT,
-  `StepNumber` TINYINT NOT NULL,
   `Instruction` NVARCHAR(1000) NOT NULL,
   `PatternId` BIGINT NOT NULL,
   PRIMARY KEY (`StepId`),
