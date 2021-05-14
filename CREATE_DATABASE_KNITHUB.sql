@@ -72,7 +72,7 @@ ENGINE = InnoDB;
 -- Table `KnitHub`.`SocialNetworks`
 -- -----------------------------------------------------
 CREATE TABLE IF NOT EXISTS `KnitHub`.`SocialNetworks` (
-  `SocialNetworksId` INT NULL AUTO_INCREMENT,
+  `SocialNetworksId` INT NOT NULL AUTO_INCREMENT,
   `Name` VARCHAR(45) NOT NULL,
   `URL` VARCHAR(128) NOT NULL,
   `IconURL` VARCHAR(128) NOT NULL,
@@ -466,7 +466,7 @@ ENGINE = InnoDB;
 -- Table `KnitHub`.`AppSources`
 -- -----------------------------------------------------
 CREATE TABLE IF NOT EXISTS `KnitHub`.`AppSources` (
-  `AppSourceId` BIGINT NOT NULL AUTO_INCREMENT AUTO_INCREMENT,
+  `AppSourceId` BIGINT NOT NULL AUTO_INCREMENT,
   `Name` VARCHAR(45) NOT NULL,
   PRIMARY KEY (`AppSourceId`))
 ENGINE = InnoDB;
