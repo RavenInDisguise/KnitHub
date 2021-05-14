@@ -7,13 +7,13 @@ AS
 SELECT `Users`.`UserId`,
     `Users`.`MacAddress`,
     `Users`.`Nickname`,
-    CONCAT(`Users`.`Name`,' ',IFNULL(SecondName, ''),' ',`Users`.`LastName`) AS 'PersonName',
+    CONCAT(`Users`.`Name`,' ',IFNULL(CONCAT(SecondName, ' '), ''),`Users`.`LastName`) AS 'PersonName',
     `Users`.`Password`,
     `Users`.`PatternCount`,
     `Users`.`ProjectCount`,
     `Countries`.`Name` AS 'CountryName',
     `Cities`.`Name` AS 'CityName',
-     PayAtt.`PaymentAttemptsId`,
+     PayAtt.`PaymentAttemptId`,
      PayAtt.`PostTime`,
      PayAtt.`Amount`,
      PayAtt.`CurrencySymbol`,
@@ -43,10 +43,10 @@ SELECT `Users`.`UserId`,
 FROM `KnitHub`.`Users`
 INNER JOIN Cities ON Users.CityId=Cities.CityId
 INNER JOIN Countries ON Cities.CityId=Countries.CountryId
-INNER JOIN PaymentsAttempts PayAtt ON Users.UserId=PayAtt.UserId
+INNER JOIN PaymentAttempts PayAtt ON Users.UserId=PayAtt.UserId
 INNER JOIN Merchants ON PayAtt.MerchantId=Merchants.MerchantId
 INNER JOIN PaymentStatus PayStat ON PayAtt.PaymentStatusId=PayStat.PaymentStatusId
-INNER JOIN Transactions Trans ON Trans.PaymentAttemptsId=PayAtt.PaymentAttemptsId
+INNER JOIN Transactions Trans ON Trans.PaymentAttemptId=PayAtt.PaymentAttemptId
 INNER JOIN TransTypes TTypes ON Trans.TransactionId=TTypes.TransTypeId
 INNER JOIN SubTypes STypes ON Trans.SubTypeId=STypes.SubTypeId
 INNER JOIN EntityTypes EntTypes ON EntTypes.EntityTypeId=Trans.EntityTypeId; 
@@ -60,7 +60,7 @@ CREATE VIEW projects_patterns
 AS
 SELECT `Users`.`UserId`,
 	IFNULL(`Users`.`Nickname`, 'NONE') AS 'Nickname',
-	CONCAT(`Users`.`Name`, ' ', IFNULL(SecondName, ''), ' ', `Users`.`LastName`) AS 'PersonName',
+	CONCAT(`Users`.`Name`,' ',IFNULL(CONCAT(SecondName, ' '), ''),`Users`.`LastName`) AS 'PersonName',
 	`Users`.`MacAddress`,
     IFNULL(`Users`.`Password`, 'NONE') AS 'Password',
     `Users`.`PatternCount`,
