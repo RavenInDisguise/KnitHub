@@ -3,32 +3,26 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
- 
-package com.example.APIJAVA.Clases;
+package com.example.APIJAVA;
 
-import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.Table;
 
 /**
  *
  * @author monic
  */
 @Entity
+@Table(name="Patterns")
 public class Patterns {
-    @Column
     private String macaddress;
-    @Column
     private String userName;
-    @Column
     private String lastName;
-    @Column
     private String patternName;
-    @Column
     private String categoryName;
-    @Column
     private String materialName;
     
     public Patterns(){
@@ -94,3 +88,4 @@ public class Patterns {
     }
     
 }
+
