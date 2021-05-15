@@ -9,3 +9,5 @@
 53008: Invalid Transtype
 53009: Invalid Payment Attempt
 53010: Invalid Transaction
+53011: Pattern name in use
+53012: Project name in use
