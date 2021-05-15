@@ -23,12 +23,18 @@ import org.springframework.web.bind.annotation.RequestMapping;
  * @author monic
  */
 @RestController
-@RequestMapping("/Patterns")
+@RequestMapping("/knithub")
 public class PatternController {
     @Autowired
     PatternService service;
     
-    @PostMapping("/add")
+    @GetMapping("/patterns")
+    public ResponseEntity<List<Patterns>> list() {
+        List<Patterns> lista = service.listSalePatterns();
+        return new ResponseEntity(lista,HttpStatus.OK);
+    }
+    
+    /*@PostMapping("/add")
     public void add(@RequestBody Patterns Patterns) {
         service.save(Patterns);
     }
@@ -45,7 +51,7 @@ public class PatternController {
         return new ResponseEntity<Patterns>(Patterns, HttpStatus.OK);
     } catch (NoSuchElementException e) {
         return new ResponseEntity<Patterns>(HttpStatus.NOT_FOUND);
-    }      
-}
+    }     
+} */
 }
     

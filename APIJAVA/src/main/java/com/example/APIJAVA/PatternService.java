@@ -20,7 +20,15 @@ public class PatternService {
     @Autowired
     private IPatternRepository repo;
     
-    public List<Patterns> listAll(){
+    public List<Patterns> listSalePatterns(){
+        return repo.PatronesEnVenta();
+    }
+    
+     //public Optional<Patterns> (){
+        //return repo.CompraPatrones();
+    //}
+    
+    /*public List<Patterns> listAll(){
         return repo.findAll();
     }
     
@@ -32,7 +40,7 @@ public class PatternService {
         return repo.findById(macaddress).get();
     }
     
-    /*public void delete(String macaddress){
+    public void delete(String macaddress){
         repo.deleteById(macaddress);
     }*/
 }

@@ -34,7 +34,6 @@ public class Patterns {
         this.lastName = lastName;
         this.patternName = patternName;
         this.categoryName = categoryName;
-        this.materialName = materialName;
     }
     
     @Id
@@ -79,13 +78,5 @@ public class Patterns {
         this.categoryName = categoryName;
     }
 
-    public String getMaterialName() {
-        return materialName;
-    }
-
-    public void setMaterialName(String materialName) {
-        this.materialName = materialName;
-    }
-    
 }
 
