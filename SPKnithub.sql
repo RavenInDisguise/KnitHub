@@ -219,7 +219,7 @@ CREATE PROCEDURE GenerarPatron
 BEGIN
 	DECLARE INVALID_USER INT DEFAULT(53000);
     DECLARE INVALID_PATTERN_CATEGORY INT DEFAULT(53004);
-    -- error de que el patron ya existe para el usuario
+    DECLARE PATTERN_NAME_ALREADY_IN_USE INT DEFAULT(53011);
 	
 	DECLARE EXIT HANDLER FOR SQLEXCEPTION
     BEGIN
@@ -242,6 +242,15 @@ BEGIN
     IF (@UserId=0) THEN
         SIGNAL SQLSTATE '45000' SET MYSQL_ERRNO = INVALID_USER;
         SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'El usuario no ha sido encontrado';
+    END IF;
+    
+    SET @PatternId=0;
+    SELECT PatternId INTO @PatternId FROM Patterns
+    WHERE Pattern.Title=pPatternName
+    AND Pattern.UserId=@UserId;
+    
+    IF (@PatternId != 0) THEN
+		SIGNAL SQLSTATE '45000' SET MYSQL_ERRNO = PATTERN_NAME_ALREADY_IN_USE;
     END IF;
     
     SET @PatternCategoryId = 0;
@@ -282,6 +291,7 @@ CREATE PROCEDURE GenerarProyecto
 BEGIN
 	DECLARE INVALID_USER INT DEFAULT(53000);
     DECLARE INVALID_PATTERN INT DEFAULT(53001);
+    DECLARE PROJECT_NAME_ALREADY_IN_USE INT DEFAULT(53012);
     DECLARE done INT DEFAULT FALSE;
     DECLARE Cursor_AmountSpent DECIMAL(5,2);
     DECLARE Cursor_MaterialId INT;
@@ -312,6 +322,15 @@ BEGIN
     IF (@UserId=0) THEN
 		SIGNAL SQLSTATE '45000' SET MYSQL_ERRNO = INVALID_USER;
         SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'El usuario no ha sido encontrado';
+    END IF;
+    
+    SET @ProjectId = 0;
+    SELECT ProjectId INTO @ProjectId FROM Projects
+    WHERE Projects.`Name`=pProjectName
+    AND Projects.UserId=@UserId;
+    
+    IF (@ProjectId != 0) THEN
+		SIGNAL SQLSTATE '45000' SET MYSQL_ERRNO = PROJECT_NAME_ALREADY_IN_USE;
     END IF;
     
     SET @PatternId = 0;
