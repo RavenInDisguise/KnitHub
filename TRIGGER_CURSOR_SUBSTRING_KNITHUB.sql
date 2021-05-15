@@ -24,8 +24,9 @@ DELIMITER ;
 -- Se hace uso del substring para generar los checksums:
 SET SQL_SAFE_UPDATES=0;
 
+
 UPDATE PaymentAttempts
-SET Checksum = SHA2(CONCAT(PaymentAttemptId,PostTime, Amount,CurrencySymbol,ReferenceNumber,ErrorNumber,MerchantTransNumber,
+SET Checksum = SHA2(CONCAT(PaymentAttemptId,PostTime, Amount,CurrencySymbol,ReferenceNumber,IFNULL(ErrorNumber,''),MerchantTransNumber,
 PaymentTimeStamp,ComputerName,Username,IPAddress,UserId,MerchantId,PaymentStatusId,(SELECT SUBSTRING(Description, 0, 3))), 256);
 
 UPDATE Transactions
@@ -33,7 +34,7 @@ SET Checksum = SHA2(CONCAT(TransactionId,PostTime,ReferenceNumber,Amount,Payment
 (SELECT SUBSTRING(Description, 0, 3))), 256);
 
 UPDATE Logs
-SET Checksum = SHA2(CONCAT(LogId,PostTime,ComputerName,Username,IPAddress,RefId1,RefId2,OldValue,NewValue,SeverityId,EntityTypeId,AppSourceId,
+SET Checksum = SHA2(CONCAT(LogId,PostTime,ComputerName,Username,IPAddress,IFNULL(RefId1,''),IFNULL(RefId2,''),IFNULL(OldValue,''),IFNULL(NewValue,''),SeverityId,EntityTypeId,AppSourceId,
 LogTypeId,UserId,(SELECT SUBSTRING(Description, 0, 3))), 256);
 
 UPDATE Benefits
