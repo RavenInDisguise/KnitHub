@@ -9,43 +9,41 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
-import javax.persistence.Table;
 
 /**
  *
  * @author monic
  */
 @Entity
-public class Patterns {
+public class Projects {
     @Id
     @GeneratedValue(strategy=GenerationType.IDENTITY)
-    private int    patternId;
+    private int    projectId;
     private String macaddress;
     private String userName;
     private String lastName;
     private String patternName;
-    private String categoryName;
     private String projectName;
     
-    public Patterns(){
+    public Projects(){
     }
-
-    public Patterns(String macaddress, String userName, String lastName, String patternName, String categoryName) {
+   
+    public Projects(String macaddress, String userName, String lastName, String patternName, String projectName) {
         this.macaddress = macaddress;
         this.userName = userName;
         this.lastName = lastName;
         this.patternName = patternName;
-        this.categoryName = categoryName;
-    }
-
-    public int getPatternId(){
-        return patternId;
-    }  
-
-    public void setPatternId(int patternId) {
-        this.patternId = patternId;
+        this.projectName = projectName;
     }
     
+    public int getPatternId(){
+        return projectId;
+    }  
+
+    public void setProjectId(int projectId) {
+        this.projectId = projectId;
+    }
+  
     public String getMacaddress() {
         return macaddress;
     }
@@ -78,14 +76,6 @@ public class Patterns {
         this.patternName = patternName;
     }
 
-    public String getCategoryName() {
-        return categoryName;
-    }
-
-    public void setCategoryName(String categoryName) {
-        this.categoryName = categoryName;
-    }
-
     public String getProjectName() {
         return projectName;
     }
@@ -95,4 +85,3 @@ public class Patterns {
     }
     
 }
-
