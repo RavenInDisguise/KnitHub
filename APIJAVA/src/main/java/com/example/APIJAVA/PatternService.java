@@ -26,7 +26,7 @@ public class PatternService {
     }
     
      public void generatePatterns(Patterns pattern){
-        repo.GenerarProyecto(pattern.getMacaddress(),pattern.getUserName(),pattern.getLastName(),pattern.getPatternName(),pattern.getCategoryName());
+        repo.GenerarProyecto(pattern.macaddress,pattern.getUserName(),pattern.getLastName(),pattern.getPatternName(),pattern.getCategoryName());
     }
     
      //public Optional<Patterns> (){

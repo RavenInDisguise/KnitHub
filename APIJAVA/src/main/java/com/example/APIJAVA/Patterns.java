@@ -18,7 +18,7 @@ import javax.persistence.Table;
 @Entity
 @Table(name="Patterns")
 public class Patterns {
-    private String macaddress;
+    protected String macaddress;
     private String userName;
     private String lastName;
     private String patternName;

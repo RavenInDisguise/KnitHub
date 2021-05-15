@@ -154,3 +154,14 @@ VALUES
 (1, 'Imagen'),
 (2, 'Video'),
 (3, 'PDF');
+
+
+-- PATTERN CATEGORIES:
+INSERT INTO `KnitHub`.`PatternCategories`
+(`PatternCategoryId`,
+`Name`)
+VALUES
+(1,"Sueter"),
+(2,"Amigurumi"),
+(3,"Pillowcase");
+

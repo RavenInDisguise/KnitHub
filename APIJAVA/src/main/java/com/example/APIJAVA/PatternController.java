@@ -36,9 +36,9 @@ public class PatternController {
     @PostMapping("/add/patterns")
     public ResponseEntity<?> generatePatterns(@RequestBody Patterns pattern){
         service.generatePatterns(pattern);
-        return new ResponseEntity(body:"Pattern saved.",HttpStatus.CREATED);
+        return new ResponseEntity("Pattern saved.", HttpStatus.CREATED);
     }
-}
+
     /*@PostMapping("/add")
     public void add(@RequestBody Patterns Patterns) {
         service.save(Patterns);
