@@ -23,29 +23,29 @@ import org.springframework.web.bind.annotation.RequestMapping;
  * @author monic
  */
 @RestController
-@RequestMapping("/Patterns")
-public class PatternController {
+@RequestMapping("/knithub")
+public class SPController {
     @Autowired
-    PatternService service;
+    KnitHubService service;
     
-    @PostMapping("/add")
-    public void add(@RequestBody Patterns Patterns) {
-        service.save(Patterns);
+    @PostMapping("/add/patterns")
+    public ResponseEntity<?> GenerarPatron(@RequestBody Patterns pattern){
+        service.GenerarPatron(pattern);
+        return new ResponseEntity("Pattern saved.", HttpStatus.CREATED);
+    }
+
+    @PostMapping("/add/projects")
+    public ResponseEntity<?> GenerarProyecto(@RequestBody Projects project){
+        service.GenerarProyecto(project);
+        return new ResponseEntity("Project saved.", HttpStatus.CREATED);
     }
     
-    @GetMapping("/")
-    public List<Patterns> list() {
-        return service.listAll();
+    /*
+    @GetMapping("/patterns")
+    public ResponseEntity<List<Patterns>> list() {
+        List<Patterns> lista = service.listSalePatterns();
+        return new ResponseEntity(lista,HttpStatus.OK);
     }
-    
-    @GetMapping("/{id}")
-    public ResponseEntity<Patterns> get(@PathVariable String id) {
-    try {
-        Patterns Patterns = service.get(id);
-        return new ResponseEntity<Patterns>(Patterns, HttpStatus.OK);
-    } catch (NoSuchElementException e) {
-        return new ResponseEntity<Patterns>(HttpStatus.NOT_FOUND);
-    }      
-}
+    */
 }
     
