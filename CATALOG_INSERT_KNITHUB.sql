@@ -165,3 +165,6 @@ VALUES
 (2,"Amigurumi"),
 (3,"Pillowcase");
 
+
+-- ENTITY TYPES:
+

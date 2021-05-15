@@ -17,3 +17,6 @@ RENAME COLUMN PaymentAttemptsId TO PaymentAttemptId;
 
 ALTER TABLE Transactions 
 RENAME COLUMN PaymentAttemptsId TO PaymentAttemptId;
+
+ALTER TABLE PaymentAttempts
+DROP COLUMN PaymentConceptId;
