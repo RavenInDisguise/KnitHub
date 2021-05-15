@@ -23,7 +23,6 @@ public class Patterns {
     private String lastName;
     private String patternName;
     private String categoryName;
-    private String materialName;
     
     public Patterns(){
     }

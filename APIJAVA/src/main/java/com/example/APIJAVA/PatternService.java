@@ -6,6 +6,7 @@
 package com.example.APIJAVA;
 
 import java.util.List;
+import java.util.Optional;
 import javax.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -22,6 +23,10 @@ public class PatternService {
     
     public List<Patterns> listSalePatterns(){
         return repo.PatronesEnVenta();
+    }
+    
+     public void generatePatterns(Patterns pattern){
+        repo.GenerarProyecto(pattern.getMacaddress(),pattern.getUserName(),pattern.getLastName(),pattern.getPatternName(),pattern.getCategoryName());
     }
     
      //public Optional<Patterns> (){
