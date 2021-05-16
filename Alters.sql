@@ -24,3 +24,12 @@ DROP COLUMN PaymentConceptId;
 
 ALTER TABLE Plans
 MODIFY EndTime datetime NULL;
+
+ALTER TABLE Steps
+ADD StepNumber INT NOT NULL;
+
+UPDATE Patterns SET creationDate = CURRENT_TIMESTAMP WHERE creationDate IS NULL;
+
+ALTER TABLE Patterns
+MODIFY creationDate datetime NOT NULL;
+

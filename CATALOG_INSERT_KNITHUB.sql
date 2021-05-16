@@ -8,22 +8,19 @@ INSERT INTO `KnitHub`.`TransTypes`
 (`TransTypeId`,
 `Name`)
 VALUES
-(1,
-'Credito');
+(1,'Credito');
 
 INSERT INTO `KnitHub`.`TransTypes`
 (`TransTypeId`,
 `Name`)
 VALUES
-(2,
-'Debito');
+(2,'Debito');
 
 INSERT INTO `KnitHub`.`TransTypes`
 (`TransTypeId`,
 `Name`)
 VALUES
-(3,
-'Cancelado');
+(3,'Cancelado');
 
 
 -- SUBTYPES:
@@ -31,44 +28,38 @@ INSERT INTO `KnitHub`.`SubTypes`
 (`SubTypeId`,
 `Name`)
 VALUES
-(1,
-'Patron');
+(1,'Patron');
 
 INSERT INTO `KnitHub`.`SubTypes`
 (`SubTypeId`,
 `Name`)
 VALUES
-(2,
-'Plan');
+(2,'Plan');
 
 -- PAYMENTSTATUS:
 INSERT INTO `KnitHub`.`PaymentStatus`
 (`PaymentStatusId`,
 `Name`)
 VALUES
-(1,
-'Aceptado');
+(1,'Aceptado');
 
 INSERT INTO `KnitHub`.`PaymentStatus`
 (`PaymentStatusId`,
 `Name`)
 VALUES
-(2,
-'Rechazado');
+(2,'Rechazado');
 
 INSERT INTO `KnitHub`.`PaymentStatus`
 (`PaymentStatusId`,
 `Name`)
 VALUES
-(3,
-'Invalido');
+(3,'Invalido');
 
 INSERT INTO `KnitHub`.`PaymentStatus`
 (`PaymentStatusId`,
 `Name`)
 VALUES
-(4,
-'Error de comunicacion');
+(4,'Error de comunicacion');
 
 -- MERCHANTS:
 INSERT INTO `KnitHub`.`Merchants`
@@ -78,11 +69,7 @@ INSERT INTO `KnitHub`.`Merchants`
 `Enabled`,
 `IconUrl`)
 VALUES
-(1,
-'Paypal',
-'https://www.paypal.com/cr/home',
-1,
-'https://www.paypalobjects.com/webstatic/mktg/logo/pp_cc_mark_37x23.jpg');
+(1,'Paypal','https://www.paypal.com/cr/home',1,'https://www.paypalobjects.com/webstatic/mktg/logo/pp_cc_mark_37x23.jpg');
 
 INSERT INTO `KnitHub`.`Merchants`
 (`MerchantId`,
@@ -91,11 +78,7 @@ INSERT INTO `KnitHub`.`Merchants`
 `Enabled`,
 `IconUrl`)
 VALUES
-(2,
-'BAC',
-'https://www.baccredomatic.com/',
-1,
-'https://www.baccredomatic.com/themes/custom/bac_theme/images/logo.png');
+(2,'BAC','https://www.baccredomatic.com/',1,'https://www.baccredomatic.com/themes/custom/bac_theme/images/logo.png');
 
 INSERT INTO `KnitHub`.`Merchants`
 (`MerchantId`,
@@ -104,11 +87,7 @@ INSERT INTO `KnitHub`.`Merchants`
 `Enabled`,
 `IconUrl`)
 VALUES
-(3,
-'BCR',
-'https://www.bancobcr.com/wps/portal/bcr',
-1,
-'https://d1yjjnpx0p53s8.cloudfront.net/styles/logo-thumbnail/s3/122010/logo_bcr_0.png?itok=PoA3d9gr');
+(3,'BCR','https://www.bancobcr.com/wps/portal/bcr',1,"https://d1yjjnpx0p53s8.cloudfront.net/styles/logo-thumbnail/s3/122010/logo_bcr_0.png?itok=PoA3d9gr");
 
 -- SOCIAL NETWORKS:
 INSERT INTO `KnitHub`.`SocialNetworks` (`SocialNetworksId`, `Name`, `URL`, `IconURL`)
@@ -192,4 +171,25 @@ INSERT INTO `KnitHub`.`Plans`
 `RecurrenceTypeId`)
 VALUES
 (1,"Plan economico",45,"Plan que permite tener 45 patrones y proyecto",sysdate(),NULL,1,"https://z1gestion.es/wp-content/uploads/2017/02/calendar-2004848_640.jpg",1);
+
+-- MATERIALS:
+INSERT INTO `KnitHub`.`Materials`
+(`MaterialId`,
+`Name`,
+`Description`)
+VALUES
+(1,"Lana","Gruesa unicolor"),
+(2,"Lana","Gruesa multicolor"),
+(3,"Hilo","Delgado de 2mm, unicolor");
+
+INSERT INTO `KnitHub`.`MeasureUnits`
+(`MeasureUnitId`,
+`Name`,
+`Abbreviation`)
+VALUES
+(1,"Centimetros","cm"),
+(2,"Metros","m"),
+(3,"Gramos","g");
+
+
 
