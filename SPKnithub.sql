@@ -120,9 +120,8 @@ BEGIN
     AND payment_transactions.UserId=PlansPerUser.UserId
     INNER JOIN Plans ON PlansPerUser.PlanId=Plans.PlanId 
     WHERE payment_transactions.`UserId`=@UserId
-    AND Plans.PlanId=@PlanId;
-    -- Así muestra todas las veces que el usuario compró el plan
-    -- Hace falta filtrarlo de alguna forma?
+    AND Plans.PlanId=@PlanId
+    ORDER BY PlansPerUser.PostTime DESC LIMIT 1;
 END//
 DELIMITER ;
 
