@@ -1,5 +1,4 @@
 -- 1. Muestra de resultados por compra de patrones
-
 DROP PROCEDURE IF EXISTS CompraPatrones;
 DELIMITER //
 CREATE PROCEDURE CompraPatrones
@@ -40,8 +39,8 @@ BEGIN
     END IF;
     
     SET @PatternId = 0;
-    SELECT PatternId INTO @PatternId FROM patterns
-    WHERE Patterns.PatternId=pPatternTitle
+    SELECT PatternId INTO @PatternId FROM Patterns
+    WHERE Patterns.Title=pPatternTitle
     AND Patterns.UserId=@UserId;
     
     IF(@PatternId=0) THEN
@@ -49,15 +48,14 @@ BEGIN
 	END IF;
     
     SELECT payment_transactions.`PersonName`, payment_transactions.`TransAmount`, payment_transactions.`TransPosttime`, 
-    payment_transactions.`TransType`, projects_patterns.`PatternName`, projects_patterns.`PatternCategoryName`,
+    payment_transactions.`TransType`, Patterns.`Title`, PatternCategories.`Name`,
     payment_transactions.`MerchantName`, payment_transactions.`PaymentStatus`
     FROM payment_transactions
-    INNER JOIN projects_patterns ON payment_transactions.`UserId`=projects_patterns.`UserId`
-    INNER JOIN PurchasedPatternsPerUser ON payment_transactions.TransId=PurchasedPatternsPerUser.TransactionId
-    AND payment_transactions.UserId=PurchasedPatternsPerUser.UserId
-    AND projects_patterns.PatternId=PurchasedPatternsPerUser.PatternId
-    WHERE payment_transactions.`UserId`=@UserId 
-    AND projects_patterns.`PatternId`=@PatternId;
+    INNER JOIN Patterns ON Patterns.UserId = payment_transactions.`UserId`
+    INNER JOIN CategoriesPerPattern ON CategoriesPerPattern.`PatternId`=@PatternId
+    INNER JOIN PatternCategories ON PatternCategories.`PatternCategoryId`=CategoriesPerPattern.`PatternCategoryId`
+    WHERE payment_transactions.`UserId`=@UserId
+    AND Patterns.PatternId=@PatternId;
 END//
 DELIMITER ;
 
@@ -121,9 +119,8 @@ BEGIN
     AND payment_transactions.UserId=PlansPerUser.UserId
     INNER JOIN Plans ON PlansPerUser.PlanId=Plans.PlanId 
     WHERE payment_transactions.`UserId`=@UserId
-    AND Plans.PlanId=@PlanId;
-    -- Así muestra todas las veces que el usuario compró el plan
-    -- Hace falta filtrarlo de alguna forma?
+    AND Plans.PlanId=@PlanId
+    ORDER BY PlansPerUser.PostTime DESC LIMIT 1;
 END//
 DELIMITER ;
 
@@ -165,16 +162,15 @@ BEGIN
     SET @ProjectId = 0;
     SELECT ProjectId INTO @ProjectId FROM Projects
     WHERE Projects.Name=pProjectName
-    AND Project.UserId=@UserId;
+    AND Projects.UserId=@UserId;
     
     IF(@ProjectId=0) THEN
 		SIGNAL SQLSTATE '45000' SET MYSQL_ERRNO = INVALID_PROJECT;
     END IF;
-    
     SELECT projects_patterns.`PersonName`, projects_patterns.`ProjectName`, projects_patterns.`ProjectTime`
     FROM projects_patterns
-    WHERE project_patterns.`UserId`=@UserId
-    AND project_patterns.`ProjectId`=@ProjectId;
+    WHERE projects_patterns.`UserId`=@UserId
+    AND projects_patterns.`ProjectId`=@ProjectId;
 END//
 DELIMITER ;
 
@@ -219,7 +215,7 @@ CREATE PROCEDURE GenerarPatron
 BEGIN
 	DECLARE INVALID_USER INT DEFAULT(53000);
     DECLARE INVALID_PATTERN_CATEGORY INT DEFAULT(53004);
-    -- error de que el patron ya existe para el usuario
+    DECLARE PATTERN_NAME_ALREADY_IN_USE INT DEFAULT(53011);
 	
 	DECLARE EXIT HANDLER FOR SQLEXCEPTION
     BEGIN
@@ -242,6 +238,15 @@ BEGIN
     IF (@UserId=0) THEN
         SIGNAL SQLSTATE '45000' SET MYSQL_ERRNO = INVALID_USER;
         SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'El usuario no ha sido encontrado';
+    END IF;
+    
+    SET @PatternId=0;
+    SELECT PatternId INTO @PatternId FROM Patterns
+    WHERE Patterns.Title=pPatternName
+    AND Patterns.UserId=@UserId;
+    
+    IF (@PatternId != 0) THEN
+		SIGNAL SQLSTATE '45000' SET MYSQL_ERRNO = PATTERN_NAME_ALREADY_IN_USE;
     END IF;
     
     SET @PatternCategoryId = 0;
@@ -282,6 +287,7 @@ CREATE PROCEDURE GenerarProyecto
 BEGIN
 	DECLARE INVALID_USER INT DEFAULT(53000);
     DECLARE INVALID_PATTERN INT DEFAULT(53001);
+    DECLARE PROJECT_NAME_ALREADY_IN_USE INT DEFAULT(53012);
     DECLARE done INT DEFAULT FALSE;
     DECLARE Cursor_AmountSpent DECIMAL(5,2);
     DECLARE Cursor_MaterialId INT;
@@ -312,6 +318,15 @@ BEGIN
     IF (@UserId=0) THEN
 		SIGNAL SQLSTATE '45000' SET MYSQL_ERRNO = INVALID_USER;
         SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'El usuario no ha sido encontrado';
+    END IF;
+    
+    SET @ProjectId = 0;
+    SELECT ProjectId INTO @ProjectId FROM Projects
+    WHERE Projects.`Name`=pProjectName
+    AND Projects.UserId=@UserId;
+    
+    IF (@ProjectId != 0) THEN
+		SIGNAL SQLSTATE '45000' SET MYSQL_ERRNO = PROJECT_NAME_ALREADY_IN_USE;
     END IF;
     
     SET @PatternId = 0;

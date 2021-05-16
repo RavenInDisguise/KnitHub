@@ -3,14 +3,13 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
- 
-package com.example.APIJAVA.Clases;
+package com.example.APIJAVA;
 
-import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.Table;
 
 /**
  *
@@ -18,37 +17,39 @@ import javax.persistence.Id;
  */
 @Entity
 public class Patterns {
-    @Column
+    @Id
+    @GeneratedValue(strategy=GenerationType.IDENTITY)
+    private int    patternId;
     private String macaddress;
-    @Column
     private String userName;
-    @Column
     private String lastName;
-    @Column
     private String patternName;
-    @Column
     private String categoryName;
-    @Column
-    private String materialName;
+    private String projectName;
     
     public Patterns(){
     }
 
-    public Patterns(String macaddress, String userName, String lastName, String patternName, String categoryName, String materialName) {
+    public Patterns(String macaddress, String userName, String lastName, String patternName, String categoryName) {
         this.macaddress = macaddress;
         this.userName = userName;
         this.lastName = lastName;
         this.patternName = patternName;
         this.categoryName = categoryName;
-        this.materialName = materialName;
+    }
+
+    public int getPatternId(){
+        return patternId;
+    }  
+
+    public void setPatternId(int patternId) {
+        this.patternId = patternId;
     }
     
-    @Id
-    @GeneratedValue(strategy=GenerationType.IDENTITY)
-    public String getMacaddress(){
-        return macaddress/**/;
-    }  
-    
+    public String getMacaddress() {
+        return macaddress;
+    }
+      
     public void setMacaddress(String macaddress) {
         this.macaddress = macaddress;
     }
@@ -85,12 +86,13 @@ public class Patterns {
         this.categoryName = categoryName;
     }
 
-    public String getMaterialName() {
-        return materialName;
+    public String getProjectName() {
+        return projectName;
     }
 
-    public void setMaterialName(String materialName) {
-        this.materialName = materialName;
+    public void setProjectName(String projectName) {
+        this.projectName = projectName;
     }
     
 }
+

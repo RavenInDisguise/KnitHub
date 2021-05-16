@@ -1,5 +1,6 @@
 -- Trigger:
 -- Se actualiza el contador de patrones o proyectos del usuario cuando agrega uno nuevo. 
+DROP TRIGGER IF EXISTS TR_after_insert_patrones; 
 DELIMITER //
 CREATE TRIGGER TR_after_insert_patrones AFTER INSERT
 ON Patterns FOR EACH ROW 
@@ -8,6 +9,7 @@ ON Patterns FOR EACH ROW
 //
 DELIMITER ;
 
+DROP TRIGGER IF EXISTS TR_after_insert_proyectos; 
 DELIMITER //
 CREATE TRIGGER TR_after_insert_proyectos AFTER INSERT
 ON Patterns FOR EACH ROW 
@@ -22,16 +24,17 @@ DELIMITER ;
 -- Se hace uso del substring para generar los checksums:
 SET SQL_SAFE_UPDATES=0;
 
-UPDATE PaymentsAttempts
-SET Checksum = SHA2(CONCAT(PaymentAttemptsId,PostTime, Amount,CurrencySymbol,ReferenceNumber,ErrorNumber,MerchantTransNumber,
+
+UPDATE PaymentAttempts
+SET Checksum = SHA2(CONCAT(PaymentAttemptId,PostTime, Amount,CurrencySymbol,ReferenceNumber,IFNULL(ErrorNumber,''),MerchantTransNumber,
 PaymentTimeStamp,ComputerName,Username,IPAddress,UserId,MerchantId,PaymentStatusId,(SELECT SUBSTRING(Description, 0, 3))), 256);
 
 UPDATE Transactions
-SET Checksum = SHA2(CONCAT(TransactionId,PostTime,ReferenceNumber,Amount,PaymentAttemptsId,TransTypeId, SubTypeId,EntityTypeId,
+SET Checksum = SHA2(CONCAT(TransactionId,PostTime,ReferenceNumber,Amount,PaymentAttemptId,TransTypeId, SubTypeId,EntityTypeId,
 (SELECT SUBSTRING(Description, 0, 3))), 256);
 
 UPDATE Logs
-SET Checksum = SHA2(CONCAT(LogId,PostTime,ComputerName,Username,IPAddress,RefId1,RefId2,OldValue,NewValue,SeverityId,EntityTypeId,AppSourceId,
+SET Checksum = SHA2(CONCAT(LogId,PostTime,ComputerName,Username,IPAddress,IFNULL(RefId1,''),IFNULL(RefId2,''),IFNULL(OldValue,''),IFNULL(NewValue,''),SeverityId,EntityTypeId,AppSourceId,
 LogTypeId,UserId,(SELECT SUBSTRING(Description, 0, 3))), 256);
 
 UPDATE Benefits
