@@ -41,7 +41,7 @@ BEGIN
     
     SET @PatternId = 0;
     SELECT PatternId INTO @PatternId FROM patterns
-    WHERE Patterns.PatternId=pPatternTitle
+    WHERE Patterns.Title=pPatternTitle
     AND Patterns.UserId=@UserId;
     
     IF(@PatternId=0) THEN
@@ -49,15 +49,14 @@ BEGIN
 	END IF;
     
     SELECT payment_transactions.`PersonName`, payment_transactions.`TransAmount`, payment_transactions.`TransPosttime`, 
-    payment_transactions.`TransType`, projects_patterns.`PatternName`, projects_patterns.`PatternCategoryName`,
+    payment_transactions.`TransType`, Patterns.`Title`, PatternCategories.`Name`,
     payment_transactions.`MerchantName`, payment_transactions.`PaymentStatus`
     FROM payment_transactions
-    INNER JOIN projects_patterns ON payment_transactions.`UserId`=projects_patterns.`UserId`
-    INNER JOIN PurchasedPatternsPerUser ON payment_transactions.TransId=PurchasedPatternsPerUser.TransactionId
-    AND payment_transactions.UserId=PurchasedPatternsPerUser.UserId
-    AND projects_patterns.PatternId=PurchasedPatternsPerUser.PatternId
-    WHERE payment_transactions.`UserId`=@UserId 
-    AND projects_patterns.`PatternId`=@PatternId;
+    INNER JOIN Patterns ON Patterns.UserId = payment_transactions.`UserId`
+    INNER JOIN CategoriesPerPattern ON CategoriesPerPattern.`PatternId`=@PatternId
+    INNER JOIN PatternCategories ON PatternCategories.`PatternCategoryId`=CategoriesPerPattern.`PatternCategoryId`
+    WHERE payment_transactions.`UserId`=@UserId
+    AND Patterns.PatternId=@PatternId;
 END//
 DELIMITER ;
 
@@ -121,9 +120,8 @@ BEGIN
     AND payment_transactions.UserId=PlansPerUser.UserId
     INNER JOIN Plans ON PlansPerUser.PlanId=Plans.PlanId 
     WHERE payment_transactions.`UserId`=@UserId
-    AND Plans.PlanId=@PlanId;
-    -- Así muestra todas las veces que el usuario compró el plan
-    -- Hace falta filtrarlo de alguna forma?
+    AND Plans.PlanId=@PlanId
+    ORDER BY PlansPerUser.PostTime DESC LIMIT 1;
 END//
 DELIMITER ;
 
@@ -165,16 +163,15 @@ BEGIN
     SET @ProjectId = 0;
     SELECT ProjectId INTO @ProjectId FROM Projects
     WHERE Projects.Name=pProjectName
-    AND Project.UserId=@UserId;
+    AND Projects.UserId=@UserId;
     
     IF(@ProjectId=0) THEN
 		SIGNAL SQLSTATE '45000' SET MYSQL_ERRNO = INVALID_PROJECT;
     END IF;
-    
     SELECT projects_patterns.`PersonName`, projects_patterns.`ProjectName`, projects_patterns.`ProjectTime`
     FROM projects_patterns
-    WHERE project_patterns.`UserId`=@UserId
-    AND project_patterns.`ProjectId`=@ProjectId;
+    WHERE projects_patterns.`UserId`=@UserId
+    AND projects_patterns.`ProjectId`=@ProjectId;
 END//
 DELIMITER ;
 
