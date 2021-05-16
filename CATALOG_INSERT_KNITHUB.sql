@@ -165,3 +165,31 @@ VALUES
 (2,"Amigurumi"),
 (3,"Pillowcase");
 
+
+-- ENTITY TYPES:
+
+-- RECURRENCES TYPES:
+INSERT INTO `KnitHub`.`RecurrencesTypes`
+(`RecurrenceTypeId`,
+`Name`,
+`ValueToAdd`,
+`DatePart`)
+VALUES
+(1,"Semanal",7,"DD"),
+(2,"Mensual",30,"MM"),
+(3,"Anual",365,"AA");
+
+-- PLANS:
+INSERT INTO `KnitHub`.`Plans`
+(`PlanId`,
+`Name`,
+`Amount`,
+`Description`,
+`StartTime`,
+`EndTime`,
+`Enabled`,
+`IconUrl`,
+`RecurrenceTypeId`)
+VALUES
+(1,"Plan economico",45,"Plan que permite tener 45 patrones y proyecto",sysdate(),NULL,1,"https://z1gestion.es/wp-content/uploads/2017/02/calendar-2004848_640.jpg",1);
+
