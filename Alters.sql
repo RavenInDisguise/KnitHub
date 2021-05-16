@@ -20,3 +20,6 @@ RENAME COLUMN PaymentAttemptsId TO PaymentAttemptId;
 
 ALTER TABLE PaymentAttempts
 DROP COLUMN PaymentConceptId;
+
+ALTER TABLE Plans
+MODIFY EndTime datetime NULL;
