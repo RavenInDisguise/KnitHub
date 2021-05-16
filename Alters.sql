@@ -24,3 +24,12 @@ DROP COLUMN PaymentConceptId;
 
 ALTER TABLE Plans
 MODIFY EndTime datetime NULL;
+
+ALTER TABLE Steps
+ADD StepNumber INT NOT NULL;
+
+ALTER TABLE PlansPerUser ADD TransactionId BIGINT NOT NULL;
+ALTER TABLE PlansPerUser ADD CONSTRAINT fk_PlansPerUser_Transactions1 FOREIGN KEY (TransactionId) REFERENCES Knithub.Transactions (TransactionId);
+
+ALTER TABLE PlansPerUser 
+DROP PRIMARY KEY;
