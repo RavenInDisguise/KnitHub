@@ -9,7 +9,7 @@ router.get("/compraPatrones", (req, res) => {
 router.get("/compraPlanes", (req, res) => {
     varController.getInstance().compraPlanes(req, res);
 });
-router.get("/cronometrajeProyectos", (req, res) => {
+router.post("/cronometrajeProyectos", (req, res) => {
     varController.getInstance().cronometrajeProyectos(req, res);
 });
 router.get("/patronesVenta", (req, res) => {
