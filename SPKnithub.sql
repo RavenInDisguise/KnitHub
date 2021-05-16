@@ -1,5 +1,4 @@
 -- 1. Muestra de resultados por compra de patrones
-
 DROP PROCEDURE IF EXISTS CompraPatrones;
 DELIMITER //
 CREATE PROCEDURE CompraPatrones
@@ -40,7 +39,7 @@ BEGIN
     END IF;
     
     SET @PatternId = 0;
-    SELECT PatternId INTO @PatternId FROM patterns
+    SELECT PatternId INTO @PatternId FROM Patterns
     WHERE Patterns.Title=pPatternTitle
     AND Patterns.UserId=@UserId;
     
@@ -243,8 +242,8 @@ BEGIN
     
     SET @PatternId=0;
     SELECT PatternId INTO @PatternId FROM Patterns
-    WHERE Pattern.Title=pPatternName
-    AND Pattern.UserId=@UserId;
+    WHERE Patterns.Title=pPatternName
+    AND Patterns.UserId=@UserId;
     
     IF (@PatternId != 0) THEN
 		SIGNAL SQLSTATE '45000' SET MYSQL_ERRNO = PATTERN_NAME_ALREADY_IN_USE;
