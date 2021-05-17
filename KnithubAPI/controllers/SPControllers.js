@@ -63,6 +63,7 @@ module.exports = class SPController {
         const { username } = req.body;
         const { userlastname } = req.body;
         const { projectName } = req.body;
+        console.log(req.body)
         console.log(macaddress,", ",username,", ", userlastname," and", projectName)
         console.log(`Request from ${req.ip} to  path ${req.url}.`)
         if (!macaddress || !username || !userlastname || !projectName){

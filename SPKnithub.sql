@@ -210,7 +210,8 @@ CREATE PROCEDURE GenerarPatron
     IN pName NVARCHAR(50),
     IN pLastName NVARCHAR(50),
     IN pPatternName NVARCHAR(45),
-    IN pPatternCategoryName NVARCHAR(45)
+    IN pPatternCategoryName NVARCHAR(45),
+    IN pPatternDescription NVARCHAR(100)
 )
 BEGIN
 	DECLARE INVALID_USER INT DEFAULT(53000);
@@ -257,10 +258,17 @@ BEGIN
 		SIGNAL SQLSTATE '45000' SET MYSQL_ERRNO = INVALID_PATTERN_CATEGORY;
 	END IF;
     
+    SET @PatternDescription = '';
+    IF (pPatternDescription='') THEN
+		SET @PatternDescription = 'Sin descripción';
+	ELSE
+		SET @PatternDescription = pPatternDescription;
+    END IF;
+    
     SET @LastPatternId = 0;
     START TRANSACTION;
-		INSERT INTO Patterns (`Title`, `UserId`)
-		VALUES (pPatternName, @UserId);
+		INSERT INTO Patterns (`Title`, `Description`, `UserId`, `creationDate`)
+		VALUES (pPatternName, @PatternDescription, @UserId, SYSDATE());
         SELECT LAST_INSERT_ID() INTO @LastPatternId;
 		
         UPDATE Users SET PatternCount = PatternCount + 1
@@ -789,14 +797,19 @@ BEGIN
 	END IF;
 END// 
 
--- 9. Insertar N pasos a un patrón
-DROP PROCEDURE IF EXISTS LoadStepsIntoPattern;
+-- 9. Pasar un patrón a JSON:
+DROP PROCEDURE IF EXISTS PatronesJSON;
 DELIMITER //
-CREATE PROCEDURE LoadStepsIntoPattern
+CREATE PROCEDURE PatronesJSON
 (
-	IN pUniversallyUniqueIdentifier VARCHAR(36)
+	IN pMacAddress VARCHAR(20),
+    IN pName NVARCHAR(50),
+    IN pLastName NVARCHAR(50),
+    IN pPatternName VARCHAR(45)
 )
 BEGIN
+	DECLARE INVALID_USER INT DEFAULT(53000);
+
     DECLARE EXIT HANDLER FOR SQLEXCEPTION
     BEGIN
 		GET DIAGNOSTICS CONDITION 1 @err_no = MYSQL_ERRNO, @message = MESSAGE_TEXT;
@@ -808,33 +821,47 @@ BEGIN
         ROLLBACK;
         RESIGNAL SET MESSAGE_TEXT = @message;
 	END;
+    
+    SET @UserId = 0;
+    SELECT UserId INTO @UserId FROM Users
+    WHERE Users.MacAddress = pMacAddress  
+    AND Users.Name = pName
+    AND Users.Lastname = pLastName;
+    
+    IF (@UserId=0) THEN
+        SIGNAL SQLSTATE '45000' SET MYSQL_ERRNO = INVALID_USER;
+        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'El usuario no ha sido encontrado';
+    END IF;
+    
+    SET @PatternId=0;
+    SELECT PatternId INTO @PatternId FROM Patterns
+    WHERE Patterns.Title=pPatternName
+    AND Patterns.UserId=@UserId LIMIT 1;
+    
+    SET group_concat_max_len = 3000;
+    
+	SELECT `Patterns`.`UserId`,`Patterns`.`PatternId`,`Patterns`.`Title`,`Patterns`.`Description`,`Patterns`.`creationDate`
+    FROM Patterns
+    WHERE Patterns.UserId=@UserId
+    AND Patterns.PatternId=@PatternId
+    LIMIT 1
+    INTO @UId,@PId,@PTitle,@PDesc,@PFechaCreac;
+	
+    SET group_concat_max_len = 2048;
+	SELECT GROUP_CONCAT(' ',CONCAT(" Paso #",IFNULL(`Steps`.`StepNumber`,'')),' ',IFNULL(`Steps`.`Instruction`,''),' ',
+	(SELECT CONCAT(" MediaURL: ",IFNULL(`Medias`.`URL`,'')) FROM `KnitHub`.`Medias` WHERE (`Steps`.`StepId`=`Medias`.`StepId`))) 
+	AS PS FROM Steps 
+	INNER JOIN Medias ON Medias.StepId=Steps.StepId 
+	WHERE Steps.PatternId=@PatternId 
+    ORDER BY Steps.StepNumber ASC
+    LIMIT 1
+    INTO @PSteps;
 
-    START TRANSACTION;
-		INSERT INTO Steps (StepNumber, Instruction, PatternId)
-		SELECT StepNumber, Instruction, PatternId FROM TemporarySteps
-        WHERE UniversallyUniqueIdentifier = pUniversallyUniqueIdentifier;
-    COMMIT;
-END// 
+	START TRANSACTION;
+	SELECT JSON_ARRAYAGG(JSON_OBJECT('UserId', @UId, 'PatternId', @PId, 'PatternName', @PTitle, 'PatternDescription', @PDesc, 
+    'PatternCreationDate',@PFechaCreac, 'Pasos', @PSteps)) AS JSONObject LIMIT 1;
+	COMMIT;
+    
+END//
 
--- Llenado de los datos de la tabla temporal
-SET @UUID = '';
-SELECT UUID() into @UUID;
-
-SET @PatternId = #Id del patrón donde se insertará N pasos;
-
- CREATE TEMPORARY TABLE TemporarySteps (
-	UniversallyUniqueIdentifier VARCHAR(36),
-    StepNumber TINYINT,
-    Instruction NVARCHAR(1000),
-    PatternId BIGINT
-);
-
-INSERT INTO TemporarySteps (UniversallyUniqueIdentifier, StepNumber, Instruction, PatternId)
-VALUES
-(@UUID, 1, 'Paso 1', @PatternId),
-(@UUID, 2, 'Paso 2', @PatternId),
-(@UUID, 3, 'Paso 3', @PatternId),
-(@UUID, 4, 'Paso 4', @PatternId),
-(@UUID, 5, 'Paso 5', @PatternId);
-
-CALL LoadStepsIntoPattern (@UUID);
+DELIMITER ;
