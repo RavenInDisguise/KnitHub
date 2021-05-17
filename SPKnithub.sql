@@ -450,7 +450,8 @@ CREATE PROCEDURE CompraPatron_NuevoProyecto
     IN pOwnerName NVARCHAR(50),
     IN pOwnerLastName NVARCHAR(50),
     IN pMerchantName NVARCHAR(50),
-    IN pTransType VARCHAR(30)
+    IN pTransType VARCHAR(30),
+    IN pPricePerHour DECIMAL(7, 2)
 )
 BEGIN
 	DECLARE Transaction_Count BIT;
@@ -459,6 +460,8 @@ BEGIN
     DECLARE PATTERN_NOT_ON_SALE INT DEFAULT(53006);
     DECLARE INVALID_MERCHANT INT DEFAULT(53007);
     DECLARE INVALID_TRANSTYPE INT DEFAULT(53008);
+    DECLARE PROJECT_NAME_ALREADY_IN_USE INT DEFAULT(53012);
+    DECLARE INVALID_PRICE INT DEFAULT(53013);
     
     DECLARE EXIT HANDLER FOR SQLEXCEPTION
     BEGIN
@@ -471,6 +474,10 @@ BEGIN
         ROLLBACK;
         RESIGNAL SET MESSAGE_TEXT = @message;
 	END;
+    
+    IF (pPricePerHour < 0) THEN
+		SIGNAL SQLSTATE '45000' SET MYSQL_ERRNO = INVALID_PRICE;
+    END IF;
     
     SET @OwnerUserId = 0;
     SELECT UserId INTO @OwnerUserId FROM Users
@@ -485,8 +492,7 @@ BEGIN
     
     
     SET @PatternId = 0;
-    SET @PatternName = '';
-    SELECT PatternId, Title INTO @PatternId, @PatternName FROM Patterns
+    SELECT PatternId INTO @PatternId FROM Patterns
     WHERE Patterns.UserId=@OwnerUserId
     AND Patterns.Title=pPatternName;
     
@@ -523,17 +529,20 @@ BEGIN
 		SIGNAL SQLSTATE '45000' SET MYSQL_ERRNO = INVALID_USER;
     END IF;
     
-    IF (@Nickname = '') THEN
-		SET @Nickname = NULL;
-    END IF;
+    SET @Nickname = IFNULL(@Nickname, CONCAT(pName, ' ', IFNULL(CONCAT(SUBSTRING(@SecondName, 1, 1), '. '), ''), SUBSTRING(pLastName, 1, 1), '.'));
     
-    IF (@SecondName = '') THEN
-		SET @SecondName = NULL;
+    SET @ProjectId = 0;
+    SELECT ProjectId INTO @ProjectId FROM Projects
+    WHERE Projects.`Name`=pProjectName
+    AND Projects.UserId=@UserId;
+    
+    IF (@ProjectId != 0) THEN
+		SIGNAL SQLSTATE '45000' SET MYSQL_ERRNO = PROJECT_NAME_ALREADY_IN_USE;
     END IF;
     
     SET @MerchantId = 0;
     SELECT MerchantId INTO @MerchantId FROM Merchants
-    WHERE Merchant.Name=pMerchantName;
+    WHERE Merchants.Name=pMerchantName;
     
     IF(@MerchantId = 0) THEN
 		SIGNAL SQLSTATE '45000' SET MYSQL_ERRNO = INVALID_MERCHANT;
@@ -551,6 +560,8 @@ BEGIN
     SET @TransactionId = 0;
     SET Transaction_Count = 0;
     SET @CurrentTime = NOW();
+    SET @SubTypeId = 1;
+    SET @EntityTypeId = 1;
     
     IF Transaction_Count=0 THEN
 		SET Transaction_Count = 1;
@@ -560,19 +571,18 @@ BEGIN
     INSERT INTO PaymentAttempts (PostTime, Amount, CurrencySymbol, ReferenceNumber, MerchantTransNumber, PaymentTimeStamp, ComputerName,
     Username, IPAddress, Checksum, Description, UserId, MerchantId, PaymentStatusId)
     VALUES (@CurrentTime, @Amount, @CurrencySymbol, @OwnerUserId, FLOOR(RAND()*(10-1+1))+1, current_timestamp(), pMacAddress,
-    IFNULL(@Nickname, CONCAT(pName, ' ', IFNULL(CONCAT(SUBSTRING(@SecondName, 1, 1), '. '), ''), SUBSTRING(pLastName, 1, 1), '.')),
-    '123:ABC:00', SHA2(CONCAT(@UserId, @Amount, '123:ABC:00', @MerchantId), 256), CONCAT('Compra del patrón ', @PatternName),
+    @Nickname, '123:ABC:00', SHA2(CONCAT(@UserId, @Amount, '123:ABC:00', @MerchantId), 256), CONCAT('Compra del patrón ', pPatternName),
     @UserId, @MerchantId, 1);
     SELECT LAST_INSERT_ID() INTO @PaymentId;
     
-    INSERT INTO Transactions (Checksum, PostTime, ReferenceNumber, Amount, Description, PaymentAttemptsId, TransTypeId, SubTypeId,
+    INSERT INTO Transactions (Checksum, PostTime, ReferenceNumber, Amount, Description, PaymentAttemptId, TransTypeId, SubTypeId,
     EntityTypeId)
-    VALUES (SHA2(CONCAT(@TransType, @SubType, 1, @Amount, NOW()), 256), NOW(), @OwnerUserId, @Amount,
-    CONCAT('Compra del patrón ', @PatternName), @PaymentId, @TransTypeId, 1, 1);
+    VALUES (SHA2(CONCAT(@TransTypeId, @SubTypeId, @EntityTypeId, @Amount, NOW()), 256), NOW(), @OwnerUserId, @Amount,
+    CONCAT('Compra del patrón ', pPatternName), @PaymentId, @TransTypeId, @SubTypeId, @EntityTypeId);
     SELECT LAST_INSERT_ID() INTO @TransactionId;
     
     CALL CrearProyectoConNuevoPatron(pMacAddress, pName, pLastName, pPatternName, pOwnerMacAddress, pOwnerName, pOwnerLastName,
-    @CurrentTime, pProjectName, Transaction_Count);
+    @CurrentTime, pProjectName, pPricePerHour, Transaction_Count);
     
     IF Transaction_Count=1 THEN
 		COMMIT;
@@ -593,8 +603,9 @@ CREATE PROCEDURE CrearProyectoConNuevoPatron
     IN pOwnerMacAddress VARCHAR(20),
     IN pOwnerName NVARCHAR(50),
     IN pOwnerLastName NVARCHAR(50),
-    IN pTransactionTime DATE,
+    IN pTransactionTime DATETIME,
     IN pProjectName NVARCHAR(45),
+    IN pPricePerHour DECIMAL(7, 2),
     IN pTransactionCount BIT
 )
 BEGIN
@@ -678,12 +689,12 @@ BEGIN
     INSERT INTO PurchasedPatternsPerUser (UserId, PatternId, TransactionId)
     VALUES (@UserId, @PatternId, @TransId);
     
-    INSERT INTO Projects (`Name`, `Time`, PatternId, UserId)
-    VALUES (pProjectName, '00:00:00', @PatternId, @UserId);
+    INSERT INTO Projects (`Name`, `Time`, PricePerHour, creationDate, PatternId, UserId)
+    VALUES (pProjectName, '00:00:00', pPricePerHour, SYSDATE(), @PatternId, @UserId);
     SELECT LAST_INSERT_ID() INTO @ProjectId;
 
-    CALL MaterialesNuevoProyecto(pMacAddress, pName, pLastName, pOwnerMacAddress, pOwnerName, pOwnerLastName, pProjectName,
-    pTransactionCount);
+    CALL MaterialesNuevoProyecto(pMacAddress, pName, pLastName, pPatternName, pOwnerMacAddress, pOwnerName, pOwnerLastName,
+    pProjectName, pTransactionCount);
     
     IF Transaction_Count=1 THEN
 		COMMIT;
@@ -746,8 +757,7 @@ BEGIN
     END IF;
     
     SET @PatternId = 0;
-    SET @PatternName = '';
-    SELECT PatternId, Title INTO @PatternId, @PatternName FROM Patterns
+    SELECT PatternId INTO @PatternId FROM Patterns
     WHERE Patterns.UserId=@OwnerUserId
     AND Patterns.Title=pPatternName;
     
