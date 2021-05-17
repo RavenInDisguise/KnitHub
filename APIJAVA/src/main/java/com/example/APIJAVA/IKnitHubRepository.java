@@ -35,13 +35,14 @@ public interface IKnitHubRepository extends JpaRepository<Patterns,String>{
     
     @Transactional
     @Modifying
-    @Query(value ="{call GenerarProyecto(:pMacAddress, :pName, :pLastName, :pPatternName, :pProjectName)}",nativeQuery = true)
+    @Query(value ="{call GenerarProyecto(:pMacAddress, :pName, :pLastName, :pPatternName, :pProjectName, :pPricePerHour)}",nativeQuery = true)
     void GenerarProyecto(
             @Param("pMacAddress")String pMacAddress,
             @Param("pName")String pName,
             @Param("pLastName")String pLastName,
             @Param("pPatternName")String pPatternName,
-            @Param("pProjectName")String pProjectName
+            @Param("pProjectName")String pProjectName,
+            @Param("pPricePerHour")Float pPricePerHour
     );
     
     /*
