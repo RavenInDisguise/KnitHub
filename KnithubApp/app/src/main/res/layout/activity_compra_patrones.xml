@@ -26,7 +26,6 @@
         android:backgroundTint="#86D3F1"
         android:ems="10"
         android:hint="MacAddress"
-        android:inputType="textPersonName"
         android:textColor="#FFFFFF"
         android:textColorHint="#FFFFFF"
         app:layout_constraintEnd_toEndOf="parent"
