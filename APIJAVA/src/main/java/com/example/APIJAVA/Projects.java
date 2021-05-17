@@ -24,16 +24,18 @@ public class Projects {
     private String lastName;
     private String patternName;
     private String projectName;
+    private float  pricePerHour;
     
     public Projects(){
     }
    
-    public Projects(String macaddress, String userName, String lastName, String patternName, String projectName) {
+    public Projects(String macaddress, String userName, String lastName, String patternName, String projectName, float pricePerHour) {
         this.macaddress = macaddress;
         this.userName = userName;
         this.lastName = lastName;
         this.patternName = patternName;
         this.projectName = projectName;
+        this.pricePerHour = pricePerHour;
     }
     
     public int getPatternId(){
@@ -82,6 +84,14 @@ public class Projects {
 
     public void setProjectName(String projectName) {
         this.projectName = projectName;
+    }
+
+    public float getPricePerHour() {
+        return pricePerHour;
+    }
+
+    public void setPricePerHour(float pricePerHour) {
+        this.pricePerHour = pricePerHour;
     }
     
 }

@@ -26,7 +26,7 @@ public class KnitHubService {
     }
     public void GenerarProyecto(Projects project){
         //System.out.println(project.getMacaddress()+""+project.getUserName()+""+project.getLastName()+""+project.getPatternName()+""+project.getProjectName());
-        repoPattern.GenerarProyecto(project.getMacaddress(),project.getUserName(),project.getLastName(),project.getPatternName(),project.getProjectName());
+        repoPattern.GenerarProyecto(project.getMacaddress(),project.getUserName(),project.getLastName(),project.getPatternName(),project.getProjectName(),project.getPricePerHour());
     }
     
     /* 
