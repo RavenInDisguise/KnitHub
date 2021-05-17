@@ -290,12 +290,15 @@ CREATE PROCEDURE GenerarProyecto
     IN pName NVARCHAR(50),
     IN pLastName NVARCHAR(50),
     IN pPatternName NVARCHAR(45),
-    IN pProjectName NVARCHAR(45)
+    IN pProjectName NVARCHAR(45),
+    IN pPricePerHour DECIMAL(7, 2)
 )
 BEGIN
 	DECLARE INVALID_USER INT DEFAULT(53000);
     DECLARE INVALID_PATTERN INT DEFAULT(53001);
     DECLARE PROJECT_NAME_ALREADY_IN_USE INT DEFAULT(53012);
+    DECLARE INVALID_PRICE INT DEFAULT(53013);
+    
     DECLARE done INT DEFAULT FALSE;
     DECLARE Cursor_AmountSpent DECIMAL(5,2);
     DECLARE Cursor_MaterialId INT;
@@ -304,7 +307,6 @@ BEGIN
     DECLARE Materials_Cursor CURSOR FOR SELECT AmountSpent, MaterialId, PatternId, MeasureUnitId FROM MaterialsPerPattern;  -- WHERE PatternId = @PatternId;
     DECLARE CONTINUE HANDLER FOR NOT FOUND SET done = TRUE;
     
-    -- error de que ya existe el proyecto para el usuario
 	DECLARE EXIT HANDLER FOR SQLEXCEPTION
     BEGIN
 		GET DIAGNOSTICS CONDITION 1 @err_no = MYSQL_ERRNO, @message = MESSAGE_TEXT;
@@ -316,6 +318,10 @@ BEGIN
         ROLLBACK;
         RESIGNAL SET MESSAGE_TEXT = @message;
 	END;
+    
+    IF (pPricePerHour < 0) THEN
+		SIGNAL SQLSTATE '45000' SET MYSQL_ERRNO = INVALID_PRICE;
+    END IF;
     
     SET @UserId = 0;
     SELECT UserId INTO @UserId FROM Users 
@@ -356,8 +362,8 @@ BEGIN
     
     SET @LastProjectId = 0;
     START TRANSACTION;
-		INSERT INTO Projects (`Name`, `Time`, `PatternId`, `UserId`)
-		VALUES (pProjectName, 0, @PatternId, @UserId);
+		INSERT INTO Projects (`Name`, `Time`, `PatternId`, `UserId`, `PricePerHour`, `creationDate`)
+		VALUES (pProjectName, 0, @PatternId, @UserId, pPricePerHour, SYSDATE());
         SELECT LAST_INSERT_ID() INTO @LastProjectId;
         
         UPDATE Users SET ProjectCount = ProjectCount + 1
@@ -796,6 +802,7 @@ BEGIN
 		COMMIT;
 	END IF;
 END// 
+DELIMITER ;
 
 -- 9. Pasar un patrón a JSON:
 DROP PROCEDURE IF EXISTS PatronesJSON;
@@ -863,5 +870,4 @@ BEGIN
 	COMMIT;
     
 END//
-
 DELIMITER ;
