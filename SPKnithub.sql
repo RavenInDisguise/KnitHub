@@ -408,11 +408,12 @@ BEGIN
     
 	SELECT Projects.`Name`, Patterns.`Title` As `Pattern Name`, Projects.`Time`, Projects.`PricePerHour`, Projects.`TotalPrice`,
 	CASE
-    WHEN Projects.Time < DATE('00:60:00') THEN 'Minutos'
-    WHEN Projects.Time < DATE('24:00:00') THEN 'Horas'
-	WHEN Projects.Time < DATE('168:00:00') THEN 'Días'
-	WHEN Projects.Time < DATE('672:00:00') THEN 'Semanas'
-	WHEN Projects.Time >= DATE('672:00:00') THEN 'Meses'
+    WHEN Projects.Time = TIME('00:00:00') THEN 'No iniciado'
+    WHEN Projects.Time < TIME('00:60:00') THEN 'Minutos'
+    WHEN Projects.Time < TIME('24:00:00') THEN 'Horas'
+	WHEN Projects.Time < TIME('168:00:00') THEN 'Días'
+	WHEN Projects.Time < TIME('672:00:00') THEN 'Semanas'
+	WHEN Projects.Time >= TIME('672:00:00') THEN 'Meses'
 	END AS `Time Clasification`
 	FROM Projects
 	INNER JOIN Patterns ON Projects.UserId = @UserId AND Projects.PatternId = Patterns.PatternId;
