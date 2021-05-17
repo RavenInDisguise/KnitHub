@@ -802,6 +802,7 @@ BEGIN
 		COMMIT;
 	END IF;
 END// 
+DELIMITER ;
 
 -- 9. Pasar un patrón a JSON:
 DROP PROCEDURE IF EXISTS PatronesJSON;
@@ -869,5 +870,4 @@ BEGIN
 	COMMIT;
     
 END//
-
 DELIMITER ;

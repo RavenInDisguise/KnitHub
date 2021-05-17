@@ -22,7 +22,7 @@ public class KnitHubService {
     private IKnitHubRepository repoPattern;
     
     public void GenerarPatron(Patterns pattern){
-        repoPattern.GenerarPatron(pattern.getMacaddress(),pattern.getUserName(),pattern.getLastName(),pattern.getPatternName(),pattern.getCategoryName());
+        repoPattern.GenerarPatron(pattern.getMacaddress(),pattern.getUserName(),pattern.getLastName(),pattern.getPatternName(),pattern.getCategoryName(),pattern.getDescription());
     }
     public void GenerarProyecto(Projects project){
         //System.out.println(project.getMacaddress()+""+project.getUserName()+""+project.getLastName()+""+project.getPatternName()+""+project.getProjectName());
