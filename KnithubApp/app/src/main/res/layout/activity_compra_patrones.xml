@@ -151,7 +151,7 @@
         app:layout_constraintTop_toBottomOf="@+id/tipoTrans1" />
 
     <TextView
-        android:id="@+id/tiempoTrans1"
+        android:id="@+id/category"
         android:layout_width="300dp"
         android:layout_height="20dp"
         android:layout_marginTop="15dp"
@@ -174,7 +174,7 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.504"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/tiempoTrans1" />
+        app:layout_constraintTop_toBottomOf="@+id/category" />
 
     <TextView
         android:id="@+id/status1"

@@ -7,7 +7,7 @@ import android.view.ViewGroup
 import android.widget.*
 import com.example.knithubapp.R
 
-class MyListAdapter(private val context: Activity, private val titulos: Array<String>, private val creadores: Array<String>, private val categorias: Array<String>, private val precios: Array<Int>)
+class MyListAdapter(private val context: Activity, private val titulos: Array<String>, private val creadores: Array<String>, private val categorias: Array<String>, private val precios: Array<String>)
     : ArrayAdapter<String>(context, R.layout.custom_list, titulos) {
 
     @SuppressLint("ViewHolder")

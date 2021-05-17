@@ -12,9 +12,11 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.AppCompat.Light.NoActionBar"
-        android:usesCleartextTraffic="true"
-        >
-        <activity android:name=".PatronesVenta"></activity>
+        android:usesCleartextTraffic="true">
+        <activity android:name=".AgregarProyecto"></activity>
+        <activity android:name=".AgregarPatron" />
+        <activity android:name=".WritingActivity" />
+        <activity android:name=".PatronesVenta" />
         <activity android:name=".CronometrajeProyectos" />
         <activity
             android:name=".CompraPlanes"

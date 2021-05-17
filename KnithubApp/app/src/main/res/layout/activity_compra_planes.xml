@@ -9,7 +9,7 @@
     tools:context=".CompraPlanes">
 
     <Button
-        android:id="@+id/buttonCrompraPlan"
+        android:id="@+id/buttonCromPlans"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="15dp"
@@ -98,7 +98,7 @@
         android:visibility="invisible"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/buttonCrompraPlan" />
+        app:layout_constraintTop_toBottomOf="@+id/buttonCromPlans" />
 
     <TextView
         android:id="@+id/monto2"

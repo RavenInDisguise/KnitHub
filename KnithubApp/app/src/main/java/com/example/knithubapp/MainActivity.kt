@@ -24,9 +24,16 @@ class MainActivity : AppCompatActivity() {
         val buttonReadingApi = findViewById<Button>(R.id.buttonReadingApi)
         buttonReadingApi.setOnClickListener{openNodeOptions()
         }
+        val buttonWrittingApi = findViewById<Button>(R.id.buttonWrittingApi)
+        buttonWrittingApi.setOnClickListener{openJavaOptions()
+        }
     }
     fun openNodeOptions(){
         val intent = Intent (this, ReadingActivity::class.java)
+        startActivity(intent)
+    }
+    fun openJavaOptions(){
+        val intent = Intent (this, WritingActivity::class.java)
         startActivity(intent)
     }
 
