@@ -70,7 +70,7 @@ CREATE PROCEDURE FillPlans()
 BEGIN
     DECLARE StartTime DATETIME;
     
-    SET @Cantidad = 2;
+    SET @Cantidad = 1;
     SET @PlanId = 1;
     SET @Name = '';
     SET @Amount = 0.0;
@@ -79,7 +79,7 @@ BEGIN
     SET @IconUrl = '';
     SET @RecurrenceTypeId = 0;
 
-	WHILE @Cantidad <= 10 DO
+	WHILE @Cantidad <= 500 DO
         SET @PlanId = @Cantidad;
         SELECT CONCAT('Plan', @PlanId) INTO @Name; 
         SELECT RAND()*(30000-10000)+10000 INTO @Amount;
@@ -103,14 +103,14 @@ BEGIN
     DECLARE Time TIME;
     DECLARE CreationDate DATETIME;
     
-    SET @Cantidad = 15;
+    SET @Cantidad = 1;
     SET @ProjectId = 1;
     SET @Name = '';
     SET @PricePerHour = 0.0;
     SET @PatternId = 0;
     SET @UserId = 0;
 
-	WHILE @Cantidad <= 20 DO
+	WHILE @Cantidad <= 500 DO
         SET @ProjectId = @Cantidad;
         SELECT CONCAT('Proyecto', @ProjectId) INTO @Name; 
         -- El random da el mismo en cada iteración solucionar --
