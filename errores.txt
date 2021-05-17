@@ -12,3 +12,4 @@
 53011: Pattern name in use
 53012: Project name in use
 53013: Invalid price
+53014: User has already bought the pattern

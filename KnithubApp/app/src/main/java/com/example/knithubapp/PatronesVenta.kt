@@ -46,16 +46,20 @@ class PatronesVenta : AppCompatActivity() {
         val response = client.newCall(request).execute()
         val responseBody = response.body!!.string()
         val resultJson = JSONObject(responseBody)
-        var data = resultJson.optJSONArray("data")
-        data = data[0] as JSONArray?
-        for (pos in 0 until data.length()){
-            Log.i("Ciclo: ",pos.toString())
-            var currentData = data[pos].toString()
-            var currentJason = JSONObject(currentData)
-            creadores = append(creadores, currentJason.optString("PersonName"))
-            titulos = append(titulos, currentJason.optString("PatternName"))
-            categorias = append(categorias, currentJason.optString("PatternCategoryName"))
-            precio = append(precio, currentJason.optString("Price"))
+        try {
+            var data = resultJson.optJSONArray("data")
+            data = data[0] as JSONArray?
+            for (pos in 0 until data.length()) {
+                Log.i("Ciclo: ", pos.toString())
+                var currentData = data[pos].toString()
+                var currentJason = JSONObject(currentData)
+                creadores = append(creadores, currentJason.optString("PersonName"))
+                titulos = append(titulos, currentJason.optString("PatternName"))
+                categorias = append(categorias, currentJason.optString("PatternCategoryName"))
+                precio = append(precio, currentJason.optString("Price"))
+            }
+        }
+        catch (IOException : Exception){
         }
         changed = true
     }
