@@ -1,5 +1,5 @@
 53000: Invalid user
-53001: Invalid Pattern
+53001: Invalid pattern
 53002: Invalid plan
 53003: Invalid project
 53004: Invalid pattern category
@@ -11,3 +11,4 @@
 53010: Invalid Transaction
 53011: Pattern name in use
 53012: Project name in use
+53013: Invalid price

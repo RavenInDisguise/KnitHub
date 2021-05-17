@@ -25,17 +25,18 @@ public class Patterns {
     private String lastName;
     private String patternName;
     private String categoryName;
-    private String projectName;
+    private String description;
     
     public Patterns(){
     }
 
-    public Patterns(String macaddress, String userName, String lastName, String patternName, String categoryName) {
+    public Patterns(String macaddress, String userName, String lastName, String patternName, String categoryName, String description) {
         this.macaddress = macaddress;
         this.userName = userName;
         this.lastName = lastName;
         this.patternName = patternName;
         this.categoryName = categoryName;
+        this.description = description;
     }
 
     public int getPatternId(){
@@ -86,13 +87,13 @@ public class Patterns {
         this.categoryName = categoryName;
     }
 
-    public String getProjectName() {
-        return projectName;
+    public String getDescription() {
+        return description;
     }
 
-    public void setProjectName(String projectName) {
-        this.projectName = projectName;
+    public void setDescription(String description) {
+        this.description = description;
     }
-    
+   
 }
 
