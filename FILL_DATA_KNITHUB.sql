@@ -447,6 +447,27 @@ VALUES
 (5003, 5004, 5008);
 
 -- ------------------------------------------------------------
-
-
-
+-- Usuarios que no completaron su pago:
+INSERT INTO `KnitHub`.`PaymentAttempts`
+(`PaymentAttemptId`,
+`PostTime`,
+`Amount`,
+`CurrencySymbol`,
+`ReferenceNumber`,
+`ErrorNumber`,
+`MerchantTransNumber`,
+`PaymentTimeStamp`,
+`ComputerName`,
+`Username`,
+`IPAddress`,
+`Checksum`,
+`Description`,
+`UserId`,
+`MerchantId`,
+`PaymentStatusId`)
+VALUES
+(14262262,"2020-11-03",23000,"$",1234,null,1,"2020-11-03","Macbook1212",1,"102.345.670","Checksum","Pago de patron",1,1,2),
+(14262263,"2021-11-03",23000,"$",1234,null,1,"2020-11-03","Macbook1212",1,"102.345.670","Checksum","Pago de patron",2,1,2),
+(14262265,"2020-06-03",53000,"$",1234,null,1,"2020-11-03","Macbook1212",1,"102.345.670","Checksum","Pago de patron",3,1,2),
+(14262264,"2020-10-03",43000,"$",1234,null,1,"2020-11-03","Macbook1212",1,"102.345.670","Checksum","Pago de patron",3,1,2),
+(14262266,"2020-08-03",1000,"$",1234,null,1,"2020-11-03","Macbook1212",1,"102.345.670","Checksum","Pago de patron",4,1,2);
