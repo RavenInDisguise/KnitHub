@@ -12,17 +12,22 @@ WHERE PaymentAttempts.PaymentStatusId!=(SELECT (PaymentStatus.PaymentStatusId) F
 AND PaymentAttempts.ReferenceNumber NOT IN(SELECT Transactions.ReferenceNumber FROM Transactions)
 AND PaymentAttempts.UserId=Users.UserId
 GROUP BY MONTH(PostTime), YEAR(PostTime), Users.Name, Users.LastName
-ORDER BY 'Mes' ASC, 'Anno' DESC; 
+ORDER BY 'Mes' DESC, 'Anno' DESC; 
 
 -- Una consulta que retorne el volumen de operaciones de uso del sistema por mes en un rango de
 -- fechas, clasificado entre bajo volumen, volumen medio y volumen alto
 
 -- Valores seteados por el usuario:
--- SET @MINDATE=
--- SET @MAXDATE=
+-- SET @MINDATE="";
+-- SET @MAXDATE="";
 
-SELECT MONTH(Mes) 'Mes', count(*) 'Volumen proyectos y patrones'
-FROM (SELECT Patterns.creationDate AS Mes FROM Patterns WHERE (@MINDATE < Patterns.creationDate < @MAXDATE)
+SELECT MONTH(Mes) 'Mes', count(*) 'Volumen proyectos y patrones', 
+CASE
+    WHEN COUNT(*) < 500  THEN 'Volumen bajo'
+    WHEN 500 < COUNT(*) < 1000  THEN 'Volumen medio'
+    WHEN COUNT(*) > 1000  THEN 'Volumen alto'
+END AS 'Clasificacion de volumen'
+FROM (SELECT Patterns.creationDate AS Mes FROM Patterns WHERE (@MINDATE < Patterns.creationDate AND Patterns.creationDate < @MAXDATE)
 UNION ALL
-SELECT Projects.creationDate AS Mes FROM Projects WHERE (@MINDATE < Projects.creationDate < @MAXDATE)) Dates
+SELECT Projects.creationDate AS Mes FROM Projects WHERE (@MINDATE < Projects.creationDate AND Projects.creationDate < @MAXDATE)) Dates
 GROUP BY MONTH(Mes);

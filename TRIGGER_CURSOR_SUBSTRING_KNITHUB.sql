@@ -5,16 +5,16 @@ DELIMITER //
 CREATE TRIGGER TR_after_insert_patrones AFTER INSERT
 ON Patterns FOR EACH ROW 
 	UPDATE Users SET PatternCount=PatternCount+1
-	WHERE UserId=Users.UserId;
+	WHERE Users.UserId=Patterns.UserId;
 //
 DELIMITER ;
 
 DROP TRIGGER IF EXISTS TR_after_insert_proyectos; 
 DELIMITER //
 CREATE TRIGGER TR_after_insert_proyectos AFTER INSERT
-ON Patterns FOR EACH ROW 
+ON Projects FOR EACH ROW 
 	UPDATE Users SET ProjectCount=ProjectCount+1
-	WHERE UserId=Users.UserId;
+	WHERE Users.UserId=Projects.UserId;
 //
 DELIMITER ;
 
