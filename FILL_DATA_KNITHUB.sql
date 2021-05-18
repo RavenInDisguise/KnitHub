@@ -28,8 +28,6 @@ BEGIN
 END //
 DELIMITER ;
 
-call FillUsers();
-select * from users;
 
 DROP PROCEDURE IF EXISTS FillPriceValues;
 DELIMITER //
@@ -271,6 +269,15 @@ BEGIN
 	END WHILE; 
 END //
 DELIMITER ;
+
+
+Call FillUsers();
+Call FillTransactions();
+Call FillPlansPerUser();
+Call FillPriceValues();
+Call FillPatterns();
+Call FillProjects();
+Call FillPlansPerUser();
 
 -- Datos para probar SP --
 
