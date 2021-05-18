@@ -336,7 +336,6 @@ VALUES
 (SYSDATE(), SYSDATE(), 5003, 3, 5003),
 (SYSDATE(), SYSDATE(), 5004, 4, 5004);
 
-CALL CompraPlanes('QW:ER:TY:DS:5000', 'Rodrigo', 'Nuñez5000', 'Plan economico');
 
 -- ------------------------------------------------------------
 

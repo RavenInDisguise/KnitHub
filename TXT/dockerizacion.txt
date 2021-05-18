@@ -1,0 +1,6 @@
+COMANDOS IMPORTANTES DE LA DOCKERIZACIÓN
+docker build . -t node_index_api         
+>>>>> Crea la imagen donde está el api
+
+docker run -it --name node_api_docker -p 8080:8080 --link <container de mysql>:mysql  node_index_api    
+>>>>> Crea el container y le da las especificaciones del enlace
