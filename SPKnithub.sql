@@ -79,7 +79,8 @@ BEGIN
     INNER JOIN CategoriesPerPattern ON CategoriesPerPattern.`PatternId`=Patterns.PatternId
     INNER JOIN PatternCategories ON PatternCategories.`PatternCategoryId`=CategoriesPerPattern.`PatternCategoryId`
     WHERE PurchasedPatternsPerUser.UserId=@UserId
-    AND PurchasedPatternsPerUser.PatternId=@PatternId;
+    AND PurchasedPatternsPerUser.PatternId=@PatternId
+    ORDER BY payment_transactions.TransPosttime DESC LIMIT 1;;
 END//
 DELIMITER ;
 
