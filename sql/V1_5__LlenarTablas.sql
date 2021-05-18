@@ -77,9 +77,9 @@ BEGIN
         SELECT CONCAT('Descripción perteneciente al ', @Title) INTO @Description;
         SELECT UserId INTO @UserId FROM Users ORDER BY RAND() LIMIT 1;
         
-        
+        SET @DatePattern=DATE_ADD(SYSDATE(), INTERVAL (RAND()*(365-15)+15) DAY);
 		INSERT INTO Patterns (PatternId, Title, Description, UserId, creationDate)
-		VALUES (@PatternId, @Title, @Description, @UserId, SYSDATE());
+		VALUES (@PatternId, @Title, @Description, @UserId, @DatePattern);
         
         
         UPDATE Users SET PatternCount = PatternCount + 1
@@ -157,8 +157,9 @@ BEGIN
         SELECT UserId INTO @UserId FROM Users ORDER BY RAND() LIMIT 1;
         
         -- Se puede variar el starttime, sumando o restando a SYSDATE()
+        SET @DateProject=DATE_ADD(SYSDATE(), INTERVAL (RAND()*(365-15)+15) DAY);
 		INSERT INTO Projects (ProjectId, Name, Time, PricePerHour, PatternId, UserId, creationDate)
-		VALUES (@ProjectId, @Name, 0, @PricePerHour, @PatternId, @UserId, SYSDATE());
+		VALUES (@ProjectId, @Name, 0, @PricePerHour, @PatternId, @UserId, @DateProject);
         
         UPDATE Users SET ProjectCount = ProjectCount + 1
         WHERE Users.UserId=@UserId;
@@ -228,14 +229,18 @@ BEGIN
         SELECT EntityTypeId INTO @EntityTypeId FROM EntityTypes ORDER BY RAND() LIMIT 1;
         SET @Checksum2 = SHA2(CONCAT(@TransTypeId, @SubTypeId, @EntityTypeId, @Amount, NOW()), 256);
         
+       
 		INSERT INTO PaymentAttempts (PaymentAttemptId, PostTime, Amount, CurrencySymbol, ReferenceNumber, MerchantTransNumber,
         PaymentTimeStamp, ComputerName, Username, IPAddress, Checksum, Description, UserId, MerchantId, PaymentStatusId)
 		VALUES (@Id, SYSDATE(), @Amount, '₡', @Reference, @Merchant, CURRENT_TIMESTAMP(), @ComputerName, @Nickname, @IP,
         @Checksum, @Description, @UserId, @MerchantId, @PaymentStatusId);
         
+        
+		IF (@PaymentStatusId=1) THEN
         INSERT INTO Transactions (TransactionId, Checksum, PostTime, ReferenceNumber, Amount, Description, PaymentAttemptId,
         TransTypeId, SubTypeId, EntityTypeId)
         VALUES (@Id, @Checksum2, SYSDATE(), @Reference, @Amount, @Description, @Id, @TransTypeId, @SubTypeId, @EntityTypeId);
+        END IF;
         
 		SET @Cantidad = @Cantidad + 1;
 	END WHILE;
@@ -270,7 +275,7 @@ BEGIN
 END //
 DELIMITER ;
 
-SELECT * FROM EntityTypes;
+
 Call FillUsers();
 Call FillTransactions();
 Call FillPlansPerUser();
@@ -330,6 +335,7 @@ VALUES
 (SYSDATE(), SYSDATE(), 5002, 2, 5002),
 (SYSDATE(), SYSDATE(), 5003, 3, 5003),
 (SYSDATE(), SYSDATE(), 5004, 4, 5004);
+
 
 -- ------------------------------------------------------------
 
@@ -469,4 +475,5 @@ VALUES
 (14262263,"2021-11-03",23000,"$",1234,null,1,"2020-11-03","Macbook1212",1,"102.345.670","Checksum","Pago de patron",2,1,2),
 (14262265,"2020-06-03",53000,"$",1234,null,1,"2020-11-03","Macbook1212",1,"102.345.670","Checksum","Pago de patron",3,1,2),
 (14262264,"2020-10-03",43000,"$",1234,null,1,"2020-11-03","Macbook1212",1,"102.345.670","Checksum","Pago de patron",3,1,2),
-(14262266,"2020-08-03",1000,"$",1234,null,1,"2020-11-03","Macbook1212",1,"102.345.670","Checksum","Pago de patron",4,1,2);
+(14262266,"2020-08-03",1000,"$",1234,null,1,"2020-11-03","Macbook1212",1,"102.345.670","Checksum","Pago de patron",4,1,2),
+(14262267,"2020-08-03",1000,"$",12345,null,1,"2020-11-03","Macbook1212",1,"102.345.670","Checksum","Pago de patron",7,1,2);
