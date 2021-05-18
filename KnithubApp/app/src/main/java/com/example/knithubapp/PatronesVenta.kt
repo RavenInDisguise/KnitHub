@@ -37,7 +37,7 @@ class PatronesVenta : AppCompatActivity() {
         return list.toTypedArray()
     }
     private fun getPatsVent() {
-        val url = "http://192.168.8.102:8080/patronesVenta"
+        val url = "http://192.168.100.72:8080/patronesVenta"
         val client = OkHttpClient()
         val request = Request.Builder()
                 .url(url)

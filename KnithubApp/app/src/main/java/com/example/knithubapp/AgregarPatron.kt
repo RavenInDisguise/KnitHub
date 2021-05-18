@@ -39,7 +39,7 @@ class AgregarPatron : AppCompatActivity() {
     }
 
     private fun registrarPatron(mac: String, name: String, lName: String, patName: String,patCat: String ,patDesc: String) {
-        val url = "http://192.168.8.102:8081/knithub/add/patterns"
+        val url = "http://192.168.100.72:8081/knithub/add/patterns"
         val client = OkHttpClient()
         val json = "application/json; charset=utf-8".toMediaType()
         val jsonString = ("{\"macaddress\":\"$mac\",\"userName\":\"$name\",\"lastName\":\"$lName\",\"patternName\":\"$patName\",\"categoryName\":\"$patCat\",\"description\":\"$patDesc\"}")

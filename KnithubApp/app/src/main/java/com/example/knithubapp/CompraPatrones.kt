@@ -85,7 +85,7 @@ class CompraPatrones : AppCompatActivity() {
             nameO: String,
             lNameO: String
     ) {
-        val url = "http://192.168.8.102:8080/compraPatrones"
+        val url = "http://192.168.100.72:8080/compraPatrones"
         val client = OkHttpClient()
         val json = "application/json; charset=utf-8".toMediaType()
         Log.i("Titulo: ",title)

@@ -86,7 +86,7 @@ class CompraPlanes : AppCompatActivity() {
         lName: String,
         title: String
     ) {
-        val url = "http://192.168.8.102:8080/compraPlanes"
+        val url = "http://192.168.100.72:8080/compraPlanes"
         val client = OkHttpClient()
         val json = "application/json; charset=utf-8".toMediaType()
         val jsonString = ("{\"macaddress\":\"$mac\",\"username\":\"$name\",\"userlastname\":\"$lName\",\"plantitle\":\"$title\"}")
