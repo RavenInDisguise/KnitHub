@@ -19,39 +19,25 @@ ORDER BY 'Month' ASC, 'Year' DESC;
 -- Una consulta que retorne el volumen de operaciones de uso del sistema por mes en un rango de
 -- fechas, clasificado entre bajo volumen, volumen medio y volumen alto
 
--- SET @MAXDATE= #Fechas definidas
--- SET @MINDATE= #Fechas definidas
+SELECT y, m, Count(Projects.ProjectId) Conteo
+FROM (
+  SELECT y, m
+  FROM 
+    (SELECT YEAR(CURDATE()) y UNION ALL SELECT YEAR(CURDATE())-1) years ,
+    (SELECT 1 m UNION ALL SELECT 2 UNION ALL SELECT 3 UNION ALL SELECT 4
+      UNION ALL SELECT 5 UNION ALL SELECT 6 UNION ALL SELECT 7 UNION ALL SELECT 8
+      UNION ALL SELECT 9 UNION ALL SELECT 10 UNION ALL SELECT 11 UNION ALL SELECT 12) AS months) ym
+	LEFT JOIN Projects
+	  ON ym.y = YEAR(Projects.creationDate)
+     AND ym.m = MONTH(Projects.creationDate)
+     
+WHERE
+  (y=YEAR(CURDATE()) AND m<=MONTH(CURDATE()))
+  OR
+  (y<YEAR(CURDATE()) AND m>MONTH(CURDATE()))
+GROUP BY y, m;
 
-SELECT 
-'Projects' AS 'VolumeType', 
-MONTH(Projects.creationDate) AS 'Month',
-MONTHNAME(Projects.creationDate) AS 'MonthName',
-COUNT(Projects.ProjectId) AS 'IndividualMonthVolume', 
-COUNT(Patterns.PatternId + Projects.ProjectId)  AS 'SumMonthVolume',
-CASE
-    WHEN 'SumMonthVolume' < 350  THEN 'Volumen bajo'
-    WHEN 500 < 'SumMonthVolume' < 1000  THEN 'Volumen medio'
-    WHEN 'SumMonthVolume' > 500  THEN 'Volumen alto'
-END AS 'VolumeClassification'
-FROM Projects, Patterns
-WHERE @MINDATE < Projects.creationDate > @MAXDATE
-AND MONTH(Projects.creationDate)=MONTH(Patterns.creationDate) 
-GROUP BY 'VolumeType','Month','VolumeClassification','IndividualVolume', Projects.creationDate
-UNION
-SELECT
-'Patterns' AS 'VolumeType',
-MONTH(Patterns.creationDate) AS 'Month',
-MONTHNAME(Patterns.creationDate) AS 'MonthName',
-COUNT(Patterns.PatternId) AS 'IndividualMonthVolume',
-COUNT(Patterns.PatternId + Projects.ProjectId) AS 'SumMonthVolume',
-CASE
-    WHEN 'SumMonthVolume' < 350  THEN 'Volumen bajo'
-    WHEN 500 < 'SumMonthVolume' < 1000  THEN 'Volumen medio'
-    WHEN 'SumMonthVolume' > 500  THEN 'Volumen alto'
-END AS 'SumVolumeClassification'
-FROM Patterns, Projects
-WHERE @MINDATE < Patterns.creationDate > @MAXDATE
-AND MONTH(Projects.creationDate)=MONTH(Patterns.creationDate) 
-GROUP BY 'VolumeType','Month','IndividualVolume', Patterns.creationDate;
-
-
+select month(m) 'Mes', count(*) 'Proyectos y Patrones Por Mes'
+from (select Patterns.creationDate as m from Patterns union all
+      select Projects.creationDate as m from Projects) v
+group by month(m)
