@@ -33,7 +33,7 @@ module.exports = class SPController {
             res.status(418).send({ message: 'There was an error.' })
         }
         else{    
-            this.dbconnection.execute('CALL CompraPatrones (?,?,?,?)',
+            this.dbconnection.execute('CALL CompraPatrones (?,?,?,?,?,?,?)',
             [macaddress,username,userlastname,patterntitle,macaddressO,usernameO,userlastnameO],
             (err, data, fields) => {
                 if (err) throw err;
