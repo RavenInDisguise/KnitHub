@@ -42,12 +42,12 @@ SELECT `Users`.`UserId`,
      EntTypes.`Name` AS 'EntityType'
 FROM `KnitHub`.`Users`
 INNER JOIN Cities ON Users.CityId=Cities.CityId
-INNER JOIN Countries ON Cities.CityId=Countries.CountryId
+INNER JOIN Countries ON Cities.CountryId=Countries.CountryId
 INNER JOIN PaymentAttempts PayAtt ON Users.UserId=PayAtt.UserId
 INNER JOIN Merchants ON PayAtt.MerchantId=Merchants.MerchantId
 INNER JOIN PaymentStatus PayStat ON PayAtt.PaymentStatusId=PayStat.PaymentStatusId
 INNER JOIN Transactions Trans ON Trans.PaymentAttemptId=PayAtt.PaymentAttemptId
-INNER JOIN TransTypes TTypes ON Trans.TransactionId=TTypes.TransTypeId
+INNER JOIN TransTypes TTypes ON Trans.TransTypeId=TTypes.TransTypeId
 INNER JOIN SubTypes STypes ON Trans.SubTypeId=STypes.SubTypeId
 INNER JOIN EntityTypes EntTypes ON EntTypes.EntityTypeId=Trans.EntityTypeId; 
 
