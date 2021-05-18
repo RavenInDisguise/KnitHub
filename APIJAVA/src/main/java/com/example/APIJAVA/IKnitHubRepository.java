@@ -21,7 +21,7 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface IKnitHubRepository extends JpaRepository<Patterns,String>{
     
-    @Transactional
+    
     @Modifying
     @Query(value ="{call GenerarPatron(:pMacAddress, :pName, :pLastName, :pPatternName, :pPatternCategoryName, :pPatternDescription)}",nativeQuery = true)
     void GenerarPatron(
@@ -33,7 +33,7 @@ public interface IKnitHubRepository extends JpaRepository<Patterns,String>{
             @Param("pPatternDescription")String pPatternDescription
     );
     
-    @Transactional
+  
     @Modifying
     @Query(value ="{call GenerarProyecto(:pMacAddress, :pName, :pLastName, :pPatternName, :pProjectName, :pPricePerHour)}",nativeQuery = true)
     void GenerarProyecto(
