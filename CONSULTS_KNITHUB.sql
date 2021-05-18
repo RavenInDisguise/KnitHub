@@ -19,25 +19,12 @@ ORDER BY 'Month' ASC, 'Year' DESC;
 -- Una consulta que retorne el volumen de operaciones de uso del sistema por mes en un rango de
 -- fechas, clasificado entre bajo volumen, volumen medio y volumen alto
 
-SELECT y, m, Count(Projects.ProjectId) Conteo
-FROM (
-  SELECT y, m
-  FROM 
-    (SELECT YEAR(CURDATE()) y UNION ALL SELECT YEAR(CURDATE())-1) years ,
-    (SELECT 1 m UNION ALL SELECT 2 UNION ALL SELECT 3 UNION ALL SELECT 4
-      UNION ALL SELECT 5 UNION ALL SELECT 6 UNION ALL SELECT 7 UNION ALL SELECT 8
-      UNION ALL SELECT 9 UNION ALL SELECT 10 UNION ALL SELECT 11 UNION ALL SELECT 12) AS months) ym
-	LEFT JOIN Projects
-	  ON ym.y = YEAR(Projects.creationDate)
-     AND ym.m = MONTH(Projects.creationDate)
-     
-WHERE
-  (y=YEAR(CURDATE()) AND m<=MONTH(CURDATE()))
-  OR
-  (y<YEAR(CURDATE()) AND m>MONTH(CURDATE()))
-GROUP BY y, m;
+-- Valores seteados por el usuario:
+-- SET @MINDATE=
+-- SET @MAXDATE=
 
-select month(m) 'Mes', count(*) 'Proyectos y Patrones Por Mes'
-from (select Patterns.creationDate as m from Patterns union all
-      select Projects.creationDate as m from Projects) v
-group by month(m)
+SELECT MONTH(mes) 'Mes', count(*) 'Volumen proyectos y patrones'
+FROM (SELECT Patterns.creationDate AS mes FROM Patterns WHERE (@MINDATE < Patterns.creationDate < @MAXDATE)
+UNION ALL
+SELECT Projects.creationDate AS mes FROM Projects WHERE (@MINDATE < Projects.creationDate < @MAXDATE)) dates
+GROUP BY MONTH(mes);
