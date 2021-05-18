@@ -147,6 +147,7 @@ VALUES
 
 -- ENTITY TYPES:
 
+
 -- RECURRENCES TYPES:
 INSERT INTO `KnitHub`.`RecurrencesTypes`
 (`RecurrenceTypeId`,
@@ -170,7 +171,10 @@ INSERT INTO `KnitHub`.`Plans`
 `IconUrl`,
 `RecurrenceTypeId`)
 VALUES
-(1,"Plan economico",45,"Plan que permite tener 45 patrones y proyecto",sysdate(),NULL,1,"https://z1gestion.es/wp-content/uploads/2017/02/calendar-2004848_640.jpg",1);
+(1,"Plan economico",45,"Plan que permite tener 45 patrones y proyectos",sysdate(),NULL,1,"https://z1gestion.es/wp-content/uploads/2017/02/calendar-2004848_640.jpg",1),
+(2,"Plan estandar",90,"Plan que permite tener 90 patrones y proyectos",sysdate(),NULL,1,"https://z1gestion.es/wp-content/uploads/2017/02/calendar-2004848_640.jpg",2),
+(3,"Plan premium",200,"Plan que permite tener 200 patrones y proyectos",sysdate(),NULL,1,"https://z1gestion.es/wp-content/uploads/2017/02/calendar-2004848_640.jpg",3),
+(4,"Plan business",500,"Plan que permite tener 500 patrones y proyectos",sysdate(),NULL,1,"https://z1gestion.es/wp-content/uploads/2017/02/calendar-2004848_640.jpg",3);
 
 -- MATERIALS:
 INSERT INTO `KnitHub`.`Materials`
