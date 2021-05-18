@@ -38,7 +38,7 @@ BEGIN
     AND Users.Lastname=pLastName;
     
     IF(@UserId=0) THEN
-		SIGNAL SQLSTATE '45000' SET MYSQL_ERRNO = INVALID_USER;
+		SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'El usuario ingresado no existe', MYSQL_ERRNO = INVALID_USER;
     END IF;
     
     SET @OwnerUserId = 0;
@@ -48,8 +48,7 @@ BEGIN
     AND Users.LastName=pOwnerLastName;
     
     IF (@OwnerUserId=0) THEN
-		SIGNAL SQLSTATE '45000' SET MYSQL_ERRNO = INVALID_USER;
-        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'El usuario no ha sido encontrado';
+		SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'El usuario (creador del patrón) ingresado no existe', MYSQL_ERRNO = INVALID_USER;
     END IF;
     
     SET @PatternId = 0;
@@ -58,7 +57,7 @@ BEGIN
     AND Patterns.UserId=@OwnerUserId;
     
     IF(@PatternId=0) THEN
-		SIGNAL SQLSTATE '45000' SET MYSQL_ERRNO = INVALID_PATTERN;
+		SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'El patrón ingresado no existe', MYSQL_ERRNO = INVALID_PATTERN;
 	END IF;
     
     SELECT payment_transactions.`PersonName`, payment_transactions.`TransAmount`, payment_transactions.`TransPosttime`, 
@@ -106,7 +105,7 @@ BEGIN
     AND Users.Lastname=pLastName;
     
     IF(@UserId=0) THEN
-		SIGNAL SQLSTATE '45000' SET MYSQL_ERRNO = INVALID_USER;
+		SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'El usuario ingresado no existe', MYSQL_ERRNO = INVALID_USER;
     END IF;
     
     SET @PlanId = 0;
@@ -114,7 +113,7 @@ BEGIN
     WHERE Plans.Name=pPlanName;
     
     IF(@PlanId=0) THEN
-		SIGNAL SQLSTATE '45000' SET MYSQL_ERRNO = INVALID_PLAN;	
+		SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'El plan ingresado no existe', MYSQL_ERRNO = INVALID_PLAN;
 	END IF;
     
     SET @PlanCount=0;
@@ -122,7 +121,7 @@ BEGIN
     WHERE PlansPerUser.UserId=@UserId AND PlansPerUser.PlanId=@PlanId;
     
     IF(@PlanCount=0) THEN
-		SIGNAL SQLSTATE '45000' SET MYSQL_ERRNO = PLAN_NOT_FOUND_FOR_USER;	
+		SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'El usuario no ha adquirido el plan ingresado', MYSQL_ERRNO = PLAN_NOT_FOUND_FOR_USER;
 	END IF;
     
     SELECT payment_transactions.`PersonName`, payment_transactions.`TransAmount`, payment_transactions.`TransPosttime`,
@@ -170,7 +169,7 @@ BEGIN
     AND Users.Lastname=pLastName;
     
     IF(@UserId=0) THEN
-		SIGNAL SQLSTATE '45000' SET MYSQL_ERRNO = INVALID_USER;
+		SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'El usuario ingresado no existe', MYSQL_ERRNO = INVALID_USER;
     END IF;
     
     SET @ProjectId = 0;
@@ -179,8 +178,9 @@ BEGIN
     AND Projects.UserId=@UserId;
     
     IF(@ProjectId=0) THEN
-		SIGNAL SQLSTATE '45000' SET MYSQL_ERRNO = INVALID_PROJECT;
+		SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'El usuario no posee el proyecto ingresado', MYSQL_ERRNO = INVALID_PROJECT;
     END IF;
+    
     SELECT projects_patterns.`PersonName`, projects_patterns.`ProjectName`, projects_patterns.`ProjectTime`
     FROM projects_patterns
     WHERE projects_patterns.`UserId`=@UserId
@@ -251,8 +251,7 @@ BEGIN
     AND Users.Lastname=pLastName;
     
     IF (@UserId=0) THEN
-        SIGNAL SQLSTATE '45000' SET MYSQL_ERRNO = INVALID_USER;
-        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'El usuario no ha sido encontrado';
+        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'El usuario ingresado no existe', MYSQL_ERRNO = INVALID_USER;
     END IF;
     
     SET @PatternId=0;
@@ -261,7 +260,7 @@ BEGIN
     AND Patterns.UserId=@UserId;
     
     IF (@PatternId != 0) THEN
-		SIGNAL SQLSTATE '45000' SET MYSQL_ERRNO = PATTERN_NAME_ALREADY_IN_USE;
+		SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Usted ya creo un patrón que posee el mismo nombre', MYSQL_ERRNO = PATTERN_NAME_ALREADY_IN_USE;
     END IF;
     
     SET @PatternCategoryId = 0;
@@ -269,7 +268,7 @@ BEGIN
     WHERE PatternCategories.`Name`=pPatternCategoryName;
     
     IF (@PatternCategoryId=0) THEN
-		SIGNAL SQLSTATE '45000' SET MYSQL_ERRNO = INVALID_PATTERN_CATEGORY;
+		SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'La categoría ingresada no existe', MYSQL_ERRNO = INVALID_PATTERN_CATEGORY;
 	END IF;
     
     SET @PatternDescription = '';
@@ -344,8 +343,7 @@ BEGIN
     AND Users.`LastName`=pLastName;
     
     IF (@UserId=0) THEN
-		SIGNAL SQLSTATE '45000' SET MYSQL_ERRNO = INVALID_USER;
-        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'El usuario no ha sido encontrado';
+		SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'El usuario ingresado no existe', MYSQL_ERRNO = INVALID_USER;
     END IF;
     
     SET @ProjectId = 0;
@@ -354,7 +352,7 @@ BEGIN
     AND Projects.UserId=@UserId;
     
     IF (@ProjectId != 0) THEN
-		SIGNAL SQLSTATE '45000' SET MYSQL_ERRNO = PROJECT_NAME_ALREADY_IN_USE;
+		SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Usted ya creo un proyecto que posee el mismo nombre', MYSQL_ERRNO = PROJECT_NAME_ALREADY_IN_USE;
     END IF;
     
     SET @PatternId = 0;
@@ -369,8 +367,7 @@ BEGIN
 		AND PurchasedPatternsPerUser.`UserId`=@UserId;
         
         IF (@PatternId=0) THEN
-			SIGNAL SQLSTATE '45000' SET MYSQL_ERRNO = INVALID_PATTERN;
-			SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'El patrón no ha sido encontrado';
+			SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Usted no posee el patrón ingresado', MYSQL_ERRNO = INVALID_PATTERN;
 		END IF;
     END IF;
     
@@ -431,7 +428,7 @@ BEGIN
     AND Users.Lastname = pLastName;
     
     IF(@UserId = 0) THEN
-		SIGNAL SQLSTATE '45000' SET MYSQL_ERRNO = INVALID_USER;
+		SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'El usuario ingresado no existe', MYSQL_ERRNO = INVALID_USER;
     END IF;
     
 	SELECT Projects.`Name`, Patterns.`Title` As `Pattern Name`, Projects.`Time`, Projects.`PricePerHour`, Projects.`TotalPrice`,
@@ -491,7 +488,7 @@ BEGIN
 	END;
     
     IF (pPricePerHour < 0) THEN
-		SIGNAL SQLSTATE '45000' SET MYSQL_ERRNO = INVALID_PRICE;
+		SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'El precio ingresado no es válido', MYSQL_ERRNO = INVALID_PRICE;
     END IF;
     
     SET @OwnerUserId = 0;
@@ -501,8 +498,7 @@ BEGIN
     AND Users.LastName=pOwnerLastName;
     
     IF (@OwnerUserId=0) THEN
-		SIGNAL SQLSTATE '45000' SET MYSQL_ERRNO = INVALID_USER;
-        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'El usuario no ha sido encontrado';
+		SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'El usuario (creador del patrón) ingresado no existe', MYSQL_ERRNO = INVALID_USER;
     END IF;
     
     
@@ -512,8 +508,7 @@ BEGIN
     AND Patterns.Title=pPatternName;
     
     IF (@PatternId=0) THEN
-		SIGNAL SQLSTATE '45000' SET MYSQL_ERRNO = INVALID_PATTERN;
-        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'El usuario no ha sido encontrado';
+		SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'El patrón ingresado no existe', MYSQL_ERRNO = INVALID_PATTERN;
     END IF;
     
     SET @PriceValueId=0;
@@ -523,8 +518,7 @@ BEGIN
     ORDER BY `Date` DESC;
     
     IF (@PriceValueId=0) THEN
-		SIGNAL SQLSTATE '45000' SET MYSQL_ERRNO = PATTERN_NOT_ON_SALE;
-        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'El usuario no ha sido encontrado';
+		SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'El patrón ingresado no se encuentra en venta', MYSQL_ERRNO = PATTERN_NOT_ON_SALE;
     END IF;
     
     SET @Amount = 0;
@@ -541,7 +535,7 @@ BEGIN
     AND Users.Lastname = pLastName;
     
     IF(@UserId = 0) THEN
-		SIGNAL SQLSTATE '45000' SET MYSQL_ERRNO = INVALID_USER;
+		SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'El usuario ingresado no existe', MYSQL_ERRNO = INVALID_USER;
     END IF;
     
     SET @Nickname = IFNULL(@Nickname, CONCAT(pName, ' ', IFNULL(CONCAT(SUBSTRING(@SecondName, 1, 1), '. '), ''), SUBSTRING(pLastName, 1, 1), '.'));
@@ -552,7 +546,7 @@ BEGIN
     AND Projects.UserId=@UserId;
     
     IF (@ProjectId != 0) THEN
-		SIGNAL SQLSTATE '45000' SET MYSQL_ERRNO = PROJECT_NAME_ALREADY_IN_USE;
+		SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Usted ya creo un proyecto que posee el mismo nombre', MYSQL_ERRNO = PROJECT_NAME_ALREADY_IN_USE;
     END IF;
     
     SET @Trans = 0;
@@ -561,7 +555,7 @@ BEGIN
     AND PurchasedPatternsPerUser.PatternId=@PatternId;
     
     IF (@Trans != 0) THEN
-		SIGNAL SQLSTATE '45000' SET MYSQL_ERRNO = USER_ALREADY_PURCHASED_PATTERN;
+		SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Usted ya adquirió el patrón ingresado', MYSQL_ERRNO = USER_ALREADY_PURCHASED_PATTERN;
     END IF;
     
     SET @MerchantId = 0;
@@ -569,7 +563,7 @@ BEGIN
     WHERE Merchants.Name=pMerchantName;
     
     IF(@MerchantId = 0) THEN
-		SIGNAL SQLSTATE '45000' SET MYSQL_ERRNO = INVALID_MERCHANT;
+		SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'El merchant ingresado no existe', MYSQL_ERRNO = INVALID_MERCHANT;
     END IF;
     
     SET @TransTypeId = 0;
@@ -577,13 +571,13 @@ BEGIN
     WHERE TransTypes.Name=pTransType;
     
     IF(@TransTypeId = 0) THEN
-		SIGNAL SQLSTATE '45000' SET MYSQL_ERRNO = INVALID_TRANSTYPE;
+		SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'El transaction type ingresado no existe', MYSQL_ERRNO = INVALID_TRANSTYPE;
     END IF;
     
     SET @PaymentId = 0;
     SET @TransactionId = 0;
     SET Transaction_Count = 0;
-    SET @CurrentTime = NOW();
+    SET @CurrentTime = SYSDATE(); 
     SET @SubTypeId = 1;
     SET @EntityTypeId = 1;
     
@@ -594,14 +588,14 @@ BEGIN
     
     INSERT INTO PaymentAttempts (PostTime, Amount, CurrencySymbol, ReferenceNumber, MerchantTransNumber, PaymentTimeStamp, ComputerName,
     Username, IPAddress, Checksum, Description, UserId, MerchantId, PaymentStatusId)
-    VALUES (@CurrentTime, @Amount, @CurrencySymbol, @OwnerUserId, FLOOR(RAND()*(10-1+1))+1, current_timestamp(), pMacAddress,
+    VALUES (@CurrentTime, @Amount, @CurrencySymbol, @OwnerUserId, FLOOR(RAND()*(10-1+1))+1, CURRENT_TIMESTAMP(), pMacAddress,
     @Nickname, '123:ABC:00', SHA2(CONCAT(@UserId, @Amount, '123:ABC:00', @MerchantId), 256), CONCAT('Compra del patrón ', pPatternName),
     @UserId, @MerchantId, 1);
     SELECT LAST_INSERT_ID() INTO @PaymentId;
     
     INSERT INTO Transactions (Checksum, PostTime, ReferenceNumber, Amount, Description, PaymentAttemptId, TransTypeId, SubTypeId,
     EntityTypeId)
-    VALUES (SHA2(CONCAT(@TransTypeId, @SubTypeId, @EntityTypeId, @Amount, NOW()), 256), NOW(), @OwnerUserId, @Amount,
+    VALUES (SHA2(CONCAT(@TransTypeId, @SubTypeId, @EntityTypeId, @Amount, NOW()), 256), @CurrentTime, @OwnerUserId, @Amount,
     CONCAT('Compra del patrón ', pPatternName), @PaymentId, @TransTypeId, @SubTypeId, @EntityTypeId);
     SELECT LAST_INSERT_ID() INTO @TransactionId;
     
@@ -659,8 +653,7 @@ BEGIN
     AND Users.LastName=pOwnerLastName;
     
     IF (@OwnerUserId=0) THEN
-		SIGNAL SQLSTATE '45000' SET MYSQL_ERRNO = INVALID_USER;
-        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'El usuario no ha sido encontrado';
+		SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'El usuario (creador del patrón) ingresado no existe', MYSQL_ERRNO = INVALID_USER;
     END IF;
     
     SET @PatternId = 0;
@@ -670,8 +663,7 @@ BEGIN
     AND Patterns.Title=pPatternName;
     
     IF (@PatternId=0) THEN
-		SIGNAL SQLSTATE '45000' SET MYSQL_ERRNO = INVALID_PATTERN;
-        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'El usuario no ha sido encontrado';
+		SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'El patrón ingresado no existe', MYSQL_ERRNO = INVALID_PATTERN;
     END IF;
     
     SET @UserId = 0;
@@ -681,7 +673,7 @@ BEGIN
     AND Users.Lastname = pLastName;
     
     IF(@UserId = 0) THEN
-		SIGNAL SQLSTATE '45000' SET MYSQL_ERRNO = INVALID_USER;
+		SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'El usuario ingresado no existe', MYSQL_ERRNO = INVALID_USER;
     END IF;
     
     SET @PaymentId = 0;
@@ -691,7 +683,7 @@ BEGIN
     AND PaymentAttempts.ReferenceNumber = @OwnerUserId;
     
     IF(@PaymentId = 0) THEN
-		SIGNAL SQLSTATE '45000' SET MYSQL_ERRNO = INVALID_PAYMENT_ATTEMPT;
+		SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Payment attempt inválido', MYSQL_ERRNO = INVALID_PAYMENT_ATTEMPT;
     END IF;
     
     SET @TransId = 0;
@@ -699,7 +691,7 @@ BEGIN
     WHERE Transactions.PaymentAttemptId = @PaymentId;
     
 	IF(@TransId = 0) THEN
-		SIGNAL SQLSTATE '45000' SET MYSQL_ERRNO = INVALID_TRANSACTION;
+		SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Transacción inválida', MYSQL_ERRNO = INVALID_TRANSACTION;
     END IF;
     
     SET @ProjectId = 0;
@@ -776,8 +768,7 @@ BEGIN
     AND Users.LastName=pOwnerLastName;
     
     IF (@OwnerUserId=0) THEN
-		SIGNAL SQLSTATE '45000' SET MYSQL_ERRNO = INVALID_USER;
-        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'El usuario no ha sido encontrado';
+		SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'El usuario (creador del patrón) ingresado no existe', MYSQL_ERRNO = INVALID_USER;
     END IF;
     
     SET @PatternId = 0;
@@ -786,8 +777,7 @@ BEGIN
     AND Patterns.Title=pPatternName;
     
     IF (@PatternId=0) THEN
-		SIGNAL SQLSTATE '45000' SET MYSQL_ERRNO = INVALID_PATTERN;
-        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'El usuario no ha sido encontrado';
+		SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'El patrón ingresado no existe', MYSQL_ERRNO = INVALID_PATTERN;
     END IF;
     
     SET @UserId = 0;
@@ -797,7 +787,7 @@ BEGIN
     AND Users.Lastname = pLastName;
     
     IF(@UserId = 0) THEN
-		SIGNAL SQLSTATE '45000' SET MYSQL_ERRNO = INVALID_USER;
+		SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'El usuario ingresado no existe', MYSQL_ERRNO = INVALID_USER;
     END IF;
     
     SET @ProjectId = 0;
@@ -806,7 +796,7 @@ BEGIN
     AND Projects.Name = pProjectName;
     
     IF(@ProjectId = 0) THEN
-		SIGNAL SQLSTATE '45000' SET MYSQL_ERRNO = INVALID_PROJECT;
+		SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Proyecto inválido', MYSQL_ERRNO = INVALID_PROJECT;
     END IF;
 
     IF pTransactionCount=0 THEN
@@ -870,8 +860,7 @@ BEGIN
     AND Users.Lastname = pLastName;
     
     IF (@UserId=0) THEN
-        SIGNAL SQLSTATE '45000' SET MYSQL_ERRNO = INVALID_USER;
-        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'El usuario no ha sido encontrado';
+        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'El usuario ingresado no existe', MYSQL_ERRNO = INVALID_USER;
     END IF;
     
     SET @PatternId=0;
