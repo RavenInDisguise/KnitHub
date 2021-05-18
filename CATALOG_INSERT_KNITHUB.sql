@@ -146,7 +146,11 @@ VALUES
 
 
 -- ENTITY TYPES:
-
+INSERT INTO `KnitHub`.`EntityTypes` (`EntityTypeId`, `Name`)
+VALUES
+(1, "Entity Type 1"),
+(2, "Entity Type 2"),
+(3, "Entity Type 3");
 
 -- RECURRENCES TYPES:
 INSERT INTO `KnitHub`.`RecurrencesTypes`
