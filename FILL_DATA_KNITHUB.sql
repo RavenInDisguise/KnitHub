@@ -313,12 +313,6 @@ SET Checksum = SHA2(CONCAT(PaymentAttemptId,PostTime, Amount,CurrencySymbol,Refe
 PaymentTimeStamp,ComputerName,Username,IPAddress,UserId,MerchantId,PaymentStatusId,(SELECT SUBSTRING(Description, 0, 3))), 256);
 
 
-INSERT INTO `KnitHub`.`EntityTypes` (`EntityTypeId`, `Name`)
-VALUES
-(1, "Entity Type 1"),
-(2, "Entity Type 2"),
-(3, "Entity Type 3");
-
 INSERT INTO `KnitHub`.`Transactions`
 (`TransactionId`, `Checksum`, `PostTime`, `ReferenceNumber`, `Amount`, `Description`, `PaymentAttemptId`,
 `TransTypeId`, `SubTypeId`, `EntityTypeId`)
