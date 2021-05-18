@@ -23,15 +23,18 @@ module.exports = class SPController {
         const { username } = req.body;
         const { userlastname } = req.body;
         const { patterntitle } = req.body;
-        console.log(macaddress,", ",username," and ", userlastname," and ", patterntitle)
+        const { macaddressO } = req.body;
+        const { usernameO } = req.body;
+        const { userlastnameO } = req.body;
+        console.log(macaddress,", ",username,", ", userlastname,", ", patterntitle,", ",macaddressO,", ",usernameO,", ", userlastnameO)
         console.log(`Request from ${req.ip} to  path ${req.url}.`)
         if (!macaddress || !username || !userlastname || !patterntitle){
             console.log(`Request from ${req.ip} to  path ${req.url} was invalid, code 418, no data.`)
             res.status(418).send({ message: 'There was an error.' })
         }
         else{    
-            this.dbconnection.execute('CALL CompraPatrones (?,?,?,?)',
-            [macaddress,username,userlastname,patterntitle],
+            this.dbconnection.execute('CALL CompraPatrones (?,?,?,?,?,?,?)',
+            [macaddress,username,userlastname,patterntitle,macaddressO,usernameO,userlastnameO],
             (err, data, fields) => {
                 if (err) throw err;
                 res.status(200).json({data})
