@@ -36,8 +36,6 @@ INSERT INTO `KnitHub`.`SubTypes`
 VALUES
 (2,'Plan');
 
-
-
 -- PAYMENTSTATUS:
 INSERT INTO `KnitHub`.`PaymentStatus`
 (`PaymentStatusId`,
@@ -62,8 +60,6 @@ INSERT INTO `KnitHub`.`PaymentStatus`
 `Name`)
 VALUES
 (4,'Error de comunicacion');
-
-
 
 -- MERCHANTS:
 INSERT INTO `KnitHub`.`Merchants`

@@ -1,0 +1,15 @@
+53000: Invalid user
+53001: Invalid pattern
+53002: Invalid plan
+53003: Invalid project
+53004: Invalid pattern category
+53005: User does not have plan
+53006: Pattern is not on sale
+53007: Invalid merchant
+53008: Invalid Transtype
+53009: Invalid Payment Attempt
+53010: Invalid Transaction
+53011: Pattern name in use
+53012: Project name in use
+53013: Invalid price
+53014: User has already bought the pattern

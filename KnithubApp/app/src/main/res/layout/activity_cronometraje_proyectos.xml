@@ -1,0 +1,128 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#FFFFFF"
+    android:backgroundTint="#86D3F1"
+    tools:context=".CronometrajeProyectos">
+
+    <Button
+        android:id="@+id/buttonCronProj"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="15dp"
+        android:text="Mostar Datos"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/tittleEntry" />
+    <EditText
+        android:id="@+id/macAddressEntry"
+        style="@android:style/Widget.AutoCompleteTextView"
+        android:layout_width="300dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="36dp"
+        android:backgroundTint="#86D3F1"
+        android:ems="10"
+        android:hint="MacAddress"
+        android:inputType="textPersonName"
+        android:textColor="#FFFFFF"
+        android:textColorHint="#FFFFFF"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.495"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+
+    <EditText
+        android:id="@+id/nameEntry"
+        style="@android:style/Widget.AutoCompleteTextView"
+        android:layout_width="300dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="30dp"
+        android:backgroundTint="#86D3F1"
+        android:ems="10"
+        android:hint="Nombre"
+        android:inputType="textPersonName"
+        android:textColor="#FFFFFF"
+        android:textColorHint="#FFFFFF"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/macAddressEntry" />
+
+    <EditText
+        android:id="@+id/tittleEntry"
+        style="@android:style/Widget.AutoCompleteTextView"
+        android:layout_width="300dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="30dp"
+        android:backgroundTint="#86D3F1"
+        android:ems="10"
+        android:hint="Nombre del proyecto"
+        android:inputType="textPersonName"
+        android:textColor="#FFFFFF"
+        android:textColorHint="#FFFFFF"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.495"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/lastNameEntry" />
+
+    <EditText
+        android:id="@+id/lastNameEntry"
+        style="@android:style/Widget.AutoCompleteTextView"
+        android:layout_width="300dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="30dp"
+        android:backgroundTint="#86D3F1"
+        android:ems="10"
+        android:hint="Apellido"
+        android:inputType="textPersonName"
+        android:textColor="#FFFFFF"
+        android:textColorHint="#FFFFFF"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.495"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/nameEntry" />
+
+    <TextView
+        android:id="@+id/NombreComprador3"
+        android:layout_width="300dp"
+        android:layout_height="20dp"
+        android:layout_marginTop="15dp"
+        android:hint="Nombre"
+        android:text="Nombre usuario"
+        android:textColor="#FFFFFF"
+        android:textColorHint="#FFFFFF"
+        android:visibility="invisible"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/buttonCronProj" />
+
+    <TextView
+        android:id="@+id/nombrePlan3"
+        android:layout_width="300dp"
+        android:layout_height="20dp"
+        android:layout_marginTop="15dp"
+        android:text="Nombre Patron"
+        android:textColor="#FFFFFF"
+        android:visibility="invisible"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.504"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/NombreComprador3" />
+
+    <TextView
+        android:id="@+id/tiempoTrans3"
+        android:layout_width="300dp"
+        android:layout_height="20dp"
+        android:layout_marginTop="15dp"
+        android:text="Tiempo Transcurrido"
+        android:textColor="#FFFFFF"
+        android:visibility="invisible"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.495"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/nombrePlan3" />
+
+</android.support.constraint.ConstraintLayout>
