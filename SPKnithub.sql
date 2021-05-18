@@ -60,7 +60,7 @@ BEGIN
 		SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'El patrón ingresado no existe', MYSQL_ERRNO = INVALID_PATTERN;
 	END IF;
     
-    SELECT payment_transactions.`PersonName`, payment_transactions.`TransAmount`, payment_transactions.`TransPosttime`, 
+    /* SELECT payment_transactions.`PersonName`, payment_transactions.`TransAmount`, payment_transactions.`TransPosttime`, 
     payment_transactions.`TransType`, Patterns.`Title`, PatternCategories.`Name`,
     payment_transactions.`MerchantName`, payment_transactions.`PaymentStatus`
     FROM payment_transactions
@@ -68,7 +68,18 @@ BEGIN
     INNER JOIN CategoriesPerPattern ON CategoriesPerPattern.`PatternId`=@PatternId
     INNER JOIN PatternCategories ON PatternCategories.`PatternCategoryId`=CategoriesPerPattern.`PatternCategoryId`
     WHERE payment_transactions.`UserId`=@UserId
-    AND Patterns.PatternId=@PatternId;
+    AND Patterns.PatternId=@PatternId; */
+    
+    SELECT payment_transactions.`PersonName`, payment_transactions.`TransAmount`, payment_transactions.`TransPosttime`, 
+    payment_transactions.`TransType`, Patterns.`Title`, PatternCategories.`Name`,
+    payment_transactions.`MerchantName`, payment_transactions.`PaymentStatus`
+    FROM payment_transactions
+    INNER JOIN PurchasedPatternsPerUser ON PurchasedPatternsPerUser.UserId=payment_transactions.UserId
+    INNER JOIN Patterns ON PurchasedPatternsPerUser.PatternId=Patterns.PatternId
+    INNER JOIN CategoriesPerPattern ON CategoriesPerPattern.`PatternId`=Patterns.PatternId
+    INNER JOIN PatternCategories ON PatternCategories.`PatternCategoryId`=CategoriesPerPattern.`PatternCategoryId`
+    WHERE PurchasedPatternsPerUser.UserId=@UserId
+    AND PurchasedPatternsPerUser.PatternId=@PatternId;
 END//
 DELIMITER ;
 
