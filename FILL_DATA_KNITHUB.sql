@@ -39,6 +39,7 @@ BEGIN
     SET @UserId = 0;
 
     SET @PatternCategoryId = 0;
+    SET @PriceValueId = 0;
 
 	WHILE @Cantidad <= 500 DO
         SET @PatternId = @Cantidad;
@@ -58,6 +59,15 @@ BEGIN
         INSERT INTO CategoriesPerPattern (PatternCategoryId, PatternId) 
         VALUES (@PatternCategoryId, @PatternId);
         -- -------------------------------------------------------------------------------------------
+        
+        SET @OnSale = FLOOR( RAND()*(1-0+1)+0 );
+        
+        IF(@OnSale=1) THEN 
+			SELECT PriceValueId INTO @PriceValueId FROM PriceValues ORDER BY RAND() LIMIT 1;
+			
+			INSERT INTO PatternsOnSale (Date, OnSale, PatternId, PriceValueId)
+            VALUES (SYSDATE(), @OnSale, @PatternId, @PriceValueId);
+		END IF;
         
 		SET @Cantidad = @Cantidad + 1;
 	END WHILE;
@@ -130,4 +140,32 @@ BEGIN
 END //
 DELIMITER ;
 
--- Me queda pendiente el FillTransactions() porque tengo algunas preguntas :D
+DROP PROCEDURE IF EXISTS FillPlansPerUser;
+DELIMITER //
+CREATE PROCEDURE FillPlansPerUser()
+BEGIN
+    DECLARE PostTime DATETIME;
+    DECLARE NextTime DATETIME;
+    
+    SET @Cantidad = 1;
+    SET @UserId = 1;
+    SET @PlanId = 1;
+    SET @TransactionId = 1;
+
+	WHILE @Cantidad <= 500 DO
+    
+		SET PostTime = SYSDATE();
+		SET NextTime = DATE_ADD(SYSDATE(), INTERVAL (RAND()*(365-15)+15) DAY);
+        SELECT UserId INTO @UserId FROM Users ORDER BY RAND() LIMIT 1;
+        SELECT PlanId INTO @PlanId FROM Plans ORDER BY RAND() LIMIT 1;
+        SELECT TransactionId INTO @TransactionId FROM Transactions ORDER BY RAND() LIMIT 1;
+        
+		INSERT INTO PlansPerUser (PostTime, NextTime, UserId, PlanId, TransactionId)
+		VALUES (PostTime, NextTime, @UserId, @PlanId, @TransactionId);
+        
+		SET @Cantidad = @Cantidad + 1; 
+	END WHILE; 
+END //
+DELIMITER ;
+
+
