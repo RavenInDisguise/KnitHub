@@ -26,6 +26,29 @@ BEGIN
 END //
 DELIMITER ;
 
+DROP PROCEDURE IF EXISTS FillPriceValues;
+DELIMITER //
+CREATE PROCEDURE FillPriceValues()
+BEGIN
+    DECLARE CreationDate DATETIME;
+    
+    SET @Cantidad = 1;
+    SET @Id = 1;
+    SET @Price = 1;
+
+	WHILE @Cantidad <= 100 DO
+        SET @Id = @Cantidad;
+        SET @Price = RAND()*(50000-500+1)+500;
+        
+		INSERT INTO PriceValues (PriceValueId, StartDate, Active, Price, CurrencySymbol)
+		VALUES (@Id, SYSDATE(), 1, @Price, '₡');
+        
+        
+		SET @Cantidad = @Cantidad + 1;
+	END WHILE;
+END //
+DELIMITER ;
+
 DROP PROCEDURE IF EXISTS FillPatterns;
 DELIMITER //
 CREATE PROCEDURE FillPatterns()
