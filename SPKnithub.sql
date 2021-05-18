@@ -6,7 +6,10 @@ CREATE PROCEDURE CompraPatrones
 	IN pMacAddress VARCHAR(20),
     IN pName NVARCHAR(50),
     IN pLastName NVARCHAR(50),
-    IN pPatternTitle VARCHAR(45)
+    IN pPatternTitle VARCHAR(45),
+	IN pOwnerMacAddress VARCHAR(20),
+    IN pOwnerName NVARCHAR(50),
+    IN pOwnerLastName NVARCHAR(50)
 )
 BEGIN
 	DECLARE INVALID_USER INT DEFAULT(53000);
@@ -38,10 +41,21 @@ BEGIN
 		SIGNAL SQLSTATE '45000' SET MYSQL_ERRNO = INVALID_USER;
     END IF;
     
+    SET @OwnerUserId = 0;
+    SELECT UserId INTO @OwnerUserId FROM Users
+    WHERE Users.MacAddress=pOwnerMacAddress
+    AND Users.`Name`=pOwnerName
+    AND Users.LastName=pOwnerLastName;
+    
+    IF (@OwnerUserId=0) THEN
+		SIGNAL SQLSTATE '45000' SET MYSQL_ERRNO = INVALID_USER;
+        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'El usuario no ha sido encontrado';
+    END IF;
+    
     SET @PatternId = 0;
     SELECT PatternId INTO @PatternId FROM Patterns
     WHERE Patterns.Title=pPatternTitle
-    AND Patterns.UserId=@UserId;
+    AND Patterns.UserId=@OwnerUserId;
     
     IF(@PatternId=0) THEN
 		SIGNAL SQLSTATE '45000' SET MYSQL_ERRNO = INVALID_PATTERN;
@@ -51,7 +65,7 @@ BEGIN
     payment_transactions.`TransType`, Patterns.`Title`, PatternCategories.`Name`,
     payment_transactions.`MerchantName`, payment_transactions.`PaymentStatus`
     FROM payment_transactions
-    INNER JOIN Patterns ON Patterns.UserId = payment_transactions.`UserId`
+    INNER JOIN Patterns ON Patterns.UserId = @OwnerUserId
     INNER JOIN CategoriesPerPattern ON CategoriesPerPattern.`PatternId`=@PatternId
     INNER JOIN PatternCategories ON PatternCategories.`PatternCategoryId`=CategoriesPerPattern.`PatternCategoryId`
     WHERE payment_transactions.`UserId`=@UserId
