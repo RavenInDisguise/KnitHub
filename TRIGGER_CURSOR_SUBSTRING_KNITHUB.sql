@@ -19,6 +19,49 @@ ON Patterns FOR EACH ROW
 DELIMITER ;
 
 -- Cursor:
+DROP PROCEDURE IF EXISTS GenerarProyecto;
+DELIMITER //
+CREATE PROCEDURE GenerarProyecto
+(
+)
+BEGIN
+    DECLARE done INT DEFAULT FALSE;
+    DECLARE Cursor_AmountSpent DECIMAL(5,2);
+    DECLARE Cursor_MaterialId INT;
+    DECLARE Cursor_PatternId BIGINT;
+    DECLARE Cursor_MeasureUnitId INT;
+    DECLARE Materials_Cursor CURSOR FOR SELECT AmountSpent, MaterialId, PatternId, MeasureUnitId FROM MaterialsPerPattern;  -- WHERE PatternId = @PatternId;
+    DECLARE CONTINUE HANDLER FOR NOT FOUND SET done = TRUE;
+    
+	DECLARE EXIT HANDLER FOR SQLEXCEPTION
+    BEGIN
+		GET DIAGNOSTICS CONDITION 1 @err_no = MYSQL_ERRNO, @message = MESSAGE_TEXT;
+        IF (ISNULL(@message)) THEN
+			SET @message = 'Se ha producido un error';            
+        ELSE
+            SET @message = CONCAT('Internal error: ', @message);
+        END IF;
+        ROLLBACK;
+        RESIGNAL SET MESSAGE_TEXT = @message;
+	END;
+
+        -- Insertar los materiales del patrón al proyecto mediante un cursor
+        OPEN Materials_Cursor;
+		readMaterials : LOOP
+			FETCH Materials_Cursor INTO Cursor_AmountSpent, Cursor_MaterialId, Cursor_PatternId, Cursor_MeasureUnitId;
+			IF done THEN
+				LEAVE readMaterials;
+			END IF;
+            IF Cursor_PatternId = @PatternId THEN
+				INSERT INTO MaterialsPerProject (AmountSpent, MaterialId, ProjectId, MeasureUnitId)
+				VALUES (Cursor_AmountSpent, Cursor_MaterialId, @LastProjectId, Cursor_MeasureUnitId);
+            END IF;
+		END LOOP;
+        CLOSE Materials_Cursor;
+	COMMIT;
+    SELECT * FROM MaterialsPerProject; -- Es solo para revisar que se estén transfiriendo bien, cuando esté terminado y bien probado se puede quitar
+END//
+DELIMITER ;
 
 -- Substring: 
 -- Se hace uso del substring para generar los checksums:

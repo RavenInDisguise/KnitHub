@@ -1,4 +1,4 @@
---  Insertar N pasos a un patrón
+--  13. Insertar N pasos a un patrón:
 DROP PROCEDURE IF EXISTS LoadStepsIntoPattern;
 DELIMITER //
 CREATE PROCEDURE LoadStepsIntoPattern
