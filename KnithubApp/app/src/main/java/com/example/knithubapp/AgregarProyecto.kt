@@ -39,7 +39,7 @@ class AgregarProyecto : AppCompatActivity() {
     }
 
     private fun registrarPoyecto(macEntry: String, nameEntry: String, lastNameEntry: String, projName: String, projPat: String, pricePerHour: String){
-        val url = "http://192.168.8.102:8080/knithub/add/projects"
+        val url = "http://192.168.8.102:8081/knithub/add/projects"
         val client = OkHttpClient()
         val json = "application/json; charset=utf-8".toMediaType()
         val jsonString = ("{\"macaddress\":\"$macEntry\",\"userName\":\"$nameEntry\",\"lastName\":\"$lastNameEntry\",\"patternName\":\"$projPat\",\"projectName\":\"$projName\",\"pricePerHour\":\"$pricePerHour\"}")
