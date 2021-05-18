@@ -38,7 +38,7 @@ BEGIN
     AND Users.Lastname=pLastName;
     
     IF(@UserId=0) THEN
-		SIGNAL SQLSTATE '45000' SET MYSQL_ERRNO = INVALID_USER;
+		SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'El usuario ingresado no existe', MYSQL_ERRNO = INVALID_USER;
     END IF;
     
     SET @OwnerUserId = 0;
@@ -48,8 +48,7 @@ BEGIN
     AND Users.LastName=pOwnerLastName;
     
     IF (@OwnerUserId=0) THEN
-		SIGNAL SQLSTATE '45000' SET MYSQL_ERRNO = INVALID_USER;
-        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'El usuario no ha sido encontrado';
+		SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'El usuario (creador del patrón) ingresado no existe', MYSQL_ERRNO = INVALID_USER;
     END IF;
     
     SET @PatternId = 0;
@@ -58,7 +57,7 @@ BEGIN
     AND Patterns.UserId=@OwnerUserId;
     
     IF(@PatternId=0) THEN
-		SIGNAL SQLSTATE '45000' SET MYSQL_ERRNO = INVALID_PATTERN;
+		SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'El patrón ingresado no existe', MYSQL_ERRNO = INVALID_PATTERN;
 	END IF;
     
     SELECT payment_transactions.`PersonName`, payment_transactions.`TransAmount`, payment_transactions.`TransPosttime`, 
