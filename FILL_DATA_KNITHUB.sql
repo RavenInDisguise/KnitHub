@@ -233,7 +233,7 @@ BEGIN
 		INSERT INTO PaymentAttempts (PaymentAttemptId, PostTime, Amount, CurrencySymbol, ReferenceNumber, MerchantTransNumber,
         PaymentTimeStamp, ComputerName, Username, IPAddress, Checksum, Description, UserId, MerchantId, PaymentStatusId)
 		VALUES (@Id, SYSDATE(), @Amount, '₡', @Reference, @Merchant, CURRENT_TIMESTAMP(), @ComputerName, @Nickname, @IP,
-        @Checksum, @Description, @UserId, @MerchantId, @PaymentStatus);
+        @Checksum, @Description, @UserId, @MerchantId, @PaymentStatusId);
         
         INSERT INTO Transactions (TransactionId, Checksum, PostTime, ReferenceNumber, Amount, Description, PaymentAttemptId,
         TransTypeId, SubTypeId, EntityTypeId)
