@@ -8,7 +8,7 @@ module.exports = class SPController {
         try
         {
             this.dbconnection = mysql.createConnection({
-            host: 'localhost',
+            host: 'knithub',
             user: 'root',
             password: '123456',
             database: 'KnitHub'
