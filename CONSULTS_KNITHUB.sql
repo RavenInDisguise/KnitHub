@@ -2,10 +2,10 @@
 -- aquellos dineros que no se han podido cobrar, en el query debe poder verse las categorías, nombres
 -- y montos debidamente agrupados.
 SELECT 
-CONCAT(Users.Name,' ',Users.LastName) AS 'Usuarios',
-MONTH(PaymentAttempts.PostTime) AS 'Mes',
 YEAR(PaymentAttempts.PostTime) AS 'Anno',
-SUM(PaymentAttempts.Amount) AS NotPayedAmounts
+MONTH(PaymentAttempts.PostTime) AS 'Mes',
+CONCAT(Users.Name,' ',Users.LastName) AS 'Usuario',
+SUM(PaymentAttempts.Amount) AS 'Montos no pagados'
 FROM PaymentAttempts
 INNER JOIN Users ON PaymentAttempts.UserId=Users.UserId
 WHERE PaymentAttempts.PaymentStatusId!=(SELECT (PaymentStatus.PaymentStatusId) FROM PaymentStatus WHERE PaymentStatus.Name="Aceptado")
@@ -18,16 +18,17 @@ ORDER BY 'Mes' DESC, 'Anno' DESC;
 -- fechas, clasificado entre bajo volumen, volumen medio y volumen alto
 
 -- Valores seteados por el usuario:
--- SET @MINDATE="";
--- SET @MAXDATE="";
+-- SET @MINDATE="2019-06-11";
+-- SET @MAXDATE="2022-06-11";
 
-SELECT MONTH(Mes) 'Mes', count(*) 'Volumen proyectos y patrones', 
+SELECT YEAR(Mes) 'Anno', MONTH(Mes) 'Mes', count(*) 'Volumen proyectos y patrones', 
 CASE
-    WHEN COUNT(*) < 500  THEN 'Volumen bajo'
-    WHEN 500 < COUNT(*) < 1000  THEN 'Volumen medio'
-    WHEN COUNT(*) > 1000  THEN 'Volumen alto'
+    WHEN COUNT(*) <= 30  THEN 'Volumen bajo'
+    WHEN 30 < COUNT(*) AND COUNT(*) <= 50  THEN 'Volumen medio'
+    WHEN COUNT(*) > 50  THEN 'Volumen alto'
 END AS 'Clasificacion de volumen'
 FROM (SELECT Patterns.creationDate AS Mes FROM Patterns WHERE (@MINDATE < Patterns.creationDate AND Patterns.creationDate < @MAXDATE)
 UNION ALL
 SELECT Projects.creationDate AS Mes FROM Projects WHERE (@MINDATE < Projects.creationDate AND Projects.creationDate < @MAXDATE)) Dates
-GROUP BY MONTH(Mes);
+GROUP BY MONTH(Mes), YEAR(Mes)
+ORDER BY YEAR(Mes) DESC, MONTH(Mes) ASC;
