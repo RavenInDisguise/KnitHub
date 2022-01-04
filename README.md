@@ -1,10 +1,80 @@
+# English - Inglés
+# KnitHub 🧶
+Development of a relational database using MYSQL, as well as its NodeJS and Java APIs, in addition, a demo using Kotlin for the Databases I course at Tecnológico de Costa Rica. I Semester, 2021.
+
+# Choosen system
+[Pre-proyecto BDI.pdf](https://github.com/RavenInDisguise/KnitHub/files/7805282/Pre-proyecto.BDI.pdf)
+
+## Agreed implementations
+
+### Functions to implement, Consumer, Backoffice, others:
+* Users based on the access device.
+* Optional a nickname and optional link to a social network.
+* As a consumer I can record my patterns which are step by step descriptions of movements, types of needles, fabrics, colors, yarns.
+* Also the user can start new projects to keep track of time, materials, patterns and others used in the project.
+* A pattern can be published to the Marketplace.
+* There must be a level of restriction in the free tier regarding patterns and projects.
+* In the patterns you could attach photos and videos to serve as a guide.
+* Some way to categorize the patterns based on your application and also search by names.
+* People upload the patterns to the store, with the price they want, and the platform earns a fee for the transaction.
+* There must be one-time payments, similar to buying a mobile app, the fees should be configurable.
+* Events log.
+* First Central American version, do it via payment gateway. Functions that will not be implemented.
+* Exchange of ideas, friends and social.
+* Comments, reviews.
+* Qualification of employers or people.
+* Backoffice functions.
+* There is no multi-currency or multi-language.
+
+### Where there are transactions:
+* Employer payments.
+* Subscription plans above the free tier.
+* Save a project.
+
+### Sensitive information: 
+* Monetary payments.
+
+## Project instructions 
+The system, or the application that is mentioned in the statement of this project corresponds to the system that your working group negotiated with the professor. At the end of this statement you can find its corresponding file where it is detailed which things should be included in the project, which ones are left out, and also two categories that will be mentioned in the statement are classified: transactions and sensitive information, which are defined in the token.
+
+### Realize relational databases:
+
+1. Based on the defined system, proceed to perform the following tasks:
+2. Design and implementation of the database in MySQL, the design must be done in workbench or some other ER modeling tool that generates code for MySQL
+3. The database engine must be run as a Docker container.
+4. The scripts, source code and any other file must be delivered as a github repository, there must be a main branch where the project will be reviewed, another develop branch where the merge and tests will be done before moving to the official version in main, finally at least one branch per group member. The commits of all the members will be reviewed throughout the duration of the project, with last minute commits being negative for students. It is recommended to use the gitflow methodology.
+5. The initial database creation script will be done only once, for this, you must do the design and will have the right to two checks with the teacher, once you have the stable version proceed to generate the creation script and upload it to github, then all the other changes to the DB, stored procedures, scripts and others, you must bring them with version control using flyway.
+6. The following tasks can be performed in a single script in multiple script files, the latter is recommended.
+7. Script to fill the database for the catalog information that is necessary for the operation of the database.
+8. Create at least two views that are useful for the system, remember that views are useful when you need to see certain information together from several tables that the relational model keeps separate.
+9. Create at least 4 stored procedures that perform read operations that make sense and are useful for the system and that these stored procedures make use of the views.
+10. Write two transactional stored procedures, useful for the system that writes in at least 3 tables
+11. Make a select that creates a dynamic column in a query whose dynamic column seeks to generate possible data groups, the CASE statement is recommended.
+12. Create a transactional stored procedure that calls within the transaction another transactional SP and this one another SP that is also transactional. (Two-tier). Each stored procedure must affect at least two tables. Demonstrate the operation of commit and rollback in this SP, to test it, it is only invoked with correct values and with incorrect values.
+13. Create a stored procedure that returns the result of a query of at least 3 joined tables in json format.
+Create a stored procedure that inserts N records in a table, taking the correctly identified data from a temporary table free of restrictions that was previously filled.
+14. No stored procedure should receive IDs by parameter, they always receive names and with these the IDs within the SPs are found.
+15. Create a query (s) for each of the following types of statements and / or operators in such a way that their use is clearly demonstrated:
+to. Use of a cursor.
+b. Use of a trigger.
+c. A substring.
+16. A query that returns a list of the amounts and people, categorized by year and month of those monies that could not be collected, in the query it should be possible to see the categories, names and amounts duly grouped
+17. A query that returns the volume of operations of use of the system per month in a range of dates, classified between low volume, medium volume and high volume
+18. Read API, proceed to implement in nodejs an api using REST over HTTP, which must have a minimum of routers, handlers and the implementation, for this create a single generic class that is capable of calling any SP in the database , the implementations make use of this class to make the specific calls to the SPs, include in the API at least the necessary methods to access the 4 stored reading procedures, you can add more if necessary. The server for this backend must be running as a Docker container. The use of an existing boilerplate is recommended.
+19. Write API, proceed to implement an API in Java, using REST over HTTP, in this case use it to access the transactional SP that you implemented previously, in the same way, create a generic class that can access the DB and call to any SP, the implementation classes are the ones who know the specific calls.
+20. Implement a small demo in kotlin if it is a mobile or web app, using pure javascript, or reactJS, the above depends on the application your group selected. This demo is for your application and you should only call those methods that the APIs offer, remember that it is a demo, the priority of this course falls on the database and its implementation, the apis and the demo are only to demonstrate access and use of the database. Choose carefully which SP to implement in a way that makes sense for the demo and apis. 
+
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+# Spanish - Español 
 # KnitHub 🧶
 Desarrollo de una base de datos relacional usando MYSQL, así como sus APIs de NodeJS y Java, además, una demo haciendo uso de Kotlin para el curso Bases de Datos I del Tecnológico de Costa Rica. I Semestre, 2021.
 
 # Sistema elegido
 [Pre-proyecto BDI.pdf](https://github.com/RavenInDisguise/KnitHub/files/7805282/Pre-proyecto.BDI.pdf)
 
-## Implementaciones acordadas:
+## Implementaciones acordadas
 
 ### Funciones a implementar, Consumer, Backoffice, otros:
 * Usuarios basados en el dispositivo de acceso.
@@ -49,7 +119,7 @@ Basado en el sistema definido proceda a realizar las siguientes tareas:
 7. Cree al menos dos vistas que sean útiles para el sistema, recuerde que las vistas son útiles cuando se requiere ver cierta información junta de varias tablas que el modelo relacional mantiene separadas.
 8. Cree al menos 4 stored procedures que realicen operaciones de lectura que tengan sentido y sean útiles para el sistema y que dichos stored procedures hagan uso de las vistas.
 9. Escriba dos stored procedure transaccionales, útiles para el sistema que haga escritura en al menos 3 tablas
-10. Haga un select que cree una columna dinámica en una consulta cuya columna dinámica busque generar posibles grupos de datos, se recomienda la instrucción CASE
+10. Haga un select que cree una columna dinámica en una consulta cuya columna dinámica busque generar posibles grupos de datos, se recomienda la instrucción CASE.
 11. Cree un stored procedure transaccional que llame dentro de la transacción a otro SP transaccional y este a otro SP que también sea transaccional. (De dos niveles). Cada stored procedure debe afectar al menos a dos tablas. Demuestre en este SP el funcionamiento del commit y el rollback, para probarlo tan solo se invoca con valores correctos y con valores incorrectos.
 12. Cree un stored procedure que retorne el resultado de una consulta de al menos 3 tablas unidas en formato json.
 13. Cree un stored procedure que inserte N registros en una tabla, tomando los datos correctamente identificados de una tabla temporal libre de restricciones que fue previamente llenada.
