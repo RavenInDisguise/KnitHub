@@ -4,8 +4,9 @@ Desarrollo de una base de datos relacional usando MYSQL, así como sus APIs de N
 # Sistema elegido
 [Pre-proyecto BDI.pdf](https://github.com/RavenInDisguise/KnitHub/files/7805282/Pre-proyecto.BDI.pdf)
 
-Implementaciones acordadas:
-Funciones a implementar, Consumer, Backoffice, otros:
+## Implementaciones acordadas:
+
+### Funciones a implementar, Consumer, Backoffice, otros:
 * Usuarios basados en el dispositivo de acceso.
 * Opcional un nickname y opcional ligarlo a una red social.
 * Como consumidor puedo grabar mis patrones que son descripciones paso a paso de los movimientos, tipos de agujas, telas, colores, lanas.
@@ -24,12 +25,12 @@ Funciones a implementar, Consumer, Backoffice, otros:
 * Funciones de backoffice.
 * No hay multimoneda ni multi idioma.
 
-Donde hay transacciones:
+### Donde hay transacciones:
 * Pagos de los patrones.
 * Planes de suscripción por encima del free tier.
 * Grabar un proyecto.
  
-Información sensible:
+### Información sensible:
 * Pagos monetarios.
 
 ## Instrucciones del proyecto
